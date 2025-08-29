@@ -9,3 +9,13 @@ export function getHost () {
 
   return `https://fcp-defra-id-stub.${environment}.cdp-int.defra.cloud`
 }
+
+export function getApiHost () {
+  const host = getHost()
+
+  if (host.includes('localhost')) {
+    return host.replace('localhost', 'host.docker.internal')
+  }
+
+  return host
+}
