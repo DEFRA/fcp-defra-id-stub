@@ -1,6 +1,6 @@
 import Joi from 'joi'
 import { validateCredentials } from '../auth/validate-credentials.js'
-import { createAccessCode } from '../auth/create-access-code.js'
+import { createTokens } from '../auth/token.js'
 
 const signIn = [{
   method: 'GET',
@@ -30,7 +30,7 @@ const signIn = [{
     const authRequest = request.yar.get('auth-request')
     request.yar.clear('auth-request')
 
-    const accessCode = createAccessCode()
+    const { accessCode } = createTokens(crn)
     return h.redirect(`${authRequest.redirect_uri}?code=${accessCode}&state=${authRequest.state}`)
   }
 }]

@@ -1,14 +1,15 @@
-import { getHost } from './get-host.js'
+import { getHost, getApiHost } from './get-host.js'
 
 export function getWellKnown () {
-  const host = getHost()
+  const redirectHost = getHost()
+  const apiHost = getApiHost()
 
   return {
-    issuer: `${host}/131a35fb-0422-49c9-8753-15217cec5411/v2.0/`,
-    authorization_endpoint: `${host}/dcidmtest.onmicrosoft.com/b2c_1a_cui_cpdev_signupsigninsfi/oauth2/v2.0/authorize`,
-    token_endpoint: `${host}/dcidmtest.onmicrosoft.com/b2c_1a_cui_cpdev_signupsigninsfi/oauth2/v2.0/token`,
-    end_session_endpoint: `${host}/idphub/b2c/b2c_1a_cui_cpdev_signupsigninsfi/signout`,
-    jwks_uri: `${host}/dcidmtest.onmicrosoft.com/b2c_1a_cui_cpdev_signupsigninsfi/discovery/v2.0/keys`,
+    issuer: `${apiHost}/131a35fb-0422-49c9-8753-15217cec5411/v2.0/`,
+    authorization_endpoint: `${redirectHost}/dcidmtest.onmicrosoft.com/b2c_1a_cui_cpdev_signupsigninsfi/oauth2/v2.0/authorize`,
+    token_endpoint: `${apiHost}/dcidmtest.onmicrosoft.com/b2c_1a_cui_cpdev_signupsigninsfi/oauth2/v2.0/token`,
+    end_session_endpoint: `${redirectHost}/idphub/b2c/b2c_1a_cui_cpdev_signupsigninsfi/signout`,
+    jwks_uri: `${apiHost}/dcidmtest.onmicrosoft.com/b2c_1a_cui_cpdev_signupsigninsfi/discovery/v2.0/keys`,
     response_modes_supported: [
       'query',
       'fragment',

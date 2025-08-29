@@ -1,4 +1,5 @@
 import { getWellKnown } from '../open-id/get-well-known.js'
+import { getTokens, getPublicKeys } from '../auth/token.js'
 
 const wellKnown = {
   method: 'GET',
@@ -18,9 +19,15 @@ const authorization = {
 const token = {
   method: 'POST',
   path: '/dcidmtest.onmicrosoft.com/b2c_1a_cui_cpdev_signupsigninsfi/oauth2/v2.0/token',
-  handler: function (_request, h) {
-    console.log('Token request received')
-    return h.response('token')
+  handler: function (request, h) {
+    const { code } = request.payload
+    const tokens = getTokens(code)
+
+    if (!tokens) {
+      return h.response('Invalid access code').code(401)
+    }
+
+    return h.response(tokens)
   }
 }
 
@@ -36,7 +43,7 @@ const jwks = {
   method: 'GET',
   path: '/dcidmtest.onmicrosoft.com/b2c_1a_cui_cpdev_signupsigninsfi/discovery/v2.0/keys',
   handler: function (_request, h) {
-    return h.response('jwks')
+    return h.response(getPublicKeys())
   }
 }
 
