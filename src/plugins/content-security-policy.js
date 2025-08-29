@@ -10,7 +10,7 @@ export const contentSecurityPolicy = {
     scriptSrc: ['self', "'sha256-GUQ5ad8JK5KmEWmROf3LZd9ge94daqNvd8xy9YS1iDw='"],
     styleSrc: ['self'],
     frameAncestors: ['self'],
-    formAction: ['self'],
+    formAction: ['self', '*'],
     manifestSrc: ['self'],
     generateNonces: true
   }

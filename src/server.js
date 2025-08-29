@@ -1,9 +1,11 @@
 import path from 'node:path'
 import Hapi from '@hapi/hapi'
+import Joi from 'joi'
 import Scooter from '@hapi/scooter'
 import { contentSecurityPolicy } from './plugins/content-security-policy.js'
 import { headers } from './plugins/headers.js'
 import { router } from './plugins/router.js'
+import { session } from './plugins/session.js'
 import { config } from './config/config.js'
 import { pulse } from './common/helpers/pulse.js'
 import { catchAll } from './common/helpers/errors.js'
@@ -45,6 +47,9 @@ export async function createServer () {
       strictHeader: false
     }
   })
+
+  server.validator(Joi)
+
   await server.register([
     Scooter,
     requestLogger,
@@ -55,6 +60,7 @@ export async function createServer () {
     contentSecurityPolicy,
     headers,
     router,
+    session
   ])
 
   server.ext('onPreResponse', catchAll)

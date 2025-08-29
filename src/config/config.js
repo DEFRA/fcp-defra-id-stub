@@ -86,7 +86,7 @@ export const config = convict({
     level: {
       doc: 'Logging level',
       format: ['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'],
-      default: 'info',
+      default: 'warn',
       env: 'LOG_LEVEL'
     },
     format: {
@@ -140,6 +140,14 @@ export const config = convict({
       format: String,
       default: 'x-cdp-request-id',
       env: 'TRACING_HEADER'
+    }
+  },
+  cookie: {
+    password: {
+      doc: 'The password used to encrypt the cookie',
+      format: String,
+      default: 'this-must-be-at-least-32-characters-long',
+      env: 'COOKIE_PASSWORD'
     }
   }
 })

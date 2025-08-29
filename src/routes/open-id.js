@@ -9,8 +9,9 @@ const wellKnown = {
 const authorization = {
   method: 'GET',
   path: '/dcidmtest.onmicrosoft.com/b2c_1a_cui_cpdev_signupsigninsfi/oauth2/v2.0/authorize',
-  handler: function (_request, h) {
-    return h.response('authorization')
+  handler: function (request, h) {
+    request.yar.set('auth-request', request.query)
+    return h.redirect('/dcidmtest.onmicrosoft.com/oauth2/authresp')
   }
 }
 
@@ -18,6 +19,7 @@ const token = {
   method: 'POST',
   path: '/dcidmtest.onmicrosoft.com/b2c_1a_cui_cpdev_signupsigninsfi/oauth2/v2.0/token',
   handler: function (_request, h) {
+    console.log('Token request received')
     return h.response('token')
   }
 }
