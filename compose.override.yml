@@ -1,0 +1,13 @@
+services:
+  fcp-defra-id-stub:
+    ports:
+      - '${FCP_DEFRA_ID_STUB_PORT:-3007}:${FCP_DEFRA_ID_STUB_PORT:-3007}'
+    networks:
+      - fcp-defra-id-stub
+    environment:
+      PORT: ${FCP_DEFRA_ID_STUB_PORT:-3007}
+
+networks:
+  fcp-defra-id-stub:
+    driver: bridge
+    name: fcp-defra-id-stub

@@ -1,5 +1,5 @@
 ARG PARENT_VERSION=2.8.5-node22.16.0
-ARG PORT=3000
+ARG PORT=3007
 ARG PORT_DEBUG=9229
 
 FROM defradigital/node-development:${PARENT_VERSION} AS development
@@ -18,7 +18,7 @@ RUN npm install
 COPY --chown=node:node --chmod=755 . .
 RUN npm run build:frontend
 
-CMD [ "npm", "run", "docker:dev" ]
+CMD [ "npm", "run", "dev" ]
 
 FROM development AS production_build
 

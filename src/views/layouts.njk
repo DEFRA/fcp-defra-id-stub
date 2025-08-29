@@ -1,0 +1,55 @@
+{% extends "govuk/template.njk" %}
+
+{% set mainClasses = "app-main-wrapper" %}
+
+{% block head %}
+  <link href="{{ getAssetPath('stylesheets/application.scss') }}" rel="stylesheet">
+{% endblock %}
+
+{% block header %}
+  {{ govukHeader({
+    homepageUrl: "https://www.gov.uk/",
+    classes: "app-header",
+    containerClasses: "govuk-width-container",
+    serviceName: serviceName,
+    serviceUrl: serviceUrl,
+    useTudorCrown: true
+  }) }}
+{% endblock %}
+
+{% block pageTitle %}
+  {% if pageTitle and pageTitle != serviceName %}{{ pageTitle }} - {% endif %}{{ serviceName }} - GOV.UK
+{% endblock %}
+
+{% block beforeContent %}
+{% endblock %}
+
+{% block content %}{% endblock %}
+
+{% block footer %}
+  {{ govukFooter({
+    meta: {
+      items: [
+        {
+          href: "https://www.gov.uk/help/privacy-notice",
+          text: "Privacy"
+        },
+        {
+          href: "https://www.gov.uk/help/cookies",
+          text: "Cookies"
+        },
+        {
+          href: "https://www.gov.uk/help/accessibility",
+          text: "Accessibility statement"
+        }
+      ],
+      html: 'Built by the <a class="govuk-footer__link" href="https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs" target="_blank" rel="noopener noreferrer">
+            Department for Environment, Food & Rural Affairs
+          </a>'
+    }
+  }) }}
+{% endblock %}
+
+{% block bodyEnd %}
+  <script type="module" nonce="{{ nonce }}" src="{{ getAssetPath('application.js') }}"></script>
+{% endblock %}

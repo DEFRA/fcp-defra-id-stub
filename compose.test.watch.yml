@@ -1,0 +1,3 @@
+services:
+  fcp-defra-id-stub:
+    command: npm run test:watch
