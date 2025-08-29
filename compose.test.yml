@@ -1,0 +1,8 @@
+services:
+  fcp-defra-id-stub:
+    build:
+      target: development
+    command: npm test
+    volumes:
+      - ./test:/home/node/test
+      - ./coverage:/home/node/coverage

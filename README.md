@@ -1,86 +1,23 @@
 # fcp-defra-id-stub
 
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_fcp-defra-id-stub&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=DEFRA_fcp-defra-id-stub)
+![Build](https://github.com/defra/fcp-defra-id-stub/actions/workflows/publish.yml/badge.svg)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_fcp-defra-id-stub&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=DEFRA_fcp-defra-id-stub)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_fcp-defra-id-stub&metric=bugs)](https://sonarcloud.io/summary/new_code?id=DEFRA_fcp-defra-id-stub)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_fcp-defra-id-stub&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=DEFRA_fcp-defra-id-stub)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_fcp-defra-id-stub&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=DEFRA_fcp-defra-id-stub)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_fcp-defra-id-stub&metric=coverage)](https://sonarcloud.io/summary/new_code?id=DEFRA_fcp-defra-id-stub)
 
-Core delivery platform Node.js Frontend Template.
+Defra ID stub for Farming and Countryside Programme.
 
-- [Requirements](#requirements)
-  - [Node.js](#nodejs)
-- [Server-side Caching](#server-side-caching)
-- [Redis](#redis)
-- [Local Development](#local-development)
-  - [Setup](#setup)
-  - [Development](#development)
-  - [Production](#production)
-  - [Npm scripts](#npm-scripts)
-  - [Update dependencies](#update-dependencies)
-  - [Formatting](#formatting)
-    - [Windows prettier issue](#windows-prettier-issue)
-- [Docker](#docker)
-  - [Development image](#development-image)
-  - [Production image](#production-image)
-  - [Docker Compose](#docker-compose)
-  - [Dependabot](#dependabot)
-  - [SonarCloud](#sonarcloud)
-- [Licence](#licence)
-  - [About the licence](#about-the-licence)
+> THIS IS A WORK IN PROGRESS AND NOT YET READY FOR USE
 
 ## Requirements
 
-### Node.js
+### Docker
 
-Please install [Node.js](http://nodejs.org/) `>= v22` and [npm](https://nodejs.org/) `>= v9`. You will find it
-easier to use the Node Version Manager [nvm](https://github.com/creationix/nvm)
+This application is intended to be run in a Docker container to ensure consistency across environments.
 
-To use the correct version of Node.js for this application, via nvm:
-
-```bash
-cd fcp-defra-id-stub
-nvm use
-```
-
-## Server-side Caching
-
-We use Catbox for server-side caching. By default the service will use CatboxRedis when deployed and CatboxMemory for
-local development.
-You can override the default behaviour by setting the `SESSION_CACHE_ENGINE` environment variable to either `redis` or
-`memory`.
-
-Please note: CatboxMemory (`memory`) is _not_ suitable for production use! The cache will not be shared between each
-instance of the service and it will not persist between restarts.
-
-## Redis
-
-Redis is an in-memory key-value store. Every instance of a service has access to the same Redis key-value store similar
-to how services might have a database (or MongoDB). All frontend services are given access to a namespaced prefixed that
-matches the service name. e.g. `my-service` will have access to everything in Redis that is prefixed with `my-service`.
-
-If your service does not require a session cache to be shared between instances or if you don't require Redis, you can
-disable setting `SESSION_CACHE_ENGINE=false` or changing the default value in `src/config/index.js`.
-
-## Proxy
-
-We are using forward-proxy which is set up by default. To make use of this: `import { fetch } from 'undici'` then
-because of the `setGlobalDispatcher(new ProxyAgent(proxyUrl))` calls will use the ProxyAgent Dispatcher
-
-If you are not using Wreck, Axios or Undici or a similar http that uses `Request`. Then you may have to provide the
-proxy dispatcher:
-
-To add the dispatcher to your own client:
-
-```javascript
-import { ProxyAgent } from 'undici'
-
-return await fetch(url, {
-  dispatcher: new ProxyAgent({
-    uri: proxyUrl,
-    keepAliveTimeout: 10,
-    keepAliveMaxTimeout: 10
-  })
-})
-```
+Docker can be installed from [Docker's official website](https://docs.docker.com/get-docker/).
 
 ## Local Development
 
@@ -94,24 +31,36 @@ npm install
 
 ### Development
 
-To run the application in `development` mode run:
+Build the Docker container:
 
-```bash
-npm run dev
+```
+npm run docker:build
 ```
 
-### Production
-
-To mimic the application running in `production` mode locally run:
+Run the application in `development` mode:
 
 ```bash
-npm start
+npm run docker:dev
 ```
 
-### Npm scripts
+### Testing
 
-All available Npm scripts can be seen in [package.json](./package.json)
-To view them in your command line run:
+To test the application:
+
+```bash
+npm run docker:test
+```
+
+Tests can also be run in watch mode to support Test Driven Development (TDD):
+
+```bash
+npm run docker:test:watch
+```
+
+### npm scripts
+
+All available npm scripts can be seen in [package.json](./package.json)
+To view them in your command line:
 
 ```bash
 npm run
@@ -128,72 +77,9 @@ To update dependencies use [npm-check-updates](https://github.com/raineorshine/n
 ncu --interactive --format group
 ```
 
-### Formatting
+## SonarQube Cloud
 
-#### Windows prettier issue
-
-If you are having issues with formatting of line breaks on Windows update your global git config by running:
-
-```bash
-git config --global core.autocrlf false
-```
-
-## Docker
-
-### Development image
-
-> [!TIP]
-> For Apple Silicon users, you may need to add `--platform linux/amd64` to the `docker run` command to ensure
-> compatibility fEx: `docker build --platform=linux/arm64 --no-cache --tag fcp-defra-id-stub`
-
-Build:
-
-```bash
-docker build --target development --no-cache --tag fcp-defra-id-stub:development .
-```
-
-Run:
-
-```bash
-docker run -p 3000:3000 fcp-defra-id-stub:development
-```
-
-### Production image
-
-Build:
-
-```bash
-docker build --no-cache --tag fcp-defra-id-stub .
-```
-
-Run:
-
-```bash
-docker run -p 3000:3000 fcp-defra-id-stub
-```
-
-### Docker Compose
-
-A local environment with:
-
-- Localstack for AWS services (S3, SQS)
-- Redis
-- MongoDB
-- This service.
-- A commented out backend example.
-
-```bash
-docker compose up --build -d
-```
-
-### Dependabot
-
-We have added an example dependabot configuration file to the repository. You can enable it by renaming
-the [.github/example.dependabot.yml](.github/example.dependabot.yml) to `.github/dependabot.yml`
-
-### SonarCloud
-
-Instructions for setting up SonarCloud can be found in [sonar-project.properties](./sonar-project.properties).
+Instructions for setting up SonarQube Cloud can be found in [sonar-project.properties](./sonar-project.properties).
 
 ## Licence
 
