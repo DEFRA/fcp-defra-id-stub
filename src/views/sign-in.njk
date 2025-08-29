@@ -1,0 +1,61 @@
+{% extends 'layouts.njk' %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
+{% from "govuk/components/details/macro.njk" import govukDetails %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <form method="POST" action="/dcidmtest.onmicrosoft.com/oauth2/authresp">
+        <input type="hidden" name="crumb" value="{{crumb}}"/>
+        <h1 class="govuk-heading-l">Sign in to Farming</h1>
+        {% if message %}
+          <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1" data-module="govuk-error-summary">
+            <h2 class="govuk-error-summary__title" id="error-summary-title">
+              There is a problem
+            </h2>
+            <div class="govuk-error-summary__body">
+              <ul class="govuk-list govuk-error-summary__list">
+                <span class="govuk-error-message">
+                  <span class="govuk-visually-hidden">Error:</span>
+                  {{ message }}
+                </span>
+              </ul>
+            </div>
+          </div>
+        {% endif %}
+
+        <div class=govuk-form-group>
+          <label class="govuk-label" for="crn">Customer reference number (CRN)</label>
+          <div id="crn-hint" class="govuk-hint">
+            This is the 10 digit number emailed to you when you created your RPA account
+          </div>
+          <input class="govuk-input govuk-input--width-20" id="crn" name="crn" type="text" value="{{crn}}">
+        </div>
+        <div class=govuk-form-group>
+          <label class="govuk-label" for="password">Password</label>
+          <input class="govuk-input govuk-input--width-20" id="password" name="password" type="password">
+        </div>
+
+        {{ govukButton({
+          text: "Sign in",
+          attributes: {
+            id: "submit"
+          }
+        }) }}
+
+      </form>
+
+      <p class="govuk-body">
+        <a class="govuk-link" href="#">I forgot my password</a>
+      </p>
+
+      {{ govukDetails({
+        summaryText: "Help with signing in",
+        classes: "govuk-!-margin-top-9",
+        html: "Lost your customer reference number (CRN), call 03000 200 301."
+      }) }}
+    </div>
+  </div>
+{% endblock %}
