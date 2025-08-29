@@ -33,6 +33,12 @@ export const config = convict({
     default: 3007,
     env: 'PORT'
   },
+  environment: {
+    doc: 'The environment the application is running in',
+    format: String,
+    default: 'local',
+    env: 'ENVIRONMENT'
+  },
   staticCacheTimeout: {
     doc: 'Static cache timeout in milliseconds',
     format: Number,
