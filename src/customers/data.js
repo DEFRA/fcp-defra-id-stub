@@ -1,7 +1,7 @@
 import Joi from 'joi'
 import { config } from '../config/config.js'
 
-const { mode, override, overrideFile} = config.get('auth')
+const { mode, override, overrideFile } = config.get('auth')
 
 let people = []
 
