@@ -1,6 +1,7 @@
 import { config } from '../config/config.js'
 
 const mode = config.get('auth.mode')
+const override = config.get('auth.override')
 
 let people = []
 
@@ -9,8 +10,22 @@ if (mode === 'basic' || mode === 'mock') {
   people = data.default.people
 }
 
+if (override !== '') {
+  const [crn, firstName, lastName, organisationId, sbi, name] = override.split(':')
+  people = [{
+    crn: Number(crn),
+    firstName,
+    lastName,
+    organisations: [{
+      organisationId,
+      sbi: Number(sbi),
+      name
+    }]
+  }]
+}
+
 export function getPerson (crn) {
-  if (mode === 'basic') {
+  if (override !== '' && mode === 'basic') {
     return people[0]
   }
 
@@ -18,7 +33,7 @@ export function getPerson (crn) {
 }
 
 export function getOrganisations (crn) {
-  if (mode === 'basic') {
+  if (override !== '' && mode === 'basic') {
     return people[0].organisations
   }
 
@@ -26,11 +41,11 @@ export function getOrganisations (crn) {
 }
 
 export function getSelectedOrganisation (crn, sbi) {
-  if (mode === 'basic') {
+  if (override !== '' && mode === 'basic') {
     return people[0].organisations.find(org => org.sbi === sbi)
   }
 
-  const person = people.find(person => person.crn === crn)
+  const person = people.find(p => p.crn === crn)
 
   return person.organisations.find(org => org.sbi === sbi)
 }

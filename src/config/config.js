@@ -164,8 +164,18 @@ export const config = convict({
       env: 'AUTH_MODE'
     },
     override: {
-      doc: 'Override the authentication mode',
-      format: String,
+      doc: 'Override the available data to a specific customer and organisation in the format "crn:firstName:lastName:organisationId:sbi:organisationName"',
+      format: function (val) {
+        if (val === '') {
+          return
+        }
+
+        const regex = /^(\d{10}):([a-zA-Z\s]+):([a-zA-Z\s]+):(\d+):(\d{9}):(.+)$/
+
+        if (!regex.test(val)) {
+          throw new Error('Must be in format "crn:firstName:lastName:organisationId:sbi:organisationName" where crn is 10 digits, firstName/lastName are letters and spaces, organisationId is a number, sbi is 9 digits, and organisationName can be anything')
+        }
+      },
       default: '',
       env: 'AUTH_OVERRIDE'
     },
