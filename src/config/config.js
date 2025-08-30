@@ -159,7 +159,7 @@ export const config = convict({
   auth: {
     mode: {
       doc: 'The authentication mode to use',
-      format: ['basic', 'mock', 'custom'],
+      format: ['basic', 'mock'],
       default: 'basic',
       env: 'AUTH_MODE'
     },
@@ -180,8 +180,18 @@ export const config = convict({
       env: 'AUTH_OVERRIDE'
     },
     overrideFile: {
-      doc: 'Path to the authentication file',
-      format: String,
+      doc: 'Path to the authentication file in json format.  Must be mounted at /node/app/data/*.json',
+      format: function (val) {
+        if (val === '') {
+          return
+        }
+
+        const regex = /^.+\.json$/
+
+        if (!regex.test(val)) {
+          throw new Error('Path must be in format "*.json"')
+        }
+      },
       default: '',
       env: 'AUTH_OVERRIDE_FILE'
     }

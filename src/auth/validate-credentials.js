@@ -1,10 +1,10 @@
 import { config } from '../config/config.js'
 import { getPerson } from '../customers/data.js'
 
-const mode = config.get('auth.mode')
+const auth = config.get('auth')
 
 export function validateCredentials (crn, _password) {
-  if (mode === 'basic') {
+  if (auth.mode === 'basic' && auth.override === '' && auth.overrideFile === '') {
     return true
   }
 

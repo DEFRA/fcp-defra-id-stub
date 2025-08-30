@@ -1,14 +1,12 @@
+import Joi from 'joi'
 import { config } from '../config/config.js'
 
-const mode = config.get('auth.mode')
-const override = config.get('auth.override')
+const { mode, override, overrideFile} = config.get('auth')
 
 let people = []
 
-if (mode === 'basic' || mode === 'mock') {
-  const data = await import('./data.json', { with: { type: 'json' } })
-  people = data.default.people
-}
+const data = await import('./data.json', { with: { type: 'json' } })
+people = data.default.people
 
 if (override !== '') {
   const [crn, firstName, lastName, organisationId, sbi, name] = override.split(':')
@@ -24,8 +22,33 @@ if (override !== '') {
   }]
 }
 
+if (overrideFile !== '') {
+  const overrideData = await import(`/data/${overrideFile}`, { with: { type: 'json' } })
+
+  const schema = Joi.object({
+    people: Joi.array().items(Joi.object({
+      crn: Joi.number().required(),
+      firstName: Joi.string().required(),
+      lastName: Joi.string().required(),
+      organisations: Joi.array().items(Joi.object({
+        organisationId: Joi.string().required(),
+        sbi: Joi.number().required(),
+        name: Joi.string().required()
+      })).required()
+    })).required()
+  })
+
+  const { error } = schema.validate(overrideData.default, { abortEarly: false })
+
+  if (error) {
+    throw new Error(`Invalid override file data: ${error.message}`)
+  }
+
+  people = overrideData.default.people
+}
+
 export function getPerson (crn) {
-  if (override !== '' && mode === 'basic') {
+  if (mode === 'basic' && override === '' && overrideFile === '') {
     return people[0]
   }
 
@@ -33,7 +56,7 @@ export function getPerson (crn) {
 }
 
 export function getOrganisations (crn) {
-  if (override !== '' && mode === 'basic') {
+  if (mode === 'basic' && override === '' && overrideFile === '') {
     return people[0].organisations
   }
 
@@ -41,7 +64,7 @@ export function getOrganisations (crn) {
 }
 
 export function getSelectedOrganisation (crn, sbi) {
-  if (override !== '' && mode === 'basic') {
+  if (mode === 'basic' && override === '' && overrideFile === '') {
     return people[0].organisations.find(org => org.sbi === sbi)
   }
 

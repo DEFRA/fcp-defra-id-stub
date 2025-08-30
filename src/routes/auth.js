@@ -26,7 +26,12 @@ const signIn = [{
   handler: (request, h) => {
     const { crn, password } = request.payload
 
-    validateCredentials(crn, password)
+    if (!validateCredentials(crn, password)) {
+      return h.view('sign-in', {
+        message: 'Your CRN and/or password is incorrect',
+        crn: request.payload.crn
+      }).takeover()
+    }
 
     const person = getPerson(crn)
 
