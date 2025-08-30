@@ -63,12 +63,16 @@ export function getOrganisations (crn) {
   return people.find(person => person.crn === crn).organisations
 }
 
-export function getSelectedOrganisation (crn, sbi) {
-  if (mode === 'basic' && override === '' && overrideFile === '') {
-    return people[0].organisations.find(org => org.sbi === sbi)
+export function getSelectedOrganisation (crn, { sbi, organisationId }) {
+  const person = mode === 'basic' && override === '' && overrideFile === '' ? people[0] : people.find(p => p.crn === crn)
+
+  if (sbi) {
+    return person.organisations.find(org => org.sbi === sbi)
   }
 
-  const person = people.find(p => p.crn === crn)
+  if (organisationId) {
+    return person.organisations.find(org => org.organisationId === organisationId)
+  }
 
-  return person.organisations.find(org => org.sbi === sbi)
+  return null
 }
