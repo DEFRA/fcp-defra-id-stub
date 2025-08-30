@@ -155,6 +155,26 @@ export const config = convict({
       default: 'this-must-be-at-least-32-characters-long',
       env: 'COOKIE_PASSWORD'
     }
+  },
+  auth: {
+    mode: {
+      doc: 'The authentication mode to use',
+      format: ['basic', 'mock', 'custom'],
+      default: 'basic',
+      env: 'AUTH_MODE'
+    },
+    override: {
+      doc: 'Override the authentication mode',
+      format: String,
+      default: '',
+      env: 'AUTH_OVERRIDE'
+    },
+    overrideFile: {
+      doc: 'Path to the authentication file',
+      format: String,
+      default: '',
+      env: 'AUTH_OVERRIDE_FILE'
+    }
   }
 })
 
