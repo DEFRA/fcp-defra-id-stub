@@ -155,6 +155,46 @@ export const config = convict({
       default: 'this-must-be-at-least-32-characters-long',
       env: 'COOKIE_PASSWORD'
     }
+  },
+  auth: {
+    mode: {
+      doc: 'The authentication mode to use',
+      format: ['basic', 'mock'],
+      default: 'basic',
+      env: 'AUTH_MODE'
+    },
+    override: {
+      doc: 'Override the available data to a specific customer and organisation in the format "crn:firstName:lastName:organisationId:sbi:organisationName"',
+      format: function (val) {
+        if (val === '') {
+          return
+        }
+
+        const regex = /^(\d{10}):([a-zA-Z\s]+):([a-zA-Z\s]+):(\d+):(\d{9}):(.+)$/
+
+        if (!regex.test(val)) {
+          throw new Error('Must be in format "crn:firstName:lastName:organisationId:sbi:organisationName" where crn is 10 digits, firstName/lastName are letters and spaces, organisationId is a number, sbi is 9 digits, and organisationName can be anything')
+        }
+      },
+      default: '',
+      env: 'AUTH_OVERRIDE'
+    },
+    overrideFile: {
+      doc: 'Path to the authentication file in json format.  Must be mounted at /node/app/data/*.json',
+      format: function (val) {
+        if (val === '') {
+          return
+        }
+
+        const regex = /^.+\.json$/
+
+        if (!regex.test(val)) {
+          throw new Error('Path must be in format "*.json"')
+        }
+      },
+      default: '',
+      env: 'AUTH_OVERRIDE_FILE'
+    }
   }
 })
 

@@ -1,7 +1,7 @@
 import Joi from 'joi'
 import { validateCredentials } from '../auth/validate-credentials.js'
 import { createTokens } from '../auth/token.js'
-import { getOrganisations, getOrganisationBySbi } from '../customers/get-organisations.js'
+import { getPerson, getOrganisations, getSelectedOrganisation } from '../customers/data.js'
 
 const signIn = [{
   method: 'GET',
@@ -26,9 +26,16 @@ const signIn = [{
   handler: (request, h) => {
     const { crn, password } = request.payload
 
-    validateCredentials(crn, password)
+    if (!validateCredentials(crn, password)) {
+      return h.view('sign-in', {
+        message: 'Your CRN and/or password is incorrect',
+        crn: request.payload.crn
+      }).takeover()
+    }
 
-    request.yar.set('crn', crn)
+    const person = getPerson(crn)
+
+    request.yar.set('person', person)
 
     return h.redirect('/organisations')
   }
@@ -37,8 +44,11 @@ const signIn = [{
 const picker = [{
   method: 'GET',
   path: '/organisations',
-  handler: (_request, h) => {
-    const organisations = getOrganisations()
+  handler: (request, h) => {
+    const { crn } = request.yar.get('person')
+
+    const organisations = getOrganisations(crn)
+
     return h.view('picker', { organisations })
   }
 },
@@ -58,13 +68,14 @@ const picker = [{
   handler: (request, h) => {
     const { sbi } = request.payload
 
-    const organisation = getOrganisationBySbi(sbi)
+    const person = request.yar.get('person')
 
-    const crn = request.yar.get('crn')
-
-    const { accessCode } = createTokens(crn, organisation)
+    const organisation = getSelectedOrganisation(person.crn, sbi)
 
     const authRequest = request.yar.get('auth-request')
+
+    const { accessCode } = createTokens(person, organisation, authRequest)
+
     request.yar.clear('auth-request')
 
     return h.redirect(`${authRequest.redirect_uri}?code=${accessCode}&state=${authRequest.state}`)

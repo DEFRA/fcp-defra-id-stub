@@ -6,6 +6,10 @@ services:
       - fcp-defra-id-stub
     environment:
       PORT: ${FCP_DEFRA_ID_STUB_PORT:-3007}
+      AUTH_OVERRIDE: ${AUTH_OVERRIDE}
+      AUTH_OVERRIDE_FILE: ${AUTH_OVERRIDE_FILE}
+    volumes:
+      - ./example.data.json:/data/example.data.json
 
 networks:
   fcp-defra-id-stub:

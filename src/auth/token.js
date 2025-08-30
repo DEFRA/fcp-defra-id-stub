@@ -19,13 +19,13 @@ const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
 const keyObject = crypto.createPublicKey(publicKey)
 const jwk = keyObject.export({ format: 'jwk' })
 
-export function createTokens (crn, organisation) {
+export function createTokens (person, organisation, authRequest) {
   const sessionId = crypto.randomUUID()
 
   const session = {
     sessionId,
     accessCode: createAccessCode(),
-    accessToken: createAccessToken(createTokenContent(sessionId, crn, organisation)),
+    accessToken: createAccessToken(createTokenContent(sessionId, person, organisation, authRequest)),
     refreshToken: createRefreshToken()
   }
 
@@ -35,19 +35,19 @@ export function createTokens (crn, organisation) {
 }
 
 export function getTokens (accessCode) {
-  const session = sessions.find(session => session.accessCode === accessCode)
+  const activeSession = sessions.find(session => session.accessCode === accessCode)
 
-  if (!session) {
+  if (!activeSession) {
     return null
   }
 
   return {
-    access_token: session.accessToken,
+    access_token: activeSession.accessToken,
     token_type: 'Bearer',
     expires_in: 86400,
     scope: 'openid profile email', // requested scopes
-    refresh_token: session.refreshToken,
-    id_token: session.accessToken
+    refresh_token: activeSession.refreshToken,
+    id_token: activeSession.accessToken
   }
 }
 
@@ -78,8 +78,10 @@ function createAccessCode () {
   return crypto.randomBytes(32).toString('hex')
 }
 
-function createTokenContent (sessionId, crn, organisation) {
+function createTokenContent (sessionId, person, organisation, authRequest) {
+  const { crn, firstName, lastName } = person
   const { organisationId, sbi, name } = organisation
+  const { clientId, serviceId } = authRequest
 
   const { issuer } = getWellKnown()
 
@@ -90,21 +92,21 @@ function createTokenContent (sessionId, crn, organisation) {
     nbf: Math.floor(Date.now() / 1000) - 30, // 30 seconds ago
     amr: 'one',
     aal: '1',
-    serviceId: 'b82ab114-4a9a-ee11-be37-000d3adf7047', // service ID
+    serviceId,
     correlationId: crypto.randomUUID(),
     currentRelationshipId: '5890927',
     sessionId,
     contactId: crn,
     sub: '5add6531-c8c8-4e78-b57b-071002f21887',
     email: 'test@example.com',
-    firstName: 'Andrew',
-    lastName: 'Farmer',
+    firstName,
+    lastName,
     loa: 1,
     enrolmentCount: 1, // number of active enrolments
     enrolmentRequestCount: 0,
     relationships: [`${organisationId}:${sbi}:${name}:1:External:0`],
     roles: [`${organisationId}:Agent:3`],
-    azp: '651a29ca-967b-414a-96cc-76740647fb3e', // client_id
+    azp: clientId,
     ver: '1.0',
     iat: Math.floor(Date.now() / 1000)
   }

@@ -1,0 +1,43 @@
+{
+  "people": [
+    {
+      "crn": 2100010101,
+      "firstName": "Andrew",
+      "lastName": "Farmer",
+      "organisations": [
+        {
+          "organisationId": "5900001",
+          "sbi": 110100101,
+          "name": "Farms Ltd"
+        },
+        {
+          "organisationId": "5900002",
+          "sbi": 110100102,
+          "name": "Andrew Farmer"
+        },
+        {
+          "organisationId": "5900003",
+          "sbi": 110100103,
+          "name": "A & F Land Management"
+        }
+      ]
+    },
+    {
+      "crn": 2100010102,
+      "firstName": "Sarah",
+      "lastName": "Plumber",
+      "organisations": [
+        {
+          "organisationId": "5900001",
+          "sbi": 110100101,
+          "name": "Farms Ltd"
+        },
+        {
+          "organisationId": "5900002",
+          "sbi": 110100103,
+          "name": "Sarah Plumber"
+        }
+      ]
+    }
+  ]
+}
