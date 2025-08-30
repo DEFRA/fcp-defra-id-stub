@@ -6,9 +6,17 @@ import { getPerson, getOrganisations, getSelectedOrganisation } from '../custome
 const signIn = [{
   method: 'GET',
   path: '/dcidmtest.onmicrosoft.com/oauth2/authresp',
-  handler: (_request, h) => h.view('sign-in')
-},
-{
+  handler: (request, h) => {
+    const authenticated = request.yar.get('authenticated')
+    const { prompt } = request.yar.get('auth-request')
+
+    if (!authenticated || prompt === 'login') {
+      return h.view('sign-in')
+    }
+
+    return h.redirect('/organisations')
+  }
+}, {
   method: 'POST',
   path: '/dcidmtest.onmicrosoft.com/oauth2/authresp',
   options: {
@@ -45,14 +53,28 @@ const picker = [{
   method: 'GET',
   path: '/organisations',
   handler: (request, h) => {
-    const { crn } = request.yar.get('person')
+    const person = request.yar.get('person')
+    const { forceReselection, relationshipId } = request.yar.get('auth-request')
+    const organisationId = request.yar.get('organisationId')
 
-    const organisations = getOrganisations(crn)
+    if (relationshipId) {
+      const organisation = getSelectedOrganisation(person.crn, { organisationId: relationshipId })
 
+      if (organisationId) {
+        return completeAuthentication(request, h, person, organisation)
+      }
+    }
+
+    const currentOrganisation = getSelectedOrganisation(person.crn, { organisationId })
+
+    if (currentOrganisation && !forceReselection) {
+      return completeAuthentication(request, h, person, currentOrganisation)
+    }
+
+    const organisations = getOrganisations(person.crn)
     return h.view('picker', { organisations })
   }
-},
-{
+}, {
   method: 'POST',
   path: '/organisations',
   options: {
@@ -70,17 +92,24 @@ const picker = [{
 
     const person = request.yar.get('person')
 
-    const organisation = getSelectedOrganisation(person.crn, sbi)
+    const organisation = getSelectedOrganisation(person.crn, { sbi })
 
-    const authRequest = request.yar.get('auth-request')
-
-    const { accessCode } = createTokens(person, organisation, authRequest)
-
-    request.yar.clear('auth-request')
-
-    return h.redirect(`${authRequest.redirect_uri}?code=${accessCode}&state=${authRequest.state}`)
+    return completeAuthentication(request, h, person, organisation)
   }
 }]
+
+function completeAuthentication (request, h, person, organisation) {
+  const authRequest = request.yar.get('auth-request')
+
+  const { accessCode } = createTokens(person, organisation, authRequest)
+
+  request.yar.clear('auth-request')
+
+  request.yar.set('organisationId', organisation.organisationId)
+  request.yar.set('authenticated', true)
+
+  return h.redirect(`${authRequest.redirect_uri}?code=${accessCode}&state=${authRequest.state}`)
+}
 
 export const auth = [
   ...signIn,
