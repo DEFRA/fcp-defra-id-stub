@@ -64,6 +64,16 @@ export function getPublicKeys () {
   }
 }
 
+export function endSession (accessToken) {
+  const activeSession = sessions.find(session => session.accessToken === accessToken)
+
+  if (!activeSession) {
+    return
+  }
+
+  sessions.splice(sessions.indexOf(activeSession), 1)
+}
+
 function createAccessCode () {
   return crypto.randomBytes(32).toString('hex')
 }

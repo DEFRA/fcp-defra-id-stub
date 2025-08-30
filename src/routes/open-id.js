@@ -1,5 +1,5 @@
 import { getWellKnown } from '../open-id/get-well-known.js'
-import { getTokens, getPublicKeys } from '../auth/token.js'
+import { getTokens, getPublicKeys, endSession } from '../auth/token.js'
 
 const wellKnown = {
   method: 'GET',
@@ -31,11 +31,21 @@ const token = {
   }
 }
 
-const endSession = {
+const signOut = {
   method: 'GET',
   path: '/idphub/b2c/b2c_1a_cui_cpdev_signupsigninsfi/signout',
-  handler: function (_request, h) {
-    return h.response('end session')
+  handler: function (request, h) {
+    const {
+      post_logout_redirect_uri: redirectUri,
+      id_token_hint: accessToken,
+      state
+    } = request.query
+
+    endSession(accessToken)
+
+    request.yar.reset()
+
+    return h.redirect(`${redirectUri}?state=${state}`)
   }
 }
 
@@ -51,6 +61,6 @@ export const openId = [
   wellKnown,
   authorization,
   token,
-  endSession,
+  signOut,
   jwks
 ]
