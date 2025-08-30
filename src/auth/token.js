@@ -19,13 +19,13 @@ const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
 const keyObject = crypto.createPublicKey(publicKey)
 const jwk = keyObject.export({ format: 'jwk' })
 
-export function createTokens (crn) {
+export function createTokens (crn, organisation) {
   const sessionId = crypto.randomUUID()
 
   const session = {
     sessionId,
     accessCode: createAccessCode(),
-    accessToken: createAccessToken(createTokenContent(sessionId, crn)),
+    accessToken: createAccessToken(createTokenContent(sessionId, crn, organisation)),
     refreshToken: createRefreshToken()
   }
 
@@ -78,7 +78,9 @@ function createAccessCode () {
   return crypto.randomBytes(32).toString('hex')
 }
 
-function createTokenContent (sessionId, crn, _sbi) {
+function createTokenContent (sessionId, crn, organisation) {
+  const { organisationId, sbi, name } = organisation
+
   const { issuer } = getWellKnown()
 
   return {
@@ -100,8 +102,8 @@ function createTokenContent (sessionId, crn, _sbi) {
     loa: 1,
     enrolmentCount: 1, // number of active enrolments
     enrolmentRequestCount: 0,
-    relationships: ['5890927:200787016:Miss Carole Baker:1:External:0'],
-    roles: ['5890927:Agent:3'],
+    relationships: [`${organisationId}:${sbi}:${name}:1:External:0`],
+    roles: [`${organisationId}:Agent:3`],
     azp: '651a29ca-967b-414a-96cc-76740647fb3e', // client_id
     ver: '1.0',
     iat: Math.floor(Date.now() / 1000)
@@ -122,30 +124,3 @@ function createAccessToken (payload) {
 function createRefreshToken () {
   return crypto.randomBytes(256).toString('base64url')
 }
-
-// required jwt
-// {
-//   aud: '651a29ca-967b-414a-96cc-76740647fb3e',
-//   iss: 'https://dcidmtest.b2clogin.com/131a35fb-0422-49c9-8753-15217cec5411/v2.0/',
-//   exp: 1756496380,
-//   nbf: 1756492780,
-//   amr: 'one',
-//   aal: '1',
-//   serviceId: 'b82ab114-4a9a-ee11-be37-000d3adf7047',
-//   correlationId: '543b43c2-a7a9-4ae0-8430-9963d9255ce3',
-//   currentRelationshipId: '5890927',
-//   sessionId: '167d2607-be5b-494b-a62b-3e03ef6e68a4',
-//   contactId: '1100186174',
-//   sub: '5add6531-c8c8-4e78-b57b-071002f21887',
-//   email: 'ryangagerb@regagnayri.com.test',
-//   firstName: 'Ryan',
-//   lastName: 'Gager',
-//   loa: 1,
-//   enrolmentCount: 7,
-//   enrolmentRequestCount: 0,
-//   relationships: [ '5890927:200787016:Miss Carole Baker:1:External:0' ],
-//   roles: [ '5890927:Agent:3' ],
-//   azp: '651a29ca-967b-414a-96cc-76740647fb3e',
-//   ver: '1.0',
-//   iat: 1756492780
-// }
