@@ -143,6 +143,12 @@ export const config = convict({
     }
   },
   cookie: {
+    name: {
+      doc: 'The name of the cookie to set',
+      format: String,
+      default: 'fcp-defra-id-stub-session',
+      env: 'COOKIE_NAME'
+    },
     password: {
       doc: 'The password used to encrypt the cookie',
       format: String,
