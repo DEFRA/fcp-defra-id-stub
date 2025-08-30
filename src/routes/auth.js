@@ -82,9 +82,15 @@ const picker = [{
       payload: {
         sbi: Joi.number().integer().required()
       },
-      failAction: async (_request, h, _error) => h.view('picker', {
-        message: 'Select an organisation'
-      }).takeover()
+      failAction: (request, h, _error) => {
+        const { crn } = request.yar.get('person')
+        const organisations = getOrganisations(crn)
+
+        return h.view('picker', {
+          message: 'Select an organisation',
+          organisations
+        }).takeover()
+      }
     }
   },
   handler: (request, h) => {
