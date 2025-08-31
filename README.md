@@ -32,6 +32,7 @@ To enable teams working within FCP develop and test against Defra ID this stub h
 - Refresh token exchange
 - Single Sign-On (SSO) support
 - Sign out including ending SSO session
+- Prevent sign in if no organisations associated with account
 - Customisable people and organisation data (See below)
 - Supports all Defra ID authentication behaviours including:
   - Force re-authentication with `prompt=login` parameter
@@ -51,8 +52,6 @@ As this is early development, there are some known limitations to be aware of th
 - Mock people and organisation data is limited.  However this can be overridden by the customisation options described below.
 
 - Unlike real Defra ID, does not automatically bypass organisation selection if CRN is associated with only one organisation.
-
-- Does not handle CRNs associated with no organisations.  The real Defra ID will block the user completing authentication.
 
 - UI content does not fully mirror Defra ID.  However note there are no plans to introduce the legacy GOV.UK branding currently used by Defra ID.
 
@@ -122,41 +121,59 @@ The data must be in the format of the below example with as many people and asso
 {
   "people": [
     {
-      "crn": 2100010101,
-      "firstName": "Andrew",
-      "lastName": "Farmer",
+      "crn": 3100010101,
+      "firstName": "Julie",
+      "lastName": "Barnes",
       "organisations": [
         {
           "organisationId": "5900001",
-          "sbi": 110100101,
-          "name": "Farms Ltd"
+          "sbi": 210100101,
+          "name": "Sheep Every Day"
         },
         {
           "organisationId": "5900002",
-          "sbi": 110100102,
-          "name": "Andrew Farmer"
+          "sbi": 210100102,
+          "name": "Beetles"
         },
         {
           "organisationId": "5900003",
-          "sbi": 110100103,
+          "sbi": 210100103,
           "name": "A & F Land Management"
         }
       ]
     },
     {
-      "crn": 2100010102,
-      "firstName": "Sarah",
-      "lastName": "Plumber",
+      "crn": 3100010102,
+      "firstName": "Glen",
+      "lastName": "Adams",
       "organisations": [
         {
           "organisationId": "5900001",
-          "sbi": 110100101,
-          "name": "Farms Ltd"
+          "sbi": 210100101,
+          "name": "Sheep Every Day"
         },
         {
           "organisationId": "5900002",
-          "sbi": 110100103,
-          "name": "Sarah Plumber"
+          "sbi": 210100103,
+          "name": "Glen Adams"
+        }
+      ]
+    },
+    {
+      "crn": 3100010103,
+      "firstName": "Ben",
+      "lastName": "Jones",
+      "organisations": []
+    },
+    {
+      "crn": 3100010104,
+      "firstName": "Alice",
+      "lastName": "Smith",
+      "organisations": [
+        {
+          "organisationId": "5900001",
+          "sbi": 210100101,
+          "name": "Sheep Every Day"
         }
       ]
     }

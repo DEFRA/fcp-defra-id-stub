@@ -38,6 +38,24 @@
           "name": "Glen Adams"
         }
       ]
+    },
+    {
+      "crn": 3100010103,
+      "firstName": "Ben",
+      "lastName": "Jones",
+      "organisations": []
+    },
+    {
+      "crn": 3100010104,
+      "firstName": "Alice",
+      "lastName": "Smith",
+      "organisations": [
+        {
+          "organisationId": "5900001",
+          "sbi": 210100101,
+          "name": "Sheep Every Day"
+        }
+      ]
     }
   ]
 }
