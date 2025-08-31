@@ -114,13 +114,31 @@ const picker = [{
 }]
 
 function completeAuthentication (request, h, person, organisation) {
-  const authRequest = request.yar.get('auth-request')
+  const { organisationId, sbi, name } = organisation
 
-  const { accessCode } = createTokens(person, organisation, authRequest)
+  const authRequest = request.yar.get('auth-request')
+  const relationships = request.yar.get('relationships') || []
+  const roles = request.yar.get('roles') || []
+
+  const relationship = `${organisationId}:${sbi}:${name}:1:External:0`
+
+  if (!relationships.includes(relationship)) {
+    relationships.push(relationship)
+  }
+
+  const role = `${organisationId}:Agent:3`
+
+  if (!roles.includes(role)) {
+    roles.push(role)
+  }
+
+  const { accessCode } = createTokens(person, organisationId, relationships, roles, authRequest)
 
   request.yar.clear('auth-request')
 
-  request.yar.set('organisationId', organisation.organisationId)
+  request.yar.set('organisationId', organisationId)
+  request.yar.set('relationships', relationships)
+  request.yar.set('roles', roles)
   request.yar.set('authenticated', true)
 
   return h.redirect(`${authRequest.redirect_uri}?code=${accessCode}&state=${authRequest.state}`)

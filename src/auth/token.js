@@ -62,13 +62,13 @@ function saveSessions () {
   fs.writeFileSync(sessionsPath, JSON.stringify(sessions, null, 2))
 }
 
-export function createTokens (person, organisation, authRequest) {
+export function createTokens (person, organisationId, relationships, roles, authRequest) {
   const sessionId = crypto.randomUUID()
   const now = Date.now()
   const session = {
     sessionId,
     accessCode: createAccessCode(),
-    accessToken: createAccessToken(createTokenContent(sessionId, person, organisation, authRequest)),
+    accessToken: createAccessToken(createTokenContent(sessionId, person, organisationId, relationships, roles, authRequest)),
     refreshToken: createRefreshToken(),
     createdAt: now
   }
@@ -122,9 +122,8 @@ function createAccessCode () {
   return crypto.randomBytes(32).toString('hex')
 }
 
-function createTokenContent (sessionId, person, organisation, authRequest) {
+function createTokenContent (sessionId, person, organisationId, relationships, roles, authRequest) {
   const { crn, firstName, lastName } = person
-  const { organisationId, sbi, name } = organisation
   const { clientId, serviceId } = authRequest
 
   const { issuer } = getWellKnown()
@@ -138,7 +137,7 @@ function createTokenContent (sessionId, person, organisation, authRequest) {
     aal: '1',
     serviceId,
     correlationId: crypto.randomUUID(),
-    currentRelationshipId: '5890927',
+    currentRelationshipId: organisationId,
     sessionId,
     contactId: crn,
     sub: '5add6531-c8c8-4e78-b57b-071002f21887',
@@ -148,8 +147,8 @@ function createTokenContent (sessionId, person, organisation, authRequest) {
     loa: 1,
     enrolmentCount: 1, // number of active enrolments
     enrolmentRequestCount: 0,
-    relationships: [`${organisationId}:${sbi}:${name}:1:External:0`],
-    roles: [`${organisationId}:Agent:3`],
+    relationships,
+    roles,
     azp: clientId,
     ver: '1.0',
     iat: Math.floor(Date.now() / 1000)
