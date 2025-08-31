@@ -47,8 +47,6 @@ To enable teams working within FCP develop and test against Defra ID this stub h
 
 As this is early development, there are some known limitations to be aware of that will be addressed in future releases:
 
-- Private/public key pairings are not retained across stub restarts.  If your application is verifying JWTs against the public key, this validation will fail if the stub is restarted following token reissue.
-
 - Session data is not persisted across stub restarts.  Token exchange, SSO and refresh tokens will be invalid if the stub is restarted.
 
 - Reselection an organisation mid session will replace the `roles` array property of the JWT entirely.  The real Defra ID will append the new organisation to this array.
