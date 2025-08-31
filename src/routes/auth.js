@@ -72,6 +72,11 @@ const picker = [{
     }
 
     const organisations = getOrganisations(person.crn)
+
+    if (organisations.length === 0) {
+      return h.view('no-organisations')
+    }
+
     return h.view('picker', { organisations })
   }
 }, {
