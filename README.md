@@ -60,6 +60,8 @@ As this is early development, there are some known limitations to be aware of th
 
 - General code quality and test coverage.
 
+> If any further limitations or issues are identified, please raise with `John Watson <john.watson1@defra.gov.uk>` (Principal Developer).
+
 ## Customising people and organisation data
 
 The stub supports four data options for configuring people and organisation data.
