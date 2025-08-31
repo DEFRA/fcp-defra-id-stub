@@ -180,7 +180,7 @@ export const config = convict({
       env: 'AUTH_OVERRIDE'
     },
     overrideFile: {
-      doc: 'Path to the authentication file in json format.  Must be mounted at /node/app/data/*.json',
+      doc: 'Path to the authentication file in json format.  Must be mounted at /data/*.json',
       format: function (val) {
         if (val === '') {
           return
