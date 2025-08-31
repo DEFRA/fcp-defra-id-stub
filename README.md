@@ -260,7 +260,7 @@ DEFRA_ID_POLICY=b2c_1a_cui_cpdev_signupsigninsfi
 Only the first environment variable needs to change, to repoint to the stub.
 
 ```
-DEFRA_ID_WELL_KNOWN_URL=https://fcp-defra-id-stub:3007/idphub/b2c/b2c_1a_cui_cpdev_signupsigninsfi/.well-known/openid-configuration
+DEFRA_ID_WELL_KNOWN_URL=http://fcp-defra-id-stub:3007/idphub/b2c/b2c_1a_cui_cpdev_signupsigninsfi/.well-known/openid-configuration
 DEFRA_ID_CLIENT_ID=<your Client ID GUID>
 DEFRA_ID_CLIENT_SECRET=<Your Client Secret>
 DEFRA_ID_SERVICE_ID=<your Service ID GUID>
@@ -270,7 +270,7 @@ DEFRA_ID_POLICY=b2c_1a_cui_cpdev_signupsigninsfi
 **IMPORTANT** if not running in the same Docker network as your app, then the host must be set as `host.docker.internal` to enable the containerised app access localhost.
 
 ```
-DEFRA_ID_WELL_KNOWN_URL=https://host.docker.internal:3007/idphub/b2c/b2c_1a_cui_cpdev_signupsigninsfi/.well-known/openid-configuration
+DEFRA_ID_WELL_KNOWN_URL=http://host.docker.internal:3007/idphub/b2c/b2c_1a_cui_cpdev_signupsigninsfi/.well-known/openid-configuration
 DEFRA_ID_CLIENT_ID=<your Client ID GUID>
 DEFRA_ID_CLIENT_SECRET=<Your Client Secret>
 DEFRA_ID_SERVICE_ID=<your Service ID GUID>
