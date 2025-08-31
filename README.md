@@ -11,21 +11,21 @@ Defra Identity stub for Farming and Countryside Programme (FCP).
 
 There are two existing Defra Identity stubs:
 
-- [Official Defra ID stub](#)
-- [CDP Defra ID stub](https://github.com/DEFRA/cdp-defra-id-stub)
+- [Official Defra Identity stub](#)
+- [CDP Defra Identity stub](https://github.com/DEFRA/cdp-defra-id-stub)
 
 Neither of these support the `signupsigninsfi` policy used in FCP.
 
-This policy enables authentication with a CRN/Password combination and changes the content of the default Defra ID token.
+This policy enables authentication with a CRN/Password combination and changes the content of the default Defra Identity token.
 
-To enable teams working within FCP develop and test against Defra ID this stub has been created.
+To enable teams working within FCP develop and test against Defra Identity this stub has been created.
 
 > NOTE: this stub is still a work in progress. Feedback and issues welcome.
 
-## Supported Defra ID features
+## Supported Defra Identity features
 
 - CRN/Password authentication
-- Exposes all Defra ID endpoints including well-known endpoints
+- Exposes all Defra Identity endpoints including well-known endpoints
 - Organisation selection
 - Signed JWT token generation consistent with `signupsigninsfi` policy
 - Token exchange from authorisation
@@ -34,7 +34,7 @@ To enable teams working within FCP develop and test against Defra ID this stub h
 - Sign out including ending SSO session
 - Prevent sign in if no organisations associated with account
 - Automatically bypass organisation selection if CRN is associated with only one organisation.
-- Supports all Defra ID authentication behaviours including:
+- Supports all Defra Identity authentication behaviours including:
   - Force re-authentication with `prompt=login` parameter
   - Bypass organisation selection with `relationshipId=<OrganisationId>` parameter
   - Force organisation selection with `forceReselection=true` parameter
@@ -49,13 +49,23 @@ There are some known issues to be aware of that will be addressed in future rele
 
 - Mock people and organisation data is limited.  However this can be overridden by the customisation options described below.
 
-- UI content does not fully mirror Defra ID.  However note there are no plans to introduce the legacy GOV.UK branding currently used by Defra ID.
+- UI content does not fully mirror Defra Identity.  However note there are no plans to introduce the legacy GOV.UK branding currently used by Defra Identity.
 
 - Request content validation is limited and therefore so is feedback on invalid requests.
 
 - General code quality and test coverage.
 
 > If any further limitations or issues are identified, please raise with `John Watson <john.watson1@defra.gov.uk>` (Principal Developer).
+
+## A note on roles
+
+Defra Identity will include the user's role in the selected organisation sourced from Siti Agri as part of the `roles` property.
+
+The stub will always return this role name as `Agent`.
+
+The role name is not associated to a predefined set of permissions and is therefore of little value to consuming services.
+
+Consuming services must source the user's actual permissions from Siti Agri via the Data Access Layer (DAL) post authentication.
 
 ## Customising people and organisation data
 
@@ -65,7 +75,7 @@ The stub supports four data options for configuring people and organisation data
 
 The default "Basic" approach will fit the needs of most development and testing scenarios.  
 
-However, depending on your local setup you may need the Defra ID token content to align to other mock/real datasets you're using.
+However, depending on your local setup you may need the Defra Identity token content to align to other mock/real datasets you're using.
 
 For example, if you are making a subsequent call through the Data Access Layer (DAL), you may need different organisation data than the stub provides.
 
@@ -256,11 +266,11 @@ fcp-defra-id-stub:
 
 ## Using the stub in your application
 
-The stub has the same endpoints and expectations as the real Defra ID.
+The stub has the same endpoints and expectations as the real Defra Identity.
 
 The simplest way to switch between the stub is to update your application to use the well known endpoint of the stub.
 
-For example, let's say your application has the following environment variables for a real Defra ID instance.
+For example, let's say your application has the following environment variables for a real Defra Identity instance.
 
 ```
 DEFRA_ID_WELL_KNOWN_URL=https://your-account.cpdev.cui.defra.gov.uk/idphub/b2c/b2c_1a_cui_cpdev_signupsigninsfi/.well-known/openid-configuration
@@ -320,9 +330,9 @@ services:
       start_period: 3s
 ```
 
-### FCP Defra ID example
+### FCP Defra Identity example
 
-The [FCP Defra ID example repository](https://github.com/DEFRA/fcp-defra-id-example) includes the stub as part of it's Docker Compose setup for optional use.
+The [FCP Defra Identity example repository](https://github.com/DEFRA/fcp-defra-id-example) includes the stub as part of it's Docker Compose setup for optional use.
 
 ## CDP environments
 
