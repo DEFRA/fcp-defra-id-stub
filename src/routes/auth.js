@@ -77,6 +77,10 @@ const picker = [{
       return h.view('no-organisations')
     }
 
+    if (organisations.length === 1) {
+      return completeAuthentication(request, h, person, organisations[0])
+    }
+
     return h.view('picker', { organisations })
   }
 }, {
