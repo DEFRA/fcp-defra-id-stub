@@ -229,6 +229,14 @@ fcp-defra-id-stub:
     AUTH_MODE: ${AUTH_MODE}
     AUTH_OVERRIDE: ${AUTH_OVERRIDE}
     AUTH_OVERRIDE_FILE: ${AUTH_OVERRIDE_FILE}
+  ports:
+    - "3007:3007"
+  healthcheck:
+    test: ["CMD", "curl", "-f", "http://localhost:3007/health"]
+    interval: 1m30s
+    timeout: 30s
+    retries: 5
+    start_period: 3s
 ```
 
 ## Using the stub in your application
@@ -265,6 +273,36 @@ DEFRA_ID_CLIENT_ID=<your Client ID GUID>
 DEFRA_ID_CLIENT_SECRET=<Your Client Secret>
 DEFRA_ID_SERVICE_ID=<your Service ID GUID>
 DEFRA_ID_POLICY=b2c_1a_cui_cpdev_signupsigninsfi
+```
+
+Example Docker Compose file
+
+```yaml
+services:
+  my-app:
+    image: my-app
+    ports:
+      - "3000:3000"
+    environment:
+      DEFRA_ID_WELL_KNOWN_URL: ${DEFRA_ID_WELL_KNOWN_URL}
+      DEFRA_ID_CLIENT_ID: ${DEFRA_ID_CLIENT_ID}
+      DEFRA_ID_CLIENT_SECRET: ${DEFRA_ID_CLIENT_SECRET}
+      DEFRA_ID_SERVICE_ID: ${DEFRA_ID_SERVICE_ID}
+      DEFRA_ID_POLICY: ${DEFRA_ID_POLICY}
+    depends_on:
+      fcp-defra-id-stub:
+        condition: service_healthy
+
+  fcp-defra-id-stub:
+    image: defradigital/fcp-defra-id-stub
+    ports:
+      - "3007:3007"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3007/health"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 3s
 ```
 
 ### FCP Defra ID example
