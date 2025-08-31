@@ -20,7 +20,7 @@ This policy enables authentication with a CRN/Password combination and changes t
 
 To enable teams working within FCP develop and test against Defra ID this stub has been created.
 
-> NOTE: this stub is still a work in progress.  See below for a list of known limitations. Feedback and issues welcome.
+> NOTE: this stub is still a work in progress. Feedback and issues welcome.
 
 ## Supported Defra ID features
 
@@ -43,11 +43,9 @@ To enable teams working within FCP develop and test against Defra ID this stub h
 
 - Customisable people and organisation data (See below)
 
-### Current Limitations
+### Planned improvements
 
-As this is early development, there are some known limitations to be aware of that will be addressed in future releases:
-
-- Reselection an organisation mid session will replace the `roles` array property of the JWT entirely.  The real Defra ID will append the new organisation to this array.
+There are some known issues to be aware of that will be addressed in future releases:
 
 - Mock people and organisation data is limited.  However this can be overridden by the customisation options described below.
 
