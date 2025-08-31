@@ -4,9 +4,8 @@ import fs from 'node:fs'
 import Jwt from '@hapi/jwt'
 import { getWellKnown } from '../open-id/get-well-known.js'
 
-const sessions = []
-
 const keysDir = path.resolve(process.cwd(), 'keys')
+
 const privateKeyPath = path.join(keysDir, 'private.pem')
 const publicKeyPath = path.join(keysDir, 'public.pem')
 
@@ -40,28 +39,53 @@ if (fs.existsSync(privateKeyPath) && fs.existsSync(publicKeyPath)) {
 const keyObject = crypto.createPublicKey(publicKey)
 const jwk = keyObject.export({ format: 'jwk' })
 
+const sessionsPath = path.join(keysDir, 'sessions.json')
+
+let sessions = []
+
+loadSessions()
+
+function loadSessions () {
+  if (fs.existsSync(sessionsPath)) {
+    try {
+      const data = JSON.parse(fs.readFileSync(sessionsPath, 'utf8'))
+      // Filter out expired sessions
+      const now = Date.now()
+      sessions = data.filter(s => now - s.createdAt < 3600 * 1000)
+    } catch (e) {
+      sessions = []
+    }
+  }
+}
+
+function saveSessions () {
+  fs.writeFileSync(sessionsPath, JSON.stringify(sessions, null, 2))
+}
+
 export function createTokens (person, organisation, authRequest) {
   const sessionId = crypto.randomUUID()
-
+  const now = Date.now()
   const session = {
     sessionId,
     accessCode: createAccessCode(),
     accessToken: createAccessToken(createTokenContent(sessionId, person, organisation, authRequest)),
-    refreshToken: createRefreshToken()
+    refreshToken: createRefreshToken(),
+    createdAt: now
   }
-
   sessions.push(session)
-
+  saveSessions()
   return session
 }
 
 export function getTokens (accessCode) {
+  const now = Date.now()
+  // Remove expired sessions before searching
+  sessions = sessions.filter(s => now - s.createdAt < 3600 * 1000)
+  saveSessions()
   const activeSession = sessions.find(session => session.accessCode === accessCode)
-
   if (!activeSession) {
     return null
   }
-
   return {
     access_token: activeSession.accessToken,
     token_type: 'Bearer',
@@ -87,12 +111,11 @@ export function getPublicKeys () {
 
 export function endSession (accessToken) {
   const activeSession = sessions.find(session => session.accessToken === accessToken)
-
   if (!activeSession) {
     return
   }
-
   sessions.splice(sessions.indexOf(activeSession), 1)
+  saveSessions()
 }
 
 function createAccessCode () {

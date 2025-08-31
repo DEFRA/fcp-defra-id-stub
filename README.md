@@ -30,7 +30,7 @@ To enable teams working within FCP develop and test against Defra ID this stub h
 - Signed JWT token generation consistent with `signupsigninsfi` policy
 - Token exchange from authorisation
 - Refresh token exchange
-- Single Sign-On (SSO) support
+- Single Sign-On (SSO) support (Session lasts one hour, extended on each re-authentication/organisation change)
 - Sign out including ending SSO session
 - Prevent sign in if no organisations associated with account
 - Automatically bypass organisation selection if CRN is associated with only one organisation.
@@ -46,8 +46,6 @@ To enable teams working within FCP develop and test against Defra ID this stub h
 ### Current Limitations
 
 As this is early development, there are some known limitations to be aware of that will be addressed in future releases:
-
-- Session data is not persisted across stub restarts.  Token exchange, SSO and refresh tokens will be invalid if the stub is restarted.
 
 - Reselection an organisation mid session will replace the `roles` array property of the JWT entirely.  The real Defra ID will append the new organisation to this array.
 
