@@ -138,7 +138,7 @@ function createTokenContent (sessionId, person, organisation, authRequest) {
     aal: '1',
     serviceId,
     correlationId: crypto.randomUUID(),
-    currentRelationshipId: '5890927',
+    currentRelationshipId: organisationId,
     sessionId,
     contactId: crn,
     sub: '5add6531-c8c8-4e78-b57b-071002f21887',
