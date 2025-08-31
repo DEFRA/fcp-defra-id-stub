@@ -1,10 +1,13 @@
 import crypto from 'node:crypto'
 import path from 'node:path'
 import fs from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import Jwt from '@hapi/jwt'
 import { getWellKnown } from '../open-id/get-well-known.js'
 
-const keysDir = path.resolve(process.cwd(), 'keys')
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const keysDir = path.resolve(__dirname, '../../keys')
 
 const privateKeyPath = path.join(keysDir, 'private.pem')
 const publicKeyPath = path.join(keysDir, 'public.pem')

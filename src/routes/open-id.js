@@ -20,6 +20,7 @@ const token = {
   method: 'POST',
   path: '/dcidmtest.onmicrosoft.com/b2c_1a_cui_cpdev_signupsigninsfi/oauth2/v2.0/token',
   handler: function (request, h) {
+    console.log('token request received')
     const { code } = request.payload
     const tokens = getTokens(code)
 
