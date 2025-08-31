@@ -1,0 +1,37 @@
+{% extends "layouts.njk" %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <div class="govuk-body">
+        <h1 class="govuk-heading-l">{{ serviceName }}</h1>
+
+        <p class="govuk-body">Defra Identity stub for Farming and Countryside Programme (FCP).</p>
+        <p class="govuk-body">This stub enables teams working within FCP to develop and test against Defra Identity using the <strong>signupsigninsfi</strong> policy.</p>
+
+        <h2 class="govuk-heading-m">Supported Defra Identity features</h2>
+
+        <ul class="govuk-list govuk-list--bullet govuk-list--spaced">
+          <li>CRN/Password authentication</li>
+          <li>Exposes all Defra ID endpoints including well-known endpoints</li>
+          <li>Organisation selection</li>
+          <li>Signed JWT token generation consistent with <strong>signupsigninsfi</strong> policy</li>
+          <li>Token exchange from authorisation</li>
+          <li>Refresh token exchange</li>
+          <li>Single Sign-On (SSO) support</li>
+          <li>Sign out including ending SSO session</li>
+          <li>Prevent sign in if no organisations associated with account</li>
+          <li>Automatically bypass organisation selection if CRN is associated with only one organisation.</li>
+          <li>Supports all Defra ID authentication behaviours including:
+            <ul class="govuk-list govuk-list--bullet govuk-list--spaced">
+              <li>Force re-authentication with <strong>prompt=login</strong> parameter</li>
+              <li>Bypass organisation selection with <strong>relationshipId=&lt;OrganisationId&gt;</strong> parameter</li>
+              <li>Force organisation selection with <strong>forceReselection=true</strong> parameter</li>
+            </ul>
+          </li>
+        </ul>
+
+        <p class="govuk-body">See <a href="https://github.com/DEFRA/fcp-defra-id-stub">GitHub</a> for full usage information.</p>
+      </div>
+  </div>
+{% endblock %}
