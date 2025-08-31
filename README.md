@@ -22,7 +22,7 @@ To enable teams working within FCP develop and test against Defra ID this stub h
 
 > NOTE: this stub is still a work in progress.  See below for a list of known limitations. Feedback and issues welcome.
 
-## Features
+## Supported Defra ID features
 
 - CRN/Password authentication
 - Exposes all Defra ID endpoints including well-known endpoints
@@ -33,11 +33,15 @@ To enable teams working within FCP develop and test against Defra ID this stub h
 - Single Sign-On (SSO) support
 - Sign out including ending SSO session
 - Prevent sign in if no organisations associated with account
-- Customisable people and organisation data (See below)
+- Automatically bypass organisation selection if CRN is associated with only one organisation.
 - Supports all Defra ID authentication behaviours including:
   - Force re-authentication with `prompt=login` parameter
   - Bypass organisation selection with `relationshipId=<OrganisationId>` parameter
   - Force organisation selection with `forceReselection=true` parameter
+
+## Additional stub features
+
+- Customisable people and organisation data (See below)
 
 ### Current Limitations
 
@@ -50,8 +54,6 @@ As this is early development, there are some known limitations to be aware of th
 - Reselection an organisation mid session will replace the `roles` array property of the JWT entirely.  The real Defra ID will append the new organisation to this array.
 
 - Mock people and organisation data is limited.  However this can be overridden by the customisation options described below.
-
-- Unlike real Defra ID, does not automatically bypass organisation selection if CRN is associated with only one organisation.
 
 - UI content does not fully mirror Defra ID.  However note there are no plans to introduce the legacy GOV.UK branding currently used by Defra ID.
 
