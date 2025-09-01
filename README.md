@@ -11,7 +11,7 @@ Defra Identity stub for Farming and Countryside Programme (FCP).
 
 There are two existing Defra Identity stubs:
 
-- [Official Defra Identity stub](#)
+- [Official Defra Identity stub](https://dev.azure.com/defragovuk/DEFRA-Common-Platform-Improvements/_wiki/wikis/DEFRA-Common-Platform-Improvements.wiki/32274/IDM-stub)
 - [CDP Defra Identity stub](https://github.com/DEFRA/cdp-defra-id-stub)
 
 Neither of these support the `signupsigninsfi` policy used in FCP.
@@ -354,6 +354,8 @@ DEFRA_ID_CLIENT_SECRET=<Your Client Secret>
 DEFRA_ID_SERVICE_ID=<your Service ID GUID>
 DEFRA_ID_POLICY=b2c_1a_cui_cpdev_signupsigninsfi
 ```
+
+> NOTE: CDP environments cannot be used from outside of CDP as the complex redirection url will be rejected.
 
 ### Testing
 
