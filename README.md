@@ -343,7 +343,17 @@ The stub is deployed to all CDP environments and can be used by any application.
 - [https://fcp-defra-id-stub.dev.cdp-int.defra.cloud](https://fcp-defra-id-stub.dev.cdp-int.defra.cloud)
 - [https://fcp-defra-id-stub.test.cdp-int.defra.cloud](https://fcp-defra-id-stub.test.cdp-int.defra.cloud)
 - [https://fcp-defra-id-stub.perf-test.cdp-int.defra.cloud](https://fcp-defra-id-stub.perf-test.cdp-int.defra.cloud)
-- [https://fcp-defra-id-stub.prd.cdp-int.defra.cloud](https://fcp-defra-id-stub.prd.cdp-int.defra.cloud)
+- [https://fcp-defra-id-stub.prd.cdp-int.defra.cloud](https://fcp-defra-id-stub.prod.cdp-int.defra.cloud)
+
+Example configuration file for CDP `dev` environment.
+
+```
+DEFRA_ID_WELL_KNOWN_URL=https://fcp-defra-id-stub.dev.cdp-int.defra.cloud/idphub/b2c/b2c_1a_cui_cpdev_signupsigninsfi/.well-known/openid-configuration
+DEFRA_ID_CLIENT_ID=<your Client ID GUID>
+DEFRA_ID_CLIENT_SECRET=<Your Client Secret>
+DEFRA_ID_SERVICE_ID=<your Service ID GUID>
+DEFRA_ID_POLICY=b2c_1a_cui_cpdev_signupsigninsfi
+```
 
 ### Testing
 
