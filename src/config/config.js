@@ -156,6 +156,26 @@ export const config = convict({
       env: 'COOKIE_PASSWORD'
     }
   },
+  aws: {
+    region: {
+      doc: 'AWS region',
+      format: String,
+      default: 'eu-west-2',
+      env: 'AWS_REGION'
+    },
+    s3Enabled: {
+      doc: 'Is S3 enabled for data storage',
+      format: Boolean,
+      default: false,
+      env: 'AWS_S3_ENABLED'
+    },
+    s3Bucket: {
+      doc: 'S3 bucket name',
+      format: String,
+      default: null,
+      env: 'AWS_S3_BUCKET'
+    }
+  },
   auth: {
     mode: {
       doc: 'The authentication mode to use',

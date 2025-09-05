@@ -1,0 +1,61 @@
+{
+  "people": [
+    {
+      "crn": 4100010101,
+      "firstName": "Helen",
+      "lastName": "Parker",
+      "organisations": [
+        {
+          "organisationId": "5900001",
+          "sbi": 410100101,
+          "name": "HP Productions"
+        },
+        {
+          "organisationId": "5900002",
+          "sbi": 410100102,
+          "name": "Harold Ross Parks"
+        },
+        {
+          "organisationId": "5900003",
+          "sbi": 410100103,
+          "name": "Total Treats & Co."
+        }
+      ]
+    },
+    {
+      "crn": 4100010102,
+      "firstName": "Barney",
+      "lastName": "Graham",
+      "organisations": [
+        {
+          "organisationId": "5900001",
+          "sbi": 410100101,
+          "name": "Sheep Every Day"
+        },
+        {
+          "organisationId": "5900002",
+          "sbi": 410100103,
+          "name": "PLA Contracts"
+        }
+      ]
+    },
+    {
+      "crn": 4100010103,
+      "firstName": "Francis",
+      "lastName": "McGee",
+      "organisations": []
+    },
+    {
+      "crn": 4100010104,
+      "firstName": "Alice",
+      "lastName": "Smith",
+      "organisations": [
+        {
+          "organisationId": "5900001",
+          "sbi": 210100101,
+          "name": "Sheep Every Day"
+        }
+      ]
+    }
+  ]
+}

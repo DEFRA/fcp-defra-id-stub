@@ -2,6 +2,20 @@ import Joi from 'joi'
 import { config } from '../config/config.js'
 
 const { mode, override, overrideFile } = config.get('auth')
+const { s3Enabled } = config.get('aws')
+
+const schema = Joi.object({
+  people: Joi.array().items(Joi.object({
+    crn: Joi.number().required(),
+    firstName: Joi.string().required(),
+    lastName: Joi.string().required(),
+    organisations: Joi.array().items(Joi.object({
+      organisationId: Joi.string().required(),
+      sbi: Joi.number().required(),
+      name: Joi.string().required()
+    })).required()
+  })).required()
+})
 
 let people = []
 
@@ -25,19 +39,6 @@ if (override !== '') {
 if (overrideFile !== '') {
   const overrideData = await import(`/data/${overrideFile}`, { with: { type: 'json' } })
 
-  const schema = Joi.object({
-    people: Joi.array().items(Joi.object({
-      crn: Joi.number().required(),
-      firstName: Joi.string().required(),
-      lastName: Joi.string().required(),
-      organisations: Joi.array().items(Joi.object({
-        organisationId: Joi.string().required(),
-        sbi: Joi.number().required(),
-        name: Joi.string().required()
-      })).required()
-    })).required()
-  })
-
   const { error } = schema.validate(overrideData.default, { abortEarly: false })
 
   if (error) {
@@ -47,7 +48,14 @@ if (overrideFile !== '') {
   people = overrideData.default.people
 }
 
-export function getPerson (crn) {
+export function getPerson (crn, clientId) {
+  if (s3Enabled) {
+    // check to see if any json files exist in the bucket in a folder named after the clientId
+    // if they do, load the most recent one and validate against the schema
+    // if valid use that instead of the local data
+    // if invalid then log an error and continue to use the local data
+  }
+
   if (mode === 'basic' && override === '' && overrideFile === '') {
     return people[0]
   }

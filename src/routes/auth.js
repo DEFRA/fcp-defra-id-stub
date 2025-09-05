@@ -34,14 +34,16 @@ const signIn = [{
   handler: (request, h) => {
     const { crn, password } = request.payload
 
-    if (!validateCredentials(crn, password)) {
+    const { client_id: clientId } = request.yar.get('auth-request')
+
+    if (!validateCredentials(crn, password, clientId)) {
       return h.view('sign-in', {
         message: 'Your CRN and/or password is incorrect',
         crn: request.payload.crn
       }).takeover()
     }
 
-    const person = getPerson(crn)
+    const person = getPerson(crn, clientId)
 
     request.yar.set('person', person)
 
