@@ -4,7 +4,7 @@ import { config } from '../config/config.js'
 import { createLogger } from '../common/helpers/logging/logger.js'
 
 const { mode, override, overrideFile } = config.get('auth')
-const { s3Enabled, s3Bucket, region } = config.get('aws')
+const { s3Enabled, s3Bucket, region, endpoint, accessKeyId, secretAccessKey } = config.get('aws')
 const logger = createLogger()
 
 const schema = Joi.object({
@@ -25,7 +25,17 @@ let s3Client = null
 
 // Initialize S3 client if enabled
 if (s3Enabled && s3Bucket) {
-  s3Client = new S3Client({ region })
+  s3Client = new S3Client({
+    region,
+    ...(endpoint && {
+      endpoint,
+      forcePathStyle: true,
+      credentials: {
+        accessKeyId,
+        secretAccessKey
+      }
+    })
+  })
 }
 
 // Helper function to get the most recent JSON file from S3 for a specific client
@@ -45,7 +55,7 @@ async function getLatestS3Data (clientId) {
     const listResponse = await s3Client.send(listCommand)
 
     if (!listResponse.Contents || listResponse.Contents.length === 0) {
-      logger.info(`No JSON files found in S3 bucket for client: ${clientId}`)
+      logger.warn(`No JSON files found in S3 bucket for client: ${clientId}`)
       return null
     }
 
@@ -55,7 +65,7 @@ async function getLatestS3Data (clientId) {
       .sort((a, b) => new Date(b.LastModified) - new Date(a.LastModified))
 
     if (jsonFiles.length === 0) {
-      logger.info(`No JSON files found in S3 bucket for client: ${clientId}`)
+      logger.warn(`No JSON files found in S3 bucket for client: ${clientId}`)
       return null
     }
 

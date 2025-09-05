@@ -163,6 +163,27 @@ export const config = convict({
       default: 'eu-west-2',
       env: 'AWS_REGION'
     },
+    endpoint: {
+      doc: 'AWS endpoint URL, for example to use with LocalStack',
+      format: String,
+      nullable: true,
+      default: null,
+      env: 'AWS_ENDPOINT_URL'
+    },
+    accessKeyId: {
+      doc: 'AWS access key ID',
+      format: String,
+      nullable: true,
+      default: null,
+      env: 'AWS_ACCESS_KEY_ID'
+    },
+    secretAccessKey: {
+      doc: 'AWS secret access key',
+      format: String,
+      nullable: true,
+      default: null,
+      env: 'AWS_SECRET_ACCESS_KEY'
+    },
     s3Enabled: {
       doc: 'Is S3 enabled for data storage',
       format: Boolean,

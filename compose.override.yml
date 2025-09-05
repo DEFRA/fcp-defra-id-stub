@@ -4,13 +4,6 @@ services:
       - '${FCP_DEFRA_ID_STUB_PORT:-3007}:${FCP_DEFRA_ID_STUB_PORT:-3007}'
     networks:
       - fcp-defra-id-stub
-    environment:
-      PORT: ${FCP_DEFRA_ID_STUB_PORT:-3007}
-      AUTH_MODE: ${AUTH_MODE}
-      AUTH_OVERRIDE: ${AUTH_OVERRIDE}
-      AUTH_OVERRIDE_FILE: ${AUTH_OVERRIDE_FILE}
-      AWS_S3_ENABLED: true
-      AWS_S3_BUCKET: fcp-defra-id-stub-data
     volumes:
       - ./example.data.json:/data/example.data.json
 
