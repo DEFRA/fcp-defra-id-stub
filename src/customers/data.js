@@ -23,7 +23,6 @@ const schema = Joi.object({
 let people = []
 let s3Client = null
 
-// Initialize S3 client if enabled
 if (s3Enabled && s3Bucket) {
   s3Client = new S3Client({
     region,
@@ -38,14 +37,12 @@ if (s3Enabled && s3Bucket) {
   })
 }
 
-// Helper function to get the most recent JSON file from S3 for a specific client
 async function getLatestS3Data (clientId) {
   if (!s3Client || !s3Bucket) {
     return null
   }
 
   try {
-    // List objects in the client-specific folder
     const listCommand = new ListObjectsV2Command({
       Bucket: s3Bucket,
       Prefix: `${clientId}/`,
@@ -59,7 +56,6 @@ async function getLatestS3Data (clientId) {
       return null
     }
 
-    // Filter for JSON files and sort by last modified (most recent first)
     const jsonFiles = listResponse.Contents
       .filter(obj => obj.Key.endsWith('.json'))
       .sort((a, b) => new Date(b.LastModified) - new Date(a.LastModified))
@@ -69,7 +65,6 @@ async function getLatestS3Data (clientId) {
       return null
     }
 
-    // Get the most recent JSON file
     const mostRecentFile = jsonFiles[0]
     logger.info(`Loading most recent S3 data file for client ${clientId}: ${mostRecentFile.Key}`)
 
@@ -82,7 +77,6 @@ async function getLatestS3Data (clientId) {
     const dataString = await getResponse.Body.transformToString()
     const s3Data = JSON.parse(dataString)
 
-    // Validate the data against the schema
     const { error } = schema.validate(s3Data, { abortEarly: false })
 
     if (error) {
@@ -128,16 +122,13 @@ if (overrideFile !== '') {
 }
 
 export async function getPerson (crn, clientId) {
-  // Try to get S3 data first if enabled
   if (s3Enabled && clientId && s3Bucket) {
     const s3People = await getLatestS3Data(clientId)
     if (s3People && s3People.length > 0) {
-      // If we have S3 data, always match by CRN
       return s3People.find(person => person.crn === crn)
     }
   }
 
-  // No S3 data, use local data logic
   if (mode === 'basic' && override === '' && overrideFile === '') {
     return people[0]
   }
@@ -146,17 +137,14 @@ export async function getPerson (crn, clientId) {
 }
 
 export async function getOrganisations (crn, clientId) {
-  // Try to get S3 data first if enabled
   if (s3Enabled && clientId && s3Bucket) {
     const s3People = await getLatestS3Data(clientId)
     if (s3People && s3People.length > 0) {
-      // If we have S3 data, always match by CRN
       const s3Person = s3People.find(p => p.crn === crn)
       return s3Person ? s3Person.organisations : []
     }
   }
 
-  // No S3 data, use local data logic
   if (mode === 'basic' && override === '' && overrideFile === '') {
     return people[0].organisations
   }
@@ -168,16 +156,13 @@ export async function getOrganisations (crn, clientId) {
 export async function getSelectedOrganisation (crn, { sbi, organisationId }, clientId) {
   let person
 
-  // Try to get S3 data first if enabled
   if (s3Enabled && clientId && s3Bucket) {
     const s3People = await getLatestS3Data(clientId)
     if (s3People && s3People.length > 0) {
-      // If we have S3 data, always match by CRN
       person = s3People.find(p => p.crn === crn)
     }
   }
 
-  // No S3 data or person not found in S3, use local data logic
   if (!person) {
     if (mode === 'basic' && override === '' && overrideFile === '') {
       person = people[0]
