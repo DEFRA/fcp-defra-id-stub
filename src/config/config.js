@@ -172,7 +172,7 @@ export const config = convict({
     s3Bucket: {
       doc: 'S3 bucket name',
       format: String,
-      default: null,
+      default: '',
       env: 'AWS_S3_BUCKET'
     }
   },

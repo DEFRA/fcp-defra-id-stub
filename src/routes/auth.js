@@ -31,19 +31,19 @@ const signIn = [{
       }).takeover()
     }
   },
-  handler: (request, h) => {
+  handler: async (request, h) => {
     const { crn, password } = request.payload
 
     const { client_id: clientId } = request.yar.get('auth-request')
 
-    if (!validateCredentials(crn, password, clientId)) {
+    if (!await validateCredentials(crn, password, clientId)) {
       return h.view('sign-in', {
         message: 'Your CRN and/or password is incorrect',
         crn: request.payload.crn
       }).takeover()
     }
 
-    const person = getPerson(crn, clientId)
+    const person = await getPerson(crn, clientId)
 
     request.yar.set('person', person)
 
@@ -54,26 +54,26 @@ const signIn = [{
 const picker = [{
   method: 'GET',
   path: '/organisations',
-  handler: (request, h) => {
+  handler: async (request, h) => {
     const person = request.yar.get('person')
-    const { forceReselection, relationshipId } = request.yar.get('auth-request')
+    const { forceReselection, relationshipId, client_id: clientId } = request.yar.get('auth-request')
     const organisationId = request.yar.get('organisationId')
 
     if (relationshipId) {
-      const organisation = getSelectedOrganisation(person.crn, { organisationId: relationshipId })
+      const organisation = await getSelectedOrganisation(person.crn, { organisationId: relationshipId }, clientId)
 
       if (organisationId) {
         return completeAuthentication(request, h, person, organisation)
       }
     }
 
-    const currentOrganisation = getSelectedOrganisation(person.crn, { organisationId })
+    const currentOrganisation = await getSelectedOrganisation(person.crn, { organisationId }, clientId)
 
     if (currentOrganisation && !forceReselection) {
       return completeAuthentication(request, h, person, currentOrganisation)
     }
 
-    const organisations = getOrganisations(person.crn)
+    const organisations = await getOrganisations(person.crn, clientId)
 
     if (organisations.length === 0) {
       return h.view('no-organisations')
@@ -93,9 +93,10 @@ const picker = [{
       payload: {
         sbi: Joi.number().integer().required()
       },
-      failAction: (request, h, _error) => {
+      failAction: async (request, h, _error) => {
         const { crn } = request.yar.get('person')
-        const organisations = getOrganisations(crn)
+        const { client_id: clientId } = request.yar.get('auth-request')
+        const organisations = await getOrganisations(crn, clientId)
 
         return h.view('picker', {
           message: 'Select an organisation',
@@ -104,12 +105,13 @@ const picker = [{
       }
     }
   },
-  handler: (request, h) => {
+  handler: async (request, h) => {
     const { sbi } = request.payload
 
     const person = request.yar.get('person')
+    const { client_id: clientId } = request.yar.get('auth-request')
 
-    const organisation = getSelectedOrganisation(person.crn, { sbi })
+    const organisation = await getSelectedOrganisation(person.crn, { sbi }, clientId)
 
     return completeAuthentication(request, h, person, organisation)
   }
