@@ -8,14 +8,14 @@ if [ -z "$1" ]; then
     echo "Error: No client ID provided."
     echo "Usage: ./upload-file.sh <client-id>"
     echo ""
-    echo "Example: ./upload-file.sh my-test-client-123"
+    echo "Example: ./upload-file.sh 00000000-0000-0000-0000-000000000000"
     exit 1
 fi
 
 CLIENT_ID="$1"
 BUCKET_NAME="fcp-defra-id-stub-data"
-SOURCE_FILE="${PROJECT_ROOT}/example.bucket.data.json"
-S3_KEY="${CLIENT_ID}/example.bucket.data.json"
+SOURCE_FILE="${PROJECT_ROOT}/example.data.json"
+S3_KEY="${CLIENT_ID}/example.data.json"
 
 AWS_ACCESS_KEY_ID=test \
 AWS_SECRET_ACCESS_KEY=test \
