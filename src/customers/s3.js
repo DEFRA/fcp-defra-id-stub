@@ -46,7 +46,7 @@ export async function getLatestS3Data (clientId) {
       .sort((a, b) => new Date(b.LastModified) - new Date(a.LastModified))
 
     if (jsonFiles.length === 0) {
-      logger.warn(`No JSON files found in S3 bucket for client: ${clientId}`)
+      logger.info(`No JSON files found in S3 bucket for client: ${clientId}`)
       return null
     }
 

@@ -375,18 +375,18 @@ If provided, this option will take precedence over all other methods.  However, 
 
 Each CDP environment has a dedicated S3 bucket for the stub data.
 
-- `dev-fcp-defra-id-stub-data-<cdp-account-suffix>`
-- `test-fcp-defra-id-stub-data-<cdp-account-suffix>`
-- `perf-test-fcp-defra-id-stub-data-<cdp-account-suffix>`
-- `prod-fcp-defra-id-stub-data-<cdp-account-suffix>`
+- `dev-fcp-defra-id-stub-data-c63f2`
+- `test-fcp-defra-id-stub-data-6bf3a`
+- `perf-test-fcp-defra-id-stub-data-05244`
+- `prod-fcp-defra-id-stub-data-75ee2`
 
 To upload a data file to the relevant bucket, use the AWS CLI through the CDP terminal.
 
 Ensure to prefix the S3 key with the Client ID of your application.
 
-For example, to upload the `example.data.json` file in this repository for a Client ID of `00000000-0000-0000-0000-000000000000`, run the below command.
+For example, to upload the `example.data.json` file in this repository for a Client ID of `00000000-0000-0000-0000-000000000000` to the `dev` environment, run the below command.
 
-`aws s3 cp example.data.json s3://dev-fcp-defra-id-stub-data-<cdp-account-suffix>/00000000-0000-0000-0000-000000000000/example.data.json`
+`aws s3 cp example.data.json s3://dev-fcp-defra-id-stub-data-c63f2/00000000-0000-0000-0000-000000000000/example.data.json`
 
 #### Uploading data files locally
 
