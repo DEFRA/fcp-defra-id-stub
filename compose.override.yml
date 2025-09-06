@@ -4,14 +4,23 @@ services:
       - '${FCP_DEFRA_ID_STUB_PORT:-3007}:${FCP_DEFRA_ID_STUB_PORT:-3007}'
     networks:
       - fcp-defra-id-stub
-    environment:
-      PORT: ${FCP_DEFRA_ID_STUB_PORT:-3007}
-      AUTH_OVERRIDE: ${AUTH_OVERRIDE}
-      AUTH_OVERRIDE_FILE: ${AUTH_OVERRIDE_FILE}
     volumes:
       - ./example.data.json:/data/example.data.json
+
+  localstack:
+    ports:
+      - '4566:4566'
+      - '4510-4559:4510-4559'
+    volumes:
+      - ./scripts/localstack.sh:/etc/localstack/init/ready.d/localstack.sh
+      - localstack-data:/var/lib/localstack
+    networks:
+      - fcp-defra-id-stub
 
 networks:
   fcp-defra-id-stub:
     driver: bridge
     name: fcp-defra-id-stub
+
+volumes:
+  localstack-data:

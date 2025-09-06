@@ -1,18 +1,7 @@
-import { config } from '../config/config.js'
-import { getPerson } from '../customers/data.js'
+import { getPerson } from '../people/data.js'
 
-const auth = config.get('auth')
+export async function validateCredentials (crn, _password, clientId) {
+  const person = await getPerson(crn, clientId)
 
-export function validateCredentials (crn, _password) {
-  if (auth.mode === 'basic' && auth.override === '' && auth.overrideFile === '') {
-    return true
-  }
-
-  const person = getPerson(crn)
-
-  if (!person) {
-    return false
-  }
-
-  return true
+  return !!person
 }

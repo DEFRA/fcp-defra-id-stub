@@ -156,6 +156,47 @@ export const config = convict({
       env: 'COOKIE_PASSWORD'
     }
   },
+  aws: {
+    s3Enabled: {
+      doc: 'Is S3 enabled for data storage',
+      format: Boolean,
+      default: false,
+      env: 'AWS_S3_ENABLED'
+    },
+    region: {
+      doc: 'AWS region',
+      format: String,
+      default: 'eu-west-2',
+      env: 'AWS_REGION'
+    },
+    endpoint: {
+      doc: 'AWS endpoint URL, for example to use with LocalStack',
+      format: String,
+      nullable: true,
+      default: null,
+      env: 'AWS_ENDPOINT_URL'
+    },
+    accessKeyId: {
+      doc: 'AWS access key ID',
+      format: String,
+      nullable: true,
+      default: null,
+      env: 'AWS_ACCESS_KEY_ID'
+    },
+    secretAccessKey: {
+      doc: 'AWS secret access key',
+      format: String,
+      nullable: true,
+      default: null,
+      env: 'AWS_SECRET_ACCESS_KEY'
+    },
+    s3Bucket: {
+      doc: 'S3 bucket name, required if S3 is enabled',
+      format: String,
+      default: process.env.AWS_S3_ENABLED === 'true' ? null : '',
+      env: 'AWS_S3_BUCKET'
+    }
+  },
   auth: {
     mode: {
       doc: 'The authentication mode to use',
@@ -194,8 +235,23 @@ export const config = convict({
       },
       default: '',
       env: 'AUTH_OVERRIDE_FILE'
+    },
+    source: {
+      doc: 'Source of truth for authentication and user data',
+      format: String,
+      default: 'basic'
     }
   }
 })
+
+if (config.get('auth.overrideFile') !== '') {
+  config.set('auth.source', 'file')
+} else if (config.get('auth.override') !== '') {
+  config.set('auth.source', 'override')
+} else if (config.get('auth.mode') === 'mock') {
+  config.set('auth.source', 'mock')
+} else {
+  config.set('auth.source', 'basic')
+}
 
 config.validate({ allowed: 'strict' })
