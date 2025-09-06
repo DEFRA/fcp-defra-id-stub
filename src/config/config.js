@@ -157,6 +157,12 @@ export const config = convict({
     }
   },
   aws: {
+    s3Enabled: {
+      doc: 'Is S3 enabled for data storage',
+      format: Boolean,
+      default: false,
+      env: 'AWS_S3_ENABLED'
+    },
     region: {
       doc: 'AWS region',
       format: String,
@@ -184,16 +190,10 @@ export const config = convict({
       default: null,
       env: 'AWS_SECRET_ACCESS_KEY'
     },
-    s3Enabled: {
-      doc: 'Is S3 enabled for data storage',
-      format: Boolean,
-      default: false,
-      env: 'AWS_S3_ENABLED'
-    },
     s3Bucket: {
-      doc: 'S3 bucket name',
+      doc: 'S3 bucket name, required if S3 is enabled',
       format: String,
-      default: '',
+      default: process.env.AWS_S3_ENABLED === 'true' ? null : '',
       env: 'AWS_S3_BUCKET'
     }
   },
