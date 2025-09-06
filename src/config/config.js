@@ -235,8 +235,23 @@ export const config = convict({
       },
       default: '',
       env: 'AUTH_OVERRIDE_FILE'
+    },
+    source: {
+      doc: 'Source of truth for authentication and user data',
+      format: String,
+      default: 'basic'
     }
   }
 })
+
+if (config.get('auth.overrideFile') !== '') {
+  config.set('auth.source', 'file')
+} else if (config.get('auth.override') !== '') {
+  config.set('auth.source', 'override')
+} else if (config.get('auth.mode') === 'mock') {
+  config.set('auth.source', 'mock')
+} else {
+  config.set('auth.source', 'basic')
+}
 
 config.validate({ allowed: 'strict' })

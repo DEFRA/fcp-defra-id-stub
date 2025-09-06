@@ -1,7 +1,7 @@
 import Joi from 'joi'
 import { validateCredentials } from '../auth/validate-credentials.js'
 import { createTokens } from '../auth/token.js'
-import { getPerson, getOrganisations, getSelectedOrganisation } from '../customers/data.js'
+import { getPerson, getOrganisations, getSelectedOrganisation } from '../people/data.js'
 
 const signIn = [{
   method: 'GET',

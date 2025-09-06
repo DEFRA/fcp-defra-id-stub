@@ -12,7 +12,7 @@ services:
       AWS_ENDPOINT_URL: http://localstack:4566
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
-      AWS_S3_ENABLED: true
+      AWS_S3_ENABLED: ${FCP_DEFRA_ID_STUB_AWS_S3_ENABLED:-true}
       AWS_S3_BUCKET: fcp-defra-id-stub-data
     volumes:
       - ./src:/home/node/src
