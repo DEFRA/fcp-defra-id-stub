@@ -8,7 +8,7 @@ const logger = createLogger()
 
 let s3Client = null
 
-if (s3Enabled && s3Bucket) {
+if (s3Enabled) {
   s3Client = new S3Client({
     region,
     ...(endpoint && {
@@ -23,7 +23,7 @@ if (s3Enabled && s3Bucket) {
 }
 
 export async function getLatestS3Data (clientId) {
-  if (!s3Client || !s3Bucket) {
+  if (!s3Client) {
     return null
   }
 

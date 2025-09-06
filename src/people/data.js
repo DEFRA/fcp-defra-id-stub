@@ -4,9 +4,9 @@ import { getData } from './source.js'
 const source = config.get('auth.source')
 
 export async function getPerson (crn, clientId) {
-  const people = await getData(clientId)
+  const { people, s3 } = await getData(clientId)
 
-  if (source === 'basic') {
+  if (source === 'basic' && !s3) {
     return people[0]
   }
 
@@ -14,9 +14,9 @@ export async function getPerson (crn, clientId) {
 }
 
 export async function getOrganisations (crn, clientId) {
-  const people = await getData(clientId)
+  const { people, s3 } = await getData(clientId)
 
-  if (source === 'basic') {
+  if (source === 'basic' && !s3) {
     return people[0].organisations || []
   }
 
@@ -26,9 +26,9 @@ export async function getOrganisations (crn, clientId) {
 export async function getSelectedOrganisation (crn, { sbi, organisationId }, clientId) {
   let person
 
-  const people = await getData(clientId)
+  const { people, s3 } = await getData(clientId)
 
-  if (source === 'basic') {
+  if (source === 'basic' && !s3) {
     person = people[0]
   } else {
     person = people.find(p => p.crn === crn)

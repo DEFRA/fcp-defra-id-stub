@@ -40,9 +40,9 @@ export async function getData (clientId) {
   if (s3Enabled) {
     const s3People = await getLatestS3Data(clientId)
     if (s3People && s3People.length > 0) {
-      return s3People
+      return { people: s3People, s3: true }
     }
   }
 
-  return people
+  return { people, s3: false }
 }

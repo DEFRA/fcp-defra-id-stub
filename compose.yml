@@ -29,6 +29,7 @@ services:
       AWS_DEFAULT_REGION: eu-west-2
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
+      PERSISTENCE: 1
     healthcheck:
       test: ['CMD', 'curl', 'localhost:4566']
       interval: 5s
