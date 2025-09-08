@@ -80,15 +80,30 @@ export function createTokens (person, organisationId, relationships, roles, auth
   return session
 }
 
-export function getTokens (accessCode) {
+export function getTokens (accessCode, grantType, refreshToken) {
   const now = Date.now()
   // Remove expired sessions before searching
   sessions = sessions.filter(s => now - s.createdAt < 3600 * 1000)
   saveSessions()
-  const activeSession = sessions.find(session => session.accessCode === accessCode)
+
+  let activeSession
+
+  if (accessCode) {
+    activeSession = sessions.find(session => session.accessCode === accessCode)
+  }
+
+  if (grantType === 'refresh_token' && refreshToken) {
+    activeSession = sessions.find(session => session.refreshToken === refreshToken)
+    if (activeSession) {
+      activeSession.accessToken = refreshAccessToken(activeSession.accessToken)
+      saveSessions()
+    }
+  }
+
   if (!activeSession) {
     return null
   }
+
   return {
     access_token: activeSession.accessToken,
     token_type: 'Bearer',
@@ -97,6 +112,23 @@ export function getTokens (accessCode) {
     refresh_token: activeSession.refreshToken,
     id_token: activeSession.accessToken
   }
+}
+
+export function refreshAccessToken (accessToken) {
+  // decode current token to get payload
+  const {
+    sessionId,
+    crn,
+    firstName,
+    lastName,
+    currentRelationshipId: organisationId,
+    relationships,
+    roles,
+    azp: clientId,
+    serviceId
+  } = Jwt.token.decode(accessToken).decoded.payload
+
+  return createAccessToken(createTokenContent(sessionId, { crn, firstName, lastName }, organisationId, relationships, roles, { clientId, serviceId }))
 }
 
 export function getPublicKeys () {

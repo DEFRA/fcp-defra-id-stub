@@ -20,8 +20,10 @@ const token = {
   method: 'POST',
   path: '/dcidmtest.onmicrosoft.com/b2c_1a_cui_cpdev_signupsigninsfi/oauth2/v2.0/token',
   handler: function (request, h) {
-    const { code } = request.payload
-    const tokens = getTokens(code)
+    const { code: accessCode } = request.payload
+    const { grant_type: grantType, refresh_token: refreshToken } = request.query
+
+    const tokens = getTokens(accessCode, grantType, refreshToken)
 
     if (!tokens) {
       return h.response('Invalid access code').code(401)
