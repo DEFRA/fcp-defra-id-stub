@@ -73,6 +73,7 @@ export function createTokens (person, organisationId, relationships, roles, auth
     accessCode: createAccessCode(),
     accessToken: createAccessToken(createTokenContent(sessionId, person, organisationId, relationships, roles, authRequest)),
     refreshToken: createRefreshToken(),
+    scope: authRequest.scope,
     createdAt: now
   }
   sessions.push(session)
@@ -108,7 +109,7 @@ export function getTokens (accessCode, grantType, refreshToken) {
     access_token: activeSession.accessToken,
     token_type: 'Bearer',
     expires_in: 86400,
-    scope: 'openid profile email', // requested scopes
+    scope: activeSession.scope,
     refresh_token: activeSession.refreshToken,
     id_token: activeSession.accessToken
   }
