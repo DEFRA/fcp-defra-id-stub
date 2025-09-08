@@ -97,6 +97,7 @@ export function getTokens (accessCode, grantType, refreshToken) {
     activeSession = sessions.find(session => session.refreshToken === refreshToken)
     if (activeSession) {
       activeSession.accessToken = refreshAccessToken(activeSession.accessToken)
+      activeSession.refreshToken = createRefreshToken()
       saveSessions()
     }
   }
