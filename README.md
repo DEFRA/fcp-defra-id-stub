@@ -43,7 +43,7 @@ To enable teams working within FCP develop and test against Defra Identity this 
 
 - Customisable people and organisation data (See below)
 
-### Planned improvements
+## Planned improvements
 
 There are some known issues to be aware of that will be addressed in future releases:
 
@@ -66,132 +66,6 @@ The stub will always return this role name as `Agent`.
 The role name is not associated to a predefined set of permissions and is therefore of little value to consuming services.
 
 Consuming services must source the user's actual permissions from Siti Agri via the Data Access Layer (DAL) post authentication.
-
-## Customising people and organisation data
-
-The stub supports four data options for configuring people and organisation data.
-
-> NOTE: That with all options, the password value is not validated.
-
-The default "Basic" approach will fit the needs of most development and testing scenarios.  
-
-However, depending on your local setup you may need the Defra Identity token content to align to other mock/real datasets you're using.
-
-For example, if you are making a subsequent call through the Data Access Layer (DAL), you may need different organisation data than the stub provides.
-
-### Basic (Default)
-
-This option allows authentication of any 10 digit CRN to be successful.  Organisation data is from a consistent mock dataset of three organisations.  
-
-Token content will align to the provided CRN and the selected organisation.
-
-### Mock
-
-The option works the same as basic other than only a predefined list of mock CRNs are accepted. 
-
-Each of the CRNs are associated with varying mock organisations.
-
-This allows for more variation of automated tests and scenarios.
-
-Current mock data available can be viewed [here](./src/customers/data.json).
-
-> NOTE: as per limitations above, mock data is limited.
-
-To enable this option set the `AUTH_MODE` environment variable to `mock`.
-
-### Simple override
-
-This option allows for a simple override of the default behaviour by providing a single CRN and organisation as a string environment variable.
-
-The provided CRN will be the only one permitted to authenticate and the provided organisation will be the only one available for selection.
-
-To enable this option set the `AUTH_OVERRIDE` environment variable to a string in the format `crn:firstName:lastName:organisationId:sbi:organisationName`.
-
-Where crn is 10 digits, firstName/lastName are letters and spaces, organisationId is a number, sbi is 9 digits, and organisationName can be anything
-
-This is validated against the following regular expression
-
-```javascript
-/^(\d{10}):([a-zA-Z\s]+):([a-zA-Z\s]+):(\d+):(\d{9}):(.+)$/
-```
-
-If this environment variable is provided, it will take precedence over Basic and Mock modes.
-
-### Detailed override
-
-To provide a comprehensive set of CRNs and associated organisation data, a JSON formatted file can be mounted to the `/data/` directory.
-
-The data must be in the format of the below example with as many people and associated organisations as desired.
-
-```json
-{
-  "people": [
-    {
-      "crn": 3100010101,
-      "firstName": "Julie",
-      "lastName": "Barnes",
-      "organisations": [
-        {
-          "organisationId": "5900001",
-          "sbi": 210100101,
-          "name": "Sheep Every Day"
-        },
-        {
-          "organisationId": "5900002",
-          "sbi": 210100102,
-          "name": "Beetles"
-        },
-        {
-          "organisationId": "5900003",
-          "sbi": 210100103,
-          "name": "A & F Land Management"
-        }
-      ]
-    },
-    {
-      "crn": 3100010102,
-      "firstName": "Glen",
-      "lastName": "Adams",
-      "organisations": [
-        {
-          "organisationId": "5900001",
-          "sbi": 210100101,
-          "name": "Sheep Every Day"
-        },
-        {
-          "organisationId": "5900002",
-          "sbi": 210100103,
-          "name": "Glen Adams"
-        }
-      ]
-    },
-    {
-      "crn": 3100010103,
-      "firstName": "Ben",
-      "lastName": "Jones",
-      "organisations": []
-    },
-    {
-      "crn": 3100010104,
-      "firstName": "Alice",
-      "lastName": "Smith",
-      "organisations": [
-        {
-          "organisationId": "5900001",
-          "sbi": 210100101,
-          "name": "Sheep Every Day"
-        }
-      ]
-    }
-  ]
-}
-```
-
-To enable this option set the `AUTH_OVERRIDE_FILE` environment variable to the filename of the JSON file within the directory.
-
-For example: `AUTH_OVERRIDE_FILE: auth-override.json`
-
-If provided, this option will take precedence over the above methods.
 
 ## Using the stub locally
 
@@ -356,6 +230,180 @@ DEFRA_ID_POLICY=b2c_1a_cui_cpdev_signupsigninsfi
 ```
 
 > NOTE: CDP environments cannot be used from outside of CDP as the complex redirection url will be rejected.
+
+## Customising people and organisation data
+
+The stub supports five data options for configuring people and organisation data.
+
+> NOTE: That with all options, the password value is not validated.
+
+The default "Basic" approach will fit the needs of most development and testing scenarios.  
+
+However, depending on your local setup you may need the Defra Identity token content to align to other mock/real datasets you're using.
+
+For example, if you are making a subsequent call through the Data Access Layer (DAL), you may need different organisation data than the stub provides.
+
+### Basic (Default)
+
+This option allows authentication of any 10 digit CRN to be successful.  Organisation data is from a consistent mock dataset of three organisations.  
+
+Token content will align to the provided CRN and the selected organisation.
+
+### Mock
+
+The option works the same as basic other than only a predefined list of mock CRNs are accepted. 
+
+Each of the CRNs are associated with varying mock organisations.
+
+This allows for more variation of automated tests and scenarios.
+
+Current mock data available can be viewed [here](./src/customers/data.json).
+
+> NOTE: as per limitations above, mock data is limited.
+
+To enable this option set the `AUTH_MODE` environment variable to `mock`.
+
+### Simple override
+
+This option allows for a simple override of the default behaviour by providing a single CRN and organisation as a string environment variable.
+
+The provided CRN will be the only one permitted to authenticate and the provided organisation will be the only one available for selection.
+
+To enable this option set the `AUTH_OVERRIDE` environment variable to a string in the format `crn:firstName:lastName:organisationId:sbi:organisationName`.
+
+Where crn is 10 digits, firstName/lastName are letters and spaces, organisationId is a number, sbi is 9 digits, and organisationName can be anything
+
+This is validated against the following regular expression
+
+```javascript
+/^(\d{10}):([a-zA-Z\s]+):([a-zA-Z\s]+):(\d+):(\d{9}):(.+)$/
+```
+
+If this environment variable is provided, it will take precedence over Basic and Mock modes.
+
+### Detailed override
+
+To provide a comprehensive set of CRNs and associated organisation data, a JSON formatted file can be mounted to the `/data/` directory.
+
+The data must be in the format of the below example with as many people and associated organisations as desired.
+
+```json
+{
+  "people": [
+    {
+      "crn": 3100010101,
+      "firstName": "Julie",
+      "lastName": "Barnes",
+      "organisations": [
+        {
+          "organisationId": "5900001",
+          "sbi": 210100101,
+          "name": "Sheep Every Day"
+        },
+        {
+          "organisationId": "5900002",
+          "sbi": 210100102,
+          "name": "Beetles"
+        },
+        {
+          "organisationId": "5900003",
+          "sbi": 210100103,
+          "name": "A & F Land Management"
+        }
+      ]
+    },
+    {
+      "crn": 3100010102,
+      "firstName": "Glen",
+      "lastName": "Adams",
+      "organisations": [
+        {
+          "organisationId": "5900001",
+          "sbi": 210100101,
+          "name": "Sheep Every Day"
+        },
+        {
+          "organisationId": "5900002",
+          "sbi": 210100103,
+          "name": "Glen Adams"
+        }
+      ]
+    },
+    {
+      "crn": 3100010103,
+      "firstName": "Ben",
+      "lastName": "Jones",
+      "organisations": []
+    },
+    {
+      "crn": 3100010104,
+      "firstName": "Alice",
+      "lastName": "Smith",
+      "organisations": [
+        {
+          "organisationId": "5900001",
+          "sbi": 210100101,
+          "name": "Sheep Every Day"
+        }
+      ]
+    }
+  ]
+}
+```
+
+To enable this option set the `AUTH_OVERRIDE_FILE` environment variable to the filename of the JSON file within the directory.
+
+For example: `AUTH_OVERRIDE_FILE: auth-override.json`
+
+If provided, this option will take precedence over the above methods.
+
+### Detailed client specific override
+
+Whist the above options cover most local development and testing scenarios, they are not suitable for shared environments such as CDP where multiple teams and applications may be using the stub.
+
+To support this scenario, the JSON data file can be stored in the stub's S3 bucket, `fcp-defra-id-stub-data`, under a folder named for the Client ID of the application.
+
+eg `fcp-defra-id-stub-data/<client-id>/example.data.json`
+
+If multiple files are uploaded under the same Client ID, the last modified file will be used.
+
+To enable this option set the `AWS_S3_ENABLED` environment variable to `true` and provide the `AWS_S3_BUCKET_NAME` environment variable if a different bucket name is required.
+
+If provided, this option will take precedence over all other methods.  However, if no file is found for the Client ID, the stub will fallback to the other methods in the order described above.
+
+#### Uploading data files to CDP environments
+
+Each CDP environment has a dedicated S3 bucket for the stub data.
+
+- `dev-fcp-defra-id-stub-data-c63f2`
+- `test-fcp-defra-id-stub-data-6bf3a`
+- `perf-test-fcp-defra-id-stub-data-05244`
+- `prod-fcp-defra-id-stub-data-75ee2`
+
+To upload a data file to the relevant bucket, use the AWS CLI through the CDP terminal.
+
+
+Ensure to prefix the S3 key with the Client ID of your application.
+
+For example, to upload the `example.data.json` file in this repository for a Client ID of `00000000-0000-0000-0000-000000000000` to the S3 `dev` environment, run the below command after uploading the file to CDP.
+
+`aws s3 cp example.data.json s3://dev-fcp-defra-id-stub-data-c63f2/00000000-0000-0000-0000-000000000000/example.data.json`
+
+> NOTE: Currently only the Single Front Door (SFD) have access to upload to these buckets.  A longer term self service solution is being investigated.
+
+#### Uploading data files locally
+
+You will need to ensure the Stub has access to a local S3 instance.
+
+The [Docker Compose file in this repository](./compose.yml) includes an example setup.
+
+The [upload-file.sh](./scripts/upload-file.sh) sample script will upload the `example.data.json` file in this repository to the local S3 instance.
+
+> NOTE: you will need to provide a Client ID as the first parameter.
+
+> The script is also dependent on a local installation of the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
+
+`./scripts/upload-file.sh 00000000-0000-0000-0000-000000000000`
 
 ### Testing
 

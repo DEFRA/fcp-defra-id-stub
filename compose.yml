@@ -2,7 +2,36 @@ services:
   fcp-defra-id-stub:
     build:
       context: .
-      target: development
+      target: development    
+    environment:
+      PORT: ${FCP_DEFRA_ID_STUB_PORT:-3007}
+      AUTH_MODE: ${AUTH_MODE:-basic}
+      AUTH_OVERRIDE: ${AUTH_OVERRIDE}
+      AUTH_OVERRIDE_FILE: ${AUTH_OVERRIDE_FILE}
+      AWS_REGION: eu-west-2
+      AWS_ENDPOINT_URL: http://localstack:4566
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_S3_ENABLED: ${FCP_DEFRA_ID_STUB_AWS_S3_ENABLED:-true}
+      AWS_S3_BUCKET: fcp-defra-id-stub-data
     volumes:
       - ./src:/home/node/src
       - ./package.json:/home/node/package.json
+    depends_on:
+      localstack:
+        condition: service_healthy
+
+  localstack:
+    image: localstack/localstack
+    environment:
+      LS_LOG: warn
+      SERVICES: s3
+      AWS_DEFAULT_REGION: eu-west-2
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      PERSISTENCE: 1
+    healthcheck:
+      test: ['CMD', 'curl', 'localhost:4566']
+      interval: 5s
+      start_period: 5s
+      retries: 3
