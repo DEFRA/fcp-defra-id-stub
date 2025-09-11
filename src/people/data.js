@@ -7,7 +7,10 @@ export async function getPerson (crn, clientId) {
   const { people, s3 } = await getData(clientId)
 
   if (source === 'basic' && !s3) {
-    return people[0]
+    return {
+      ...people[0],
+      crn: Number(crn)
+    }
   }
 
   return people.find(person => person.crn === crn)
