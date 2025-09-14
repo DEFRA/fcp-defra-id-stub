@@ -17,7 +17,7 @@
     serviceUrl: serviceUrl,
     useTudorCrown: true
   }) }}
-  {% if s3Enabled %}
+  {% if s3Enabled and navigation %}
     {{ govukServiceNavigation({
       navigation: [
         {

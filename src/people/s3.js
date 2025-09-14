@@ -14,36 +14,65 @@ if (s3Enabled) {
     ...(endpoint && {
       endpoint,
       forcePathStyle: true,
-      credentials: {
-        accessKeyId,
-        secretAccessKey
-      }
+      credentials: { accessKeyId, secretAccessKey }
     })
   })
 }
 
+function ensureClient () {
+  return s3Client
+}
+
+async function listObjects ({ prefix, delimiter = '/' } = {}) {
+  const command = new ListObjectsV2Command({
+    Bucket: s3Bucket,
+    ...(prefix && { Prefix: prefix }),
+    Delimiter: delimiter
+  })
+  return s3Client.send(command)
+}
+
+function filterAndSortJsonFiles (contents = []) {
+  return contents
+    .filter(obj => obj.Key?.endsWith('.json'))
+    .sort((a, b) => new Date(b.LastModified) - new Date(a.LastModified))
+}
+
+async function fetchJsonObject (key) {
+  const getCommand = new GetObjectCommand({ Bucket: s3Bucket, Key: key })
+  const getResponse = await s3Client.send(getCommand)
+  const dataString = await getResponse.Body.transformToString()
+  return JSON.parse(dataString)
+}
+
+function validatePeopleData (raw, clientId) {
+  const { error } = schema.validate(raw, { abortEarly: false })
+
+  if (error) {
+    logger.error(`Invalid S3 data file for client ${clientId}: ${error.message}`)
+    return null
+  }
+
+  return raw.people
+}
+
+function formatTimestamp (date) {
+  return new Date(date).toISOString().slice(0, 16).replace('T', ' ')
+}
+
 export async function getLatestS3Data (clientId) {
-  if (!s3Client) {
+  if (!ensureClient()) {
     return null
   }
 
   try {
-    const listCommand = new ListObjectsV2Command({
-      Bucket: s3Bucket,
-      Prefix: `${clientId}/`,
-      Delimiter: '/'
-    })
-
-    const listResponse = await s3Client.send(listCommand)
-
+    const listResponse = await listObjects({ prefix: `${clientId}/` })
     if (!listResponse.Contents || listResponse.Contents.length === 0) {
       logger.warn(`No JSON files found in S3 bucket for client: ${clientId}`)
       return null
     }
 
-    const jsonFiles = listResponse.Contents
-      .filter(obj => obj.Key.endsWith('.json'))
-      .sort((a, b) => new Date(b.LastModified) - new Date(a.LastModified))
+    const jsonFiles = filterAndSortJsonFiles(listResponse.Contents)
 
     if (jsonFiles.length === 0) {
       logger.info(`No JSON files found in S3 bucket for client: ${clientId}`)
@@ -52,77 +81,49 @@ export async function getLatestS3Data (clientId) {
 
     const mostRecentFile = jsonFiles[0]
     logger.info(`Loading most recent S3 data file for client ${clientId}: ${mostRecentFile.Key}`)
+    const raw = await fetchJsonObject(mostRecentFile.Key)
+    const people = validatePeopleData(raw, clientId)
 
-    const getCommand = new GetObjectCommand({
-      Bucket: s3Bucket,
-      Key: mostRecentFile.Key
-    })
-
-    const getResponse = await s3Client.send(getCommand)
-    const dataString = await getResponse.Body.transformToString()
-    const s3Data = JSON.parse(dataString)
-
-    const { error } = schema.validate(s3Data, { abortEarly: false })
-
-    if (error) {
-      logger.error(`Invalid S3 data file for client ${clientId}: ${error.message}`)
+    if (!people) {
       return null
     }
 
     logger.info(`Successfully loaded and validated S3 data for client: ${clientId}`)
-    return s3Data.people
+    return people
   } catch (error) {
     logger.error(`Error loading S3 data for client ${clientId}: ${error.message}`)
     return null
   }
 }
 
-// get latest fs3 filenames for all clients
 export async function getS3Datasets () {
-  if (!s3Client) {
+  if (!ensureClient()) {
     return []
   }
 
   try {
-    const listCommand = new ListObjectsV2Command({
-      Bucket: s3Bucket,
-      Delimiter: '/'
-    })
+    const listResponse = await listObjects()
+    const prefixes = listResponse.CommonPrefixes || []
 
-    const listResponse = await s3Client.send(listCommand)
-
-    if (!listResponse.CommonPrefixes || listResponse.CommonPrefixes.length === 0) {
+    if (prefixes.length === 0) {
       logger.warn('No client folders found in S3 bucket')
       return []
     }
 
     const datasets = []
-
-    for (const prefixObj of listResponse.CommonPrefixes) {
-      const clientId = prefixObj.Prefix.replace(/\/$/, '') // Remove trailing slash
-      const clientListCommand = new ListObjectsV2Command({
-        Bucket: s3Bucket,
-        Prefix: `${clientId}/`,
-        Delimiter: '/'
-      })
-
-      const clientListResponse = await s3Client.send(clientListCommand)
-      if (clientListResponse.Contents && clientListResponse.Contents.length > 0) {
-        const jsonFiles = clientListResponse.Contents
-          .filter(obj => obj.Key.endsWith('.json'))
-          .sort((a, b) => new Date(b.LastModified) - new Date(a.LastModified))
-
-        if (jsonFiles.length > 0) {
-          const mostRecentFile = jsonFiles[0]
-          datasets.push({
-            clientId,
-            filename: mostRecentFile.Key.split('/').pop(),
-            lastModified: new Date(mostRecentFile.LastModified).toISOString().slice(0, 16).replace('T', ' ')
-          })
-        }
+    for (const prefixObj of prefixes) {
+      const clientId = prefixObj.Prefix.replace(/\/$/, '')
+      const clientObjects = await listObjects({ prefix: `${clientId}/` })
+      const jsonFiles = filterAndSortJsonFiles(clientObjects.Contents || [])
+      if (jsonFiles.length > 0) {
+        const mostRecentFile = jsonFiles[0]
+        datasets.push({
+          clientId,
+          filename: mostRecentFile.Key.split('/').pop(),
+          lastModified: formatTimestamp(mostRecentFile.LastModified)
+        })
       }
     }
-
     logger.info(`Found ${datasets.length} datasets in S3`)
     return datasets
   } catch (error) {
@@ -132,19 +133,15 @@ export async function getS3Datasets () {
 }
 
 export async function downloadS3File (clientId, filename) {
-  if (!s3Client) {
+  if (!ensureClient()) {
     return null
   }
 
   try {
-    const getCommand = new GetObjectCommand({
-      Bucket: s3Bucket,
-      Key: `${clientId}/${filename}`
-    })
-
+    const key = `${clientId}/${filename}`
+    const getCommand = new GetObjectCommand({ Bucket: s3Bucket, Key: key })
     const getResponse = await s3Client.send(getCommand)
-    const dataString = await getResponse.Body.transformToString()
-    return dataString
+    return getResponse.Body.transformToString()
   } catch (error) {
     logger.error(`Error downloading S3 file ${filename} for client ${clientId}: ${error.message}`)
     return null
