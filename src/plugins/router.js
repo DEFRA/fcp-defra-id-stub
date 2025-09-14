@@ -3,6 +3,7 @@ import { health } from '../routes/health.js'
 import { index } from '../routes/index.js'
 import { openId } from '../routes/open-id.js'
 import { auth } from '../routes/auth.js'
+import { s3 } from '../routes/s3.js'
 import { serveStaticFiles } from '../common/helpers/serve-static-files.js'
 
 export const router = {
@@ -14,6 +15,7 @@ export const router = {
       await server.route(index)
       await server.route(openId)
       await server.route(auth)
+      await server.route(s3)
       await server.register([serveStaticFiles])
     }
   }

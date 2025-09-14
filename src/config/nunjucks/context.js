@@ -28,6 +28,7 @@ export function context (request) {
     serviceName: config.get('serviceName'),
     serviceUrl: '/',
     breadcrumbs: [],
+    s3Enabled: config.get('aws.s3Enabled'),
     getAssetPath (asset) {
       const webpackAssetPath = webpackManifest?.[asset]
       return `${assetPath}/${webpackAssetPath ?? asset}`

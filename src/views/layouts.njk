@@ -1,5 +1,7 @@
 {% extends "govuk/template.njk" %}
 
+{% from "govuk/components/service-navigation/macro.njk" import govukServiceNavigation %}
+
 {% set mainClasses = "app-main-wrapper" %}
 
 {% block head %}
@@ -15,6 +17,22 @@
     serviceUrl: serviceUrl,
     useTudorCrown: true
   }) }}
+  {% if s3Enabled %}
+    {{ govukServiceNavigation({
+      navigation: [
+        {
+          href: "/",
+          text: "Overview",
+          active: navigation == 'overview'
+        },
+        {
+          href: "/s3",
+          text: "S3",
+          active: navigation == 's3'
+        }
+      ]
+    }) }}
+  {% endif %}
 {% endblock %}
 
 {% block pageTitle %}

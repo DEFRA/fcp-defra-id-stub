@@ -76,3 +76,77 @@ export async function getLatestS3Data (clientId) {
     return null
   }
 }
+
+// get latest fs3 filenames for all clients
+export async function getS3Datasets () {
+  if (!s3Client) {
+    return []
+  }
+
+  try {
+    const listCommand = new ListObjectsV2Command({
+      Bucket: s3Bucket,
+      Delimiter: '/'
+    })
+
+    const listResponse = await s3Client.send(listCommand)
+
+    if (!listResponse.CommonPrefixes || listResponse.CommonPrefixes.length === 0) {
+      logger.warn('No client folders found in S3 bucket')
+      return []
+    }
+
+    const datasets = []
+
+    for (const prefixObj of listResponse.CommonPrefixes) {
+      const clientId = prefixObj.Prefix.replace(/\/$/, '') // Remove trailing slash
+      const clientListCommand = new ListObjectsV2Command({
+        Bucket: s3Bucket,
+        Prefix: `${clientId}/`,
+        Delimiter: '/'
+      })
+
+      const clientListResponse = await s3Client.send(clientListCommand)
+      if (clientListResponse.Contents && clientListResponse.Contents.length > 0) {
+        const jsonFiles = clientListResponse.Contents
+          .filter(obj => obj.Key.endsWith('.json'))
+          .sort((a, b) => new Date(b.LastModified) - new Date(a.LastModified))
+
+        if (jsonFiles.length > 0) {
+          const mostRecentFile = jsonFiles[0]
+          datasets.push({
+            clientId,
+            filename: mostRecentFile.Key.split('/').pop(),
+            lastModified: new Date(mostRecentFile.LastModified).toISOString().slice(0, 16).replace('T', ' ')
+          })
+        }
+      }
+    }
+
+    logger.info(`Found ${datasets.length} datasets in S3`)
+    return datasets
+  } catch (error) {
+    logger.error(`Error listing S3 datasets: ${error.message}`)
+    return []
+  }
+}
+
+export async function downloadS3File (clientId, filename) {
+  if (!s3Client) {
+    return null
+  }
+
+  try {
+    const getCommand = new GetObjectCommand({
+      Bucket: s3Bucket,
+      Key: `${clientId}/${filename}`
+    })
+
+    const getResponse = await s3Client.send(getCommand)
+    const dataString = await getResponse.Body.transformToString()
+    return dataString
+  } catch (error) {
+    logger.error(`Error downloading S3 file ${filename} for client ${clientId}: ${error.message}`)
+    return null
+  }
+}
