@@ -15,7 +15,7 @@ const authorization = {
   options: {
     validate: {
       query: {
-        serviceId: Joi.string().guid().required(),
+        serviceId: Joi.string().required(),
         p: Joi.string().required(),
         response_mode: Joi.string().required(),
         response_type: Joi.string().required(),
