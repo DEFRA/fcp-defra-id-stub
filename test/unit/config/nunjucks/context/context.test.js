@@ -57,7 +57,8 @@ describe('Context and cache', () => {
           breadcrumbs: [],
           getAssetPath: expect.any(Function),
           serviceName: 'FCP Defra ID stub',
-          serviceUrl: '/'
+          serviceUrl: '/',
+          s3Enabled: true
         })
       })
 
@@ -99,6 +100,7 @@ describe('Context and cache', () => {
             assetPath: '/public/assets/rebrand',
             breadcrumbs: [],
             getAssetPath: expect.any(Function),
+            s3Enabled: true,
             serviceName: 'FCP Defra ID stub',
             serviceUrl: '/'
           })
@@ -170,6 +172,7 @@ describe('Context and cache', () => {
           assetPath: '/public/assets/rebrand',
           breadcrumbs: [],
           getAssetPath: expect.any(Function),
+          s3Enabled: true,
           serviceName: 'FCP Defra ID stub',
           serviceUrl: '/'
         })
