@@ -23,7 +23,9 @@ export async function createServer () {
     routes: {
       validate: {
         options: {
-          abortEarly: false
+          abortEarly: false,
+          allowUnknown: true,
+          stripUnknown: true
         }
       },
       files: {
