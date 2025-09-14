@@ -1,3 +1,4 @@
+import Joi from 'joi'
 import { config } from '../config/config.js'
 import { downloadS3File, getS3Datasets } from '../people/s3.js'
 
@@ -13,6 +14,17 @@ const view = {
 const download = {
   method: 'GET',
   path: '/s3/download',
+  options: {
+    validate: {
+      query: {
+        clientId: Joi.string().required(),
+        filename: Joi.string().required()
+      },
+      failAction: async (_request, h, error) => h.view('errors/400', {
+        message: error.message
+      }).takeover()
+    }
+  },
   handler: async function (request, h) {
     const { clientId, filename } = request.query
     const fileContent = await downloadS3File(clientId, filename)
