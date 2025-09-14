@@ -1,0 +1,63 @@
+{% extends "layouts.njk" %}
+
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <div class="govuk-body">
+        <h1 class="govuk-heading-l">S3 client data</h1>
+
+        <p class="govuk-body">To support multiple teams and services using the same stub instance, client specific datasets can be uploaded to S3.</p>
+
+        <p class="govuk-body">If provided, these datasets will override the people and organisation data used in the stub for the specified Client ID.</p>
+
+        <p class="govuk-body">See <a href="https://github.com/DEFRA/fcp-defra-id-stub">GitHub</a> for full usage information.</p>
+
+        <h2 class="govuk-heading-m">Active datasets by Client ID</h2>
+
+        {% if datasets.length == 0 %}
+          {{ govukInsetText({
+            text: "No datasets have been uploaded to S3 in this environment."
+          }) }}
+        {% else %}
+          {% for dataset in datasets %}
+            {{ govukSummaryList({
+              card: {
+                title: {
+                  text: dataset.clientId
+                }
+              },
+              rows: [
+                {
+                  key: {
+                    text: "Filename"
+                  },
+                  value: {
+                    html: dataset.filename
+                  },
+                  actions: {
+                    items: [
+                      {
+                        href: "/s3/download?clientId=" + dataset.clientId + "&filename=" + dataset.filename,
+                        text: "Download"
+                      }
+                    ]
+                  }
+                },
+                {
+                  key: {
+                    text: "Last modified"
+                  },
+                  value: {
+                    html: dataset.lastModified
+                  }
+                }
+              ]
+            }) }}
+          {% endfor %}
+        {% endif %}
+      </div>
+  </div>
+{% endblock %}
