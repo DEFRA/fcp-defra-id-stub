@@ -9,7 +9,7 @@ export async function getPerson (crn, clientId) {
   if (source === 'basic' && !s3) {
     return {
       ...people[0],
-      crn: Number(crn)
+      crn
     }
   }
 
