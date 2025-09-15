@@ -244,14 +244,18 @@ export const config = convict({
   }
 })
 
-if (config.get('auth.overrideFile') !== '') {
-  config.set('auth.source', 'file')
-} else if (config.get('auth.override') !== '') {
-  config.set('auth.source', 'override')
-} else if (config.get('auth.mode') === 'mock') {
-  config.set('auth.source', 'mock')
-} else {
-  config.set('auth.source', 'basic')
+function getAuthSource () {
+  if (config.get('auth.overrideFile') !== '') {
+    return 'file'
+  } else if (config.get('auth.override') !== '') {
+    return 'override'
+  } else if (config.get('auth.mode') === 'mock') {
+    return 'mock'
+  } else {
+    return 'basic'
+  }
 }
+
+config.set('auth.source', getAuthSource())
 
 config.validate({ allowed: 'strict' })

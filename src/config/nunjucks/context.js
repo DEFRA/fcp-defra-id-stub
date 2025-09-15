@@ -17,7 +17,7 @@ export function context (request) {
   if (!webpackManifest) {
     try {
       webpackManifest = JSON.parse(readFileSync(manifestPath, 'utf-8'))
-    } catch (err) {
+    } catch {
       logger.error(`Webpack ${path.basename(manifestPath)} not found`)
     }
   }
@@ -27,7 +27,6 @@ export function context (request) {
     assetPath: `${assetPath}/assets/rebrand`,
     serviceName: config.get('serviceName'),
     serviceUrl: '/',
-    breadcrumbs: [],
     s3Enabled: config.get('aws.s3Enabled'),
     getAssetPath (asset) {
       const webpackAssetPath = webpackManifest?.[asset]
