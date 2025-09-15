@@ -22,6 +22,7 @@ const authorization = {
         client_id: Joi.string().required(),
         redirect_uri: Joi.string().uri().required(),
         state: Joi.string(),
+        nonce: Joi.string(),
         scope: Joi.string().required(),
         relationshipId: Joi.string(),
         prompt: Joi.string(),
