@@ -1,6 +1,12 @@
 import { config } from '../config/config.js'
 
 export function getHost () {
+  const overrideHost = config.get('wellKnown.host')
+
+  if (overrideHost) {
+    return overrideHost
+  }
+
   const environment = config.get('environment')
 
   if (environment === 'local') {
@@ -11,6 +17,12 @@ export function getHost () {
 }
 
 export function getApiHost () {
+  const overrideApiHost = config.get('wellKnown.apiHost')
+
+  if (overrideApiHost) {
+    return overrideApiHost
+  }
+
   const host = getHost()
 
   if (host.includes('localhost')) {

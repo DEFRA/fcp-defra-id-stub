@@ -51,8 +51,6 @@ There are some known issues to be aware of that will be addressed in future rele
 
 - UI content does not fully mirror Defra Identity.  However note there are no plans to introduce the legacy GOV.UK branding currently used by Defra Identity.
 
-- Request content validation is limited and therefore so is feedback on invalid requests.
-
 - General code quality and test coverage.
 
 > If any further limitations or issues are identified, please raise with `John Watson <john.watson1@defra.gov.uk>` (Principal Developer).
@@ -412,7 +410,31 @@ The [upload-file.sh](./scripts/upload-file.sh) sample script will upload the `ex
 
 `./scripts/upload-file.sh 00000000-0000-0000-0000-000000000000`
 
-### Testing
+## Overriding well known config host domain
+
+There may be scenarios where the stub is running in an environment where the stub cannot be accessed via a CDP environment, `localhost` or `host.docker.internal`.
+
+For example, running containerised acceptance tests where traffic originate from within the container network.
+
+For these scenarios, the domain content of the well known endpoints can be overridden by setting the following environment variables.
+
+- `WELL_KNOWN_HOST_OVERRIDE` - Override the host domain in the well known configuration for any redirect URLs
+- `WELL_KNOWN_API_HOST_OVERRIDE` - Override the host domain in the well known configuration for any API calls including token exchange
+
+Set one or both of these environment variables depending on your needs.
+
+Example Docker Compose file
+
+```yaml
+services:
+  fcp-defra-id-stub:
+    image: defradigital/fcp-defra-id-stub
+    environment:
+      WELL_KNOWN_HOST_OVERRIDE: http://fcp-defra-id-stub # set the host domain to match the domain Docker Compose will assign to it
+      WELL_KNOWN_API_HOST_OVERRIDE: http://fcp-defra-id-stub
+```
+
+## Testing
 
 To run the tests for the stub:
 
