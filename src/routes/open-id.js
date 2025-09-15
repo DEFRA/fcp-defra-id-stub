@@ -1,9 +1,12 @@
+import http2 from 'node:http2'
 import Joi from 'joi'
 import Boom from '@hapi/boom'
 import { getWellKnown } from '../open-id/get-well-known.js'
 import { getTokens } from '../auth/token.js'
 import { endSession } from '../auth/session.js'
 import { getPublicKeys } from '../auth/keys.js'
+
+const { constants: httpConstants } = http2
 
 const wellKnown = {
   method: 'GET',
@@ -68,7 +71,7 @@ const token = {
     const tokens = getTokens(accessCode, grantType, refreshToken)
 
     if (!tokens) {
-      return h.response('Invalid access code').code(401)
+      return h.response('Invalid access code').code(httpConstants.HTTP_STATUS_UNAUTHORIZED)
     }
 
     return h.response(tokens)
