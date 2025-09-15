@@ -161,7 +161,7 @@ function createAccessCode () {
 
 function createTokenContent (sessionId, person, organisationId, relationships, roles, authRequest) {
   const { crn, firstName, lastName } = person
-  const { clientId, serviceId } = authRequest
+  const { clientId, serviceId, nonce } = authRequest
 
   const { issuer } = getWellKnown()
 
@@ -172,6 +172,7 @@ function createTokenContent (sessionId, person, organisationId, relationships, r
     nbf: Math.floor(Date.now() / 1000) - 30, // 30 seconds ago
     amr: 'one',
     aal: '1',
+    nonce,
     serviceId,
     correlationId: crypto.randomUUID(),
     currentRelationshipId: organisationId,

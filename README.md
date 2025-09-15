@@ -217,7 +217,7 @@ The stub is deployed to all CDP environments and can be used by any application.
 - [https://fcp-defra-id-stub.dev.cdp-int.defra.cloud](https://fcp-defra-id-stub.dev.cdp-int.defra.cloud)
 - [https://fcp-defra-id-stub.test.cdp-int.defra.cloud](https://fcp-defra-id-stub.test.cdp-int.defra.cloud)
 - [https://fcp-defra-id-stub.perf-test.cdp-int.defra.cloud](https://fcp-defra-id-stub.perf-test.cdp-int.defra.cloud)
-- [https://fcp-defra-id-stub.prd.cdp-int.defra.cloud](https://fcp-defra-id-stub.prod.cdp-int.defra.cloud)
+- [https://fcp-defra-id-stub.prod.cdp-int.defra.cloud](https://fcp-defra-id-stub.prod.cdp-int.defra.cloud)
 
 Example configuration file for CDP `dev` environment.
 
@@ -390,6 +390,13 @@ For example, to upload the `example.data.json` file in this repository for a Cli
 `aws s3 cp example.data.json s3://dev-fcp-defra-id-stub-data-c63f2/00000000-0000-0000-0000-000000000000/example.data.json`
 
 > NOTE: Currently only the Single Front Door (SFD) have access to upload to these buckets.  A longer term self service solution is being investigated.
+
+Uploaded datasets for each environment can be viewed within the stub.
+
+- [https://fcp-defra-id-stub.dev.cdp-int.defra.cloud/s3](https://fcp-defra-id-stub.dev.cdp-int.defra.cloud/s3)
+- [https://fcp-defra-id-stub.test.cdp-int.defra.cloud/s3](https://fcp-defra-id-stub.test.cdp-int.defra.cloud/s3)
+- [https://fcp-defra-id-stub.perf-test.cdp-int.defra.cloud/s3](https://fcp-defra-id-stub.perf-test.cdp-int.defra.cloud/s3)
+- [https://fcp-defra-id-stub.prod.cdp-int.defra.cloud/s3](https://fcp-defra-id-stub.prod.cdp-int.defra.cloud/s3)
 
 #### Uploading data files locally
 
