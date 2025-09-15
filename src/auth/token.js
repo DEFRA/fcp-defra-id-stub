@@ -1,68 +1,36 @@
 import crypto from 'node:crypto'
-import path from 'node:path'
-import fs from 'node:fs'
-import { fileURLToPath } from 'node:url'
 import Jwt from '@hapi/jwt'
 import { getWellKnown } from '../open-id/get-well-known.js'
-import { privateKey } from './keys.js'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-const keysDir = path.resolve(__dirname, '../../keys')
-
-const sessionsPath = path.join(keysDir, 'sessions.json')
-
-let sessions = []
-
-loadSessions()
-
-function loadSessions () {
-  if (fs.existsSync(sessionsPath)) {
-    try {
-      const data = JSON.parse(fs.readFileSync(sessionsPath, 'utf8'))
-      // Filter out expired sessions
-      const now = Date.now()
-      sessions = data.filter(s => now - s.createdAt < 3600 * 1000)
-    } catch (e) {
-      sessions = []
-    }
-  }
-}
-
-function saveSessions () {
-  fs.writeFileSync(sessionsPath, JSON.stringify(sessions, null, 2))
-}
+import { getPrivateKey } from './keys.js'
+import { createSession, findSessionBy, saveSessions } from './session.js'
 
 export function createTokens (person, organisationId, relationships, roles, authRequest) {
   const sessionId = crypto.randomUUID()
-  const now = Date.now()
+
   const session = {
     sessionId,
     accessCode: createAccessCode(),
     accessToken: createAccessToken(createTokenContent(sessionId, person, organisationId, relationships, roles, authRequest)),
     refreshToken: createRefreshToken(),
     scope: authRequest.scope,
-    createdAt: now
+    createdAt: Date.now()
   }
-  sessions.push(session)
-  saveSessions()
+
+  createSession(session)
+
   return session
 }
 
 export function getTokens (accessCode, grantType, refreshToken) {
-  const now = Date.now()
-  // Remove expired sessions before searching
-  sessions = sessions.filter(s => now - s.createdAt < 3600 * 1000)
-  saveSessions()
-
   let activeSession
 
   if (accessCode) {
-    activeSession = sessions.find(session => session.accessCode === accessCode)
+    activeSession = findSessionBy('accessCode', accessCode)
   }
 
   if (grantType === 'refresh_token' && refreshToken) {
-    activeSession = sessions.find(session => session.refreshToken === refreshToken)
+    activeSession = findSessionBy('refreshToken', refreshToken)
+
     if (activeSession) {
       activeSession.accessToken = refreshAccessToken(activeSession.accessToken)
       activeSession.refreshToken = createRefreshToken()
@@ -85,7 +53,6 @@ export function getTokens (accessCode, grantType, refreshToken) {
 }
 
 export function refreshAccessToken (accessToken) {
-  // decode current token to get payload
   const {
     sessionId,
     crn,
@@ -99,15 +66,6 @@ export function refreshAccessToken (accessToken) {
   } = Jwt.token.decode(accessToken).decoded.payload
 
   return createAccessToken(createTokenContent(sessionId, { crn, firstName, lastName }, organisationId, relationships, roles, { clientId, serviceId }))
-}
-
-export function endSession (accessToken) {
-  const activeSession = sessions.find(session => session.accessToken === accessToken)
-  if (!activeSession) {
-    return
-  }
-  sessions.splice(sessions.indexOf(activeSession), 1)
-  saveSessions()
 }
 
 function createAccessCode () {
@@ -150,7 +108,7 @@ function createTokenContent (sessionId, person, organisationId, relationships, r
 
 function createAccessToken (payload) {
   return Jwt.token.generate(payload, {
-    key: privateKey,
+    key: getPrivateKey(),
     algorithm: 'RS256'
   }, {
     header: {
