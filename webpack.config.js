@@ -22,7 +22,7 @@ export default {
   context: path.resolve(dirname, 'src/client'),
   entry: {
     application: {
-      import: ['./javascripts/application.js', './stylesheets/application.scss']
+      import: ['./javascript/application.js', './stylesheets/application.scss']
     }
   },
   experiments: {
@@ -37,13 +37,13 @@ export default {
   output: {
     filename:
       NODE_ENV === 'production'
-        ? 'javascripts/[name].[contenthash:7].min.js'
-        : 'javascripts/[name].js',
+        ? 'javascript/[name].[contenthash:7].min.js'
+        : 'javascript/[name].js',
 
     chunkFilename:
       NODE_ENV === 'production'
-        ? 'javascripts/[name].[chunkhash:7].min.js'
-        : 'javascripts/[name].js',
+        ? 'javascript/[name].[chunkhash:7].min.js'
+        : 'javascript/[name].js',
 
     path: path.join(dirname, '.public'),
     publicPath: '/public/',

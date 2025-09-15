@@ -1,7 +1,9 @@
 import Joi from 'joi'
 import Boom from '@hapi/boom'
 import { getWellKnown } from '../open-id/get-well-known.js'
-import { getTokens, getPublicKeys, endSession } from '../auth/token.js'
+import { getTokens } from '../auth/token.js'
+import { endSession } from '../auth/session.js'
+import { getPublicKeys } from '../auth/keys.js'
 
 const wellKnown = {
   method: 'GET',

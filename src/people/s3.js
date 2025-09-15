@@ -19,7 +19,7 @@ if (s3Enabled) {
   })
 }
 
-function ensureClient () {
+function getClient () {
   return s3Client
 }
 
@@ -61,7 +61,7 @@ function formatTimestamp (date) {
 }
 
 export async function getLatestS3Data (clientId) {
-  if (!ensureClient()) {
+  if (!getClient()) {
     return null
   }
 
@@ -97,7 +97,7 @@ export async function getLatestS3Data (clientId) {
 }
 
 export async function getS3Datasets () {
-  if (!ensureClient()) {
+  if (!getClient()) {
     return []
   }
 
@@ -133,7 +133,7 @@ export async function getS3Datasets () {
 }
 
 export async function downloadS3File (clientId, filename) {
-  if (!ensureClient()) {
+  if (!getClient()) {
     return null
   }
 
