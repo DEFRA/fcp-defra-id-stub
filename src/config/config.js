@@ -241,6 +241,22 @@ export const config = convict({
       format: String,
       default: 'basic'
     }
+  },
+  wellKnown: {
+    host: {
+      doc: 'Override the host domain in the well known configuration for any redirect URLs',
+      format: String,
+      nullable: true,
+      default: null,
+      env: 'WELL_KNOWN_HOST_OVERRIDE'
+    },
+    apiHost: {
+      doc: 'Override the host domain in the well known configuration for any API calls including token exchange',
+      format: String,
+      nullable: true,
+      default: null,
+      env: 'WELL_KNOWN_API_HOST_OVERRIDE'
+    }
   }
 })
 
