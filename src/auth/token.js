@@ -4,6 +4,9 @@ import { getWellKnown } from '../open-id/get-well-known.js'
 import { getPrivateKey } from './keys.js'
 import { createSession, findSessionBy, saveSessions } from './session.js'
 
+const TOKEN_DURATION_SECONDS = 24 * 60 * 60 // 24 hours
+const TOKEN_NOT_BEFORE_SECONDS = 30
+
 export function createTokens (person, organisationId, relationships, roles, authRequest) {
   const sessionId = crypto.randomUUID()
 
@@ -45,7 +48,7 @@ export function getTokens (accessCode, grantType, refreshToken) {
   return {
     access_token: activeSession.accessToken,
     token_type: 'Bearer',
-    expires_in: 86400,
+    expires_in: TOKEN_DURATION_SECONDS,
     scope: activeSession.scope,
     refresh_token: activeSession.refreshToken,
     id_token: activeSession.accessToken
@@ -81,8 +84,8 @@ function createTokenContent (sessionId, person, organisationId, relationships, r
   return {
     aud: crypto.randomUUID(),
     iss: issuer,
-    exp: Math.floor(Date.now() / 1000) + 86400, // 24 hours
-    nbf: Math.floor(Date.now() / 1000) - 30, // 30 seconds ago
+    exp: Math.floor(Date.now() / 1000) + TOKEN_DURATION_SECONDS,
+    nbf: Math.floor(Date.now() / 1000) - TOKEN_NOT_BEFORE_SECONDS,
     amr: 'one',
     aal: '1',
     nonce,
@@ -92,11 +95,11 @@ function createTokenContent (sessionId, person, organisationId, relationships, r
     sessionId,
     contactId: crn,
     sub: '5add6531-c8c8-4e78-b57b-071002f21887',
-    email: 'test@example.com',
+    email: 'test.user11@defra.gov.uk',
     firstName,
     lastName,
     loa: 1,
-    enrolmentCount: 1, // number of active enrolments
+    enrolmentCount: 1,
     enrolmentRequestCount: 0,
     relationships,
     roles,
