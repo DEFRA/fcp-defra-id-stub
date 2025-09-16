@@ -21,9 +21,9 @@ const authorization = {
     validate: {
       query: {
         serviceId: Joi.string().required(),
-        p: Joi.string().required(),
-        response_mode: Joi.string().required(),
-        response_type: Joi.string().required(),
+        p: Joi.string(),
+        response_mode: Joi.string(),
+        response_type: Joi.string(),
         client_id: Joi.string().required(),
         redirect_uri: Joi.string().uri().required(),
         state: Joi.string(),
