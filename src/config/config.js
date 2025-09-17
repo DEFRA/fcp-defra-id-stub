@@ -154,6 +154,12 @@ export const config = convict({
       format: String,
       default: 'this-must-be-at-least-32-characters-long',
       env: 'COOKIE_PASSWORD'
+    },
+    isSecure: {
+      doc: 'Is the cookie secure (only sent over HTTPS)',
+      format: Boolean,
+      default: isProduction,
+      env: 'SECURE_COOKIE'
     }
   },
   aws: {
