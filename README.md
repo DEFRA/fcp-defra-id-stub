@@ -438,13 +438,13 @@ services:
 
 > Note: it may be necessary to also set the `SECURE_COOKIE` environment variable to `false` if the stub is not running on HTTPS or localhost.  See below.
 
-### Setting an insecure cookie
+### Setting an unsecure cookie
 
 The stub uses cookies to manage an authentication and SSO session.
 
 The cookie is secure by default, meaning it will only be sent over HTTPS or localhost.
 
-For scenarios where the stub is hosted on an HTTP domain other than localhost, the cookie can be set to insecure by setting the `SECURE_COOKIE` environment variable to `false`.
+For scenarios where the stub is hosted on an HTTP domain other than localhost, the cookie can be set to unsecure by setting the `SECURE_COOKIE` environment variable to `false`.
 
 Example Docker Compose file
 
