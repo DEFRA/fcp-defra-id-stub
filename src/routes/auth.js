@@ -1,4 +1,5 @@
 import Joi from 'joi'
+import Boom from '@hapi/boom'
 import { validateCredentials } from '../auth/validate-credentials.js'
 import { createTokens } from '../auth/token.js'
 import { getPerson, getOrganisations, getSelectedOrganisation } from '../people/data.js'
@@ -8,6 +9,8 @@ const signIn = [{
   method: 'GET',
   path: '/dcidmtest.onmicrosoft.com/oauth2/authresp',
   handler: (request, h) => {
+    validateSession(request)
+
     const authenticated = request.yar.get(AUTHENTICATED)
     const { prompt } = request.yar.get(AUTH_REQUEST)
 
@@ -33,6 +36,8 @@ const signIn = [{
     }
   },
   handler: async (request, h) => {
+    validateSession(request)
+
     const { crn, password } = request.payload
 
     const { client_id: clientId } = request.yar.get(AUTH_REQUEST)
@@ -56,8 +61,11 @@ const picker = [{
   method: 'GET',
   path: '/organisations',
   handler: async (request, h) => {
+    validateSession(request)
+
     const person = request.yar.get(PERSON)
     const { forceReselection, relationshipId, client_id: clientId } = request.yar.get(AUTH_REQUEST)
+
     const organisationId = request.yar.get(ORGANISATION_ID)
 
     if (relationshipId) {
@@ -95,8 +103,11 @@ const picker = [{
         sbi: Joi.number().integer().required()
       },
       failAction: async (request, h, _error) => {
+        validateSession(request)
+
         const { crn } = request.yar.get(PERSON)
         const { client_id: clientId } = request.yar.get(AUTH_REQUEST)
+
         const organisations = await getOrganisations(crn, clientId)
 
         return h.view('picker', {
@@ -107,6 +118,8 @@ const picker = [{
     }
   },
   handler: async (request, h) => {
+    validateSession(request)
+
     const { sbi } = request.payload
 
     const person = request.yar.get(PERSON)
@@ -117,6 +130,16 @@ const picker = [{
     return completeAuthentication(request, h, person, organisation)
   }
 }]
+
+function validateSession (request) {
+  const { client_id: clientId } = request.yar.get(AUTH_REQUEST) || {}
+
+  if (!clientId) {
+    const message = 'Cannot retrieve original request from session cookie.  If host is http and not localhost, ensure SECURE_COOKIE=false'
+    request.logger.error(message)
+    throw Boom.badRequest(message)
+  }
+}
 
 function completeAuthentication (request, h, person, organisation) {
   const { organisationId, sbi, name } = organisation
