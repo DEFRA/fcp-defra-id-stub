@@ -410,7 +410,9 @@ The [upload-file.sh](./scripts/upload-file.sh) sample script will upload the `ex
 
 `./scripts/upload-file.sh 00000000-0000-0000-0000-000000000000`
 
-## Overriding well known config host domain
+## Further configuration
+
+### Overriding well known config host domain
 
 There may be scenarios where the stub is running in an environment where the stub cannot be accessed via a CDP environment, `localhost` or `host.docker.internal`.
 
@@ -433,6 +435,28 @@ services:
       WELL_KNOWN_HOST_OVERRIDE: http://fcp-defra-id-stub # set the host domain to match the domain Docker Compose will assign to it
       WELL_KNOWN_API_HOST_OVERRIDE: http://fcp-defra-id-stub
 ```
+
+> Note: it may be necessary to also set the `SECURE_COOKIE` environment variable to `false` if the stub is not running on HTTPS or localhost.  See below.
+
+### Setting an unsecure cookie
+
+The stub uses cookies to manage an authentication and SSO session.
+
+The cookie is secure by default, meaning it will only be sent over HTTPS or localhost.
+
+For scenarios where the stub is hosted on an HTTP domain other than localhost, the cookie can be set to unsecure by setting the `SECURE_COOKIE` environment variable to `false`.
+
+Example Docker Compose file
+
+```yaml
+services:
+  fcp-defra-id-stub:
+    image: defradigital/fcp-defra-id-stub
+    environment:
+      SECURE_COOKIE: false
+```
+
+> Note: when building from source using the provided Docker Compose file, this variable is already set to `false` by default so no action is required.
 
 ## Testing
 

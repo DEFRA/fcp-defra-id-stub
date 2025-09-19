@@ -2,7 +2,7 @@ services:
   fcp-defra-id-stub:
     build:
       context: .
-      target: development    
+      target: development
     environment:
       PORT: ${FCP_DEFRA_ID_STUB_PORT:-3007}
       AUTH_MODE: ${AUTH_MODE:-basic}

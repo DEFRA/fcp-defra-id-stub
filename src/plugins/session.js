@@ -8,7 +8,7 @@ export const session = {
     storeBlank: false,
     cookieOptions: {
       password: config.get('cookie.password'),
-      isSecure: config.get('isProduction'),
+      isSecure: config.get('cookie.isSecure'),
       isSameSite: 'Lax'
     }
   }
