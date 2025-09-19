@@ -8,7 +8,7 @@ const { loadSessions } = await import('../../../src/auth/session.js')
 
 const { initializeAuth } = await import('../../../src/auth/initialize.js')
 
-describe('initialize', () => {
+describe('initializeAuth', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
