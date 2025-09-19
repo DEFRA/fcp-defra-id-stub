@@ -1,0 +1,6 @@
+export const AUTH_REQUEST = 'auth-request'
+export const AUTHENTICATED = 'authenticated'
+export const ORGANISATION_ID = 'organisationId'
+export const PERSON = 'person'
+export const RELATIONSHIPS = 'relationships'
+export const ROLES = 'roles'
