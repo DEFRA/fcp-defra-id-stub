@@ -23,6 +23,15 @@
           }) }}
         {% else %}
           {% for dataset in datasets %}
+
+            {% set statusHtml %}
+              {% if dataset.valid %}
+                <span class="govuk-tag govuk-tag--green">Valid</span>
+              {% else %}
+                <span class="govuk-tag govuk-tag--red">Invalid</span>
+              {% endif %}
+            {% endset %}
+
             {{ govukSummaryList({
               card: {
                 title: {
@@ -52,6 +61,22 @@
                   },
                   value: {
                     html: dataset.lastModified
+                  }
+                },
+                {
+                  key: {
+                    text: "Status"
+                  },
+                  value: {
+                    html: statusHtml
+                  }
+                },
+                {
+                  key: {
+                    text: "Issues"
+                  },
+                  value: {
+                    text: dataset.errorMessage or 'No issues'
                   }
                 }
               ]

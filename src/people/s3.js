@@ -117,10 +117,14 @@ export async function getS3Datasets () {
       const jsonFiles = filterAndSortJsonFiles(clientObjects.Contents || [])
       if (jsonFiles.length > 0) {
         const mostRecentFile = jsonFiles[0]
+
+        const validation = await validateDatasetFile(mostRecentFile.Key)
+
         datasets.push({
           clientId,
           filename: mostRecentFile.Key.split('/').pop(),
-          lastModified: formatTimestamp(mostRecentFile.LastModified)
+          lastModified: formatTimestamp(mostRecentFile.LastModified),
+          ...validation
         })
       }
     }
@@ -145,5 +149,26 @@ export async function downloadS3File (clientId, filename) {
   } catch (error) {
     logger.error(`Error downloading S3 file ${filename} for client ${clientId}: ${error.message}`)
     return null
+  }
+}
+
+async function validateDatasetFile (key) {
+  try {
+    const raw = await fetchJsonObject(key)
+    const { error } = schema.validate(raw, { abortEarly: false })
+
+    if (error) {
+      return {
+        valid: false,
+        errorMessage: error.message
+      }
+    }
+
+    return { valid: true }
+  } catch (error) {
+    return {
+      valid: false,
+      errorMessage: `Failed to parse JSON: ${error.message}`
+    }
   }
 }
