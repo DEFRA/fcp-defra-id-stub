@@ -4,7 +4,7 @@ vi.mock('../../../src/people/data.js')
 
 const { getPerson } = await import('../../../src/people/data.js')
 
-const { validateCredentials } = await import('../../../src/auth/validate-credentials.js')
+const { validateCredentials } = await import('../../../src/auth/credentials.js')
 
 const crn = 1234567890
 const password = 'password123'
