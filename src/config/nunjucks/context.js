@@ -27,6 +27,7 @@ export function context (request) {
     assetPath: `${assetPath}/assets/rebrand`,
     serviceName: config.get('serviceName'),
     serviceUrl: '/',
+    authSource: config.get('auth.source'),
     s3Enabled: config.get('aws.s3Enabled'),
     getAssetPath (asset) {
       const webpackAssetPath = webpackManifest?.[asset]

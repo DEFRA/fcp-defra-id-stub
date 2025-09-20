@@ -1,6 +1,8 @@
 {% extends "govuk/template.njk" %}
 
 {% from "govuk/components/service-navigation/macro.njk" import govukServiceNavigation %}
+{% from "govuk/components/phase-banner/macro.njk" import govukPhaseBanner %}
+
 
 {% set mainClasses = "app-main-wrapper" %}
 
@@ -40,6 +42,40 @@
 {% endblock %}
 
 {% block beforeContent %}
+  {% if authSource == 'basic' %}
+    {% set authSourceTag = {
+      text: "Basic",
+      classes: "govuk-tag--green"
+    } %}
+  {% elif authSource == 'mock' %}
+    {% set authSourceTag = {
+      text: "Mock",
+      classes: "govuk-tag--orange"
+    } %}
+  {% elif authSource == 'override' %}
+    {% set authSourceTag = {
+      text: "Override",
+      classes: "govuk-tag--red"
+    } %}
+  {% elif authSource == 'file' %}
+    {% set authSourceTag = {
+      text: "File",
+      classes: "govuk-tag--purple"
+    } %}
+  {% endif %}
+
+  {% set s3Status %}
+    {% if s3Enabled %}
+      <a class="govuk-link" href="/s3">S3 datasets enabled</a>.
+    {% else %}
+      S3 datasets disabled.
+    {% endif %}
+  {% endset %}
+
+  {{ govukPhaseBanner({
+    tag: authSourceTag,
+    html: s3Status
+  }) }}
 {% endblock %}
 
 {% block content %}{% endblock %}
