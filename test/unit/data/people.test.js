@@ -175,3 +175,104 @@ describe('getOrganisations', () => {
     expect(result).toEqual([])
   })
 })
+
+describe('getSelectedOrganisation', () => {
+  test('should request data for specific client Id', async () => {
+    const { getSelectedOrganisation } = await import('../../../src/data/people.js')
+
+    await getSelectedOrganisation(people[0].crn, { sbi: people[0].organisations[0].sbi }, clientId)
+
+    expect(getData).toHaveBeenCalledTimes(1)
+    expect(getData).toHaveBeenCalledWith(clientId)
+  })
+
+  test('should return organisation matching SBI for matching person for given CRN if S3 enabled and basic auth', async () => {
+    const { getSelectedOrganisation } = await import('../../../src/data/people.js')
+
+    const result = await getSelectedOrganisation(people[0].crn, { sbi: people[0].organisations[0].sbi }, clientId)
+
+    expect(result).toEqual(people[0].organisations[0])
+  })
+
+  test('should return organisation matching organisationId for matching person for given CRN if S3 enabled and basic auth', async () => {
+    const { getSelectedOrganisation } = await import('../../../src/data/people.js')
+
+    const result = await getSelectedOrganisation(people[0].crn, { organisationId: people[0].organisations[0].organisationId }, clientId)
+
+    expect(result).toEqual(people[0].organisations[0])
+  })
+
+  test('should return organisation matching SBI for matching person for given CRN if S3 enabled and not basic auth', async () => {
+    getData.mockResolvedValue({ people, s3: true })
+    config.get.mockReturnValue('mock')
+
+    const { getSelectedOrganisation } = await import('../../../src/data/people.js')
+
+    const result = await getSelectedOrganisation(people[0].crn, { sbi: people[0].organisations[0].sbi }, clientId)
+
+    expect(result).toEqual(people[0].organisations[0])
+  })
+
+  test('should return organisation matching organisationId for matching person for given CRN if S3 enabled and not basic auth', async () => {
+    getData.mockResolvedValue({ people, s3: true })
+    config.get.mockReturnValue('mock')
+
+    const { getSelectedOrganisation } = await import('../../../src/data/people.js')
+
+    const result = await getSelectedOrganisation(people[0].crn, { organisationId: people[0].organisations[0].organisationId }, clientId)
+
+    expect(result).toEqual(people[0].organisations[0])
+  })
+
+  test('should return organisation matching SBI for matching person for given CRN if S3 disabled and not basic auth', async () => {
+    getData.mockResolvedValue({ people, s3: false })
+    config.get.mockReturnValue('mock')
+
+    const { getSelectedOrganisation } = await import('../../../src/data/people.js')
+
+    const result = await getSelectedOrganisation(people[0].crn, { sbi: people[0].organisations[0].sbi }, clientId)
+
+    expect(result).toEqual(people[0].organisations[0])
+  })
+
+  test('should return organisation matching organisationId for matching person for given CRN if S3 disabled and not basic auth', async () => {
+    getData.mockResolvedValue({ people, s3: false })
+    config.get.mockReturnValue('mock')
+
+    const { getSelectedOrganisation } = await import('../../../src/data/people.js')
+
+    const result = await getSelectedOrganisation(people[0].crn, { organisationId: people[0].organisations[0].organisationId }, clientId)
+
+    expect(result).toEqual(people[0].organisations[0])
+  })
+
+  test('should return null if no matching person for given CRN and not basic auth and S3 enabled', async () => {
+    getData.mockResolvedValue({ people, s3: true })
+    config.get.mockReturnValue('mock')
+
+    const { getSelectedOrganisation } = await import('../../../src/data/people.js')
+
+    const result = await getSelectedOrganisation('unknown-crn', { sbi: 'unknown-sbi' }, clientId)
+
+    expect(result).toBeNull()
+  })
+
+  test('should return null if no matching person for given CRN and not basic auth and S3 disabled', async () => {
+    getData.mockResolvedValue({ people, s3: false })
+    config.get.mockReturnValue('mock')
+
+    const { getSelectedOrganisation } = await import('../../../src/data/people.js')
+
+    const result = await getSelectedOrganisation('unknown-crn', { sbi: 'unknown-sbi' }, clientId)
+
+    expect(result).toBeNull()
+  })
+
+  test('should return undefined if no matching organisation for given SBI for matching person for given CRN', async () => {
+    const { getSelectedOrganisation } = await import('../../../src/data/people.js')
+
+    const result = await getSelectedOrganisation(people[0].crn, { sbi: 'unknown-sbi' }, clientId)
+
+    expect(result).toBeUndefined()
+  })
+})
