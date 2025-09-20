@@ -92,7 +92,7 @@ describe('getTokens', () => {
 
     accessToken = Jwt.token.generate({
       sessionId: 'session-id-123',
-      crn: person.crn,
+      contactId: person.crn,
       firstName: person.firstName,
       lastName: person.lastName,
       currentRelationshipId: organisationId,
@@ -151,6 +151,25 @@ describe('getTokens', () => {
     expect(tokens.access_token).not.toBe(oldAccessToken)
     expect(tokens.id_token).toBeDefined()
     expect(tokens.id_token).not.toBe(oldAccessToken)
+  })
+
+  test('should preserve token payload when refreshing access token', () => {
+    const oldAccessToken = accessToken
+    const oldPayload = Jwt.token.decode(oldAccessToken).decoded.payload
+
+    const tokens = getTokens(null, grantTypeRefreshToken, refreshToken)
+    const newAccessToken = tokens.access_token
+    const newPayload = Jwt.token.decode(newAccessToken).decoded.payload
+
+    expect(newPayload.sessionId).toBe(oldPayload.sessionId)
+    expect(newPayload.contactId).toBe(oldPayload.contactId)
+    expect(newPayload.firstName).toBe(oldPayload.firstName)
+    expect(newPayload.lastName).toBe(oldPayload.lastName)
+    expect(newPayload.currentRelationshipId).toBe(oldPayload.currentRelationshipId)
+    expect(newPayload.relationships).toEqual(oldPayload.relationships)
+    expect(newPayload.roles).toEqual(oldPayload.roles)
+    expect(newPayload.azp).toBe(oldPayload.azp)
+    expect(newPayload.serviceId).toBe(oldPayload.serviceId)
   })
 
   test('should refresh refresh token when using refresh token', () => {

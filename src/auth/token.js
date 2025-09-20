@@ -58,7 +58,7 @@ export function getTokens (accessCode, grantType, refreshToken) {
 function refreshAccessToken (accessToken) {
   const {
     sessionId,
-    crn,
+    contactId: crn,
     firstName,
     lastName,
     currentRelationshipId: organisationId,
