@@ -1,14 +1,18 @@
 import Joi from 'joi'
-import { validateCredentials } from '../auth/validate-credentials.js'
+import Boom from '@hapi/boom'
+import { validateCredentials } from '../auth/credentials.js'
 import { createTokens } from '../auth/token.js'
 import { getPerson, getOrganisations, getSelectedOrganisation } from '../people/data.js'
+import { AUTH_REQUEST, AUTHENTICATED, ORGANISATION_ID, PERSON, RELATIONSHIPS, ROLES } from '../config/constants/cache-keys.js'
 
 const signIn = [{
   method: 'GET',
   path: '/dcidmtest.onmicrosoft.com/oauth2/authresp',
   handler: (request, h) => {
-    const authenticated = request.yar.get('authenticated')
-    const { prompt } = request.yar.get('auth-request')
+    validateSession(request)
+
+    const authenticated = request.yar.get(AUTHENTICATED)
+    const { prompt } = request.yar.get(AUTH_REQUEST)
 
     if (!authenticated || prompt === 'login') {
       return h.view('sign-in')
@@ -32,9 +36,11 @@ const signIn = [{
     }
   },
   handler: async (request, h) => {
+    validateSession(request)
+
     const { crn, password } = request.payload
 
-    const { client_id: clientId } = request.yar.get('auth-request')
+    const { client_id: clientId } = request.yar.get(AUTH_REQUEST)
 
     if (!await validateCredentials(crn, password, clientId)) {
       return h.view('sign-in', {
@@ -45,7 +51,7 @@ const signIn = [{
 
     const person = await getPerson(crn, clientId)
 
-    request.yar.set('person', person)
+    request.yar.set(PERSON, person)
 
     return h.redirect('/organisations')
   }
@@ -55,9 +61,12 @@ const picker = [{
   method: 'GET',
   path: '/organisations',
   handler: async (request, h) => {
-    const person = request.yar.get('person')
-    const { forceReselection, relationshipId, client_id: clientId } = request.yar.get('auth-request')
-    const organisationId = request.yar.get('organisationId')
+    validateSession(request)
+
+    const person = request.yar.get(PERSON)
+    const { forceReselection, relationshipId, client_id: clientId } = request.yar.get(AUTH_REQUEST)
+
+    const organisationId = request.yar.get(ORGANISATION_ID)
 
     if (relationshipId) {
       const organisation = await getSelectedOrganisation(person.crn, { organisationId: relationshipId }, clientId)
@@ -94,8 +103,11 @@ const picker = [{
         sbi: Joi.number().integer().required()
       },
       failAction: async (request, h, _error) => {
-        const { crn } = request.yar.get('person')
-        const { client_id: clientId } = request.yar.get('auth-request')
+        validateSession(request)
+
+        const { crn } = request.yar.get(PERSON)
+        const { client_id: clientId } = request.yar.get(AUTH_REQUEST)
+
         const organisations = await getOrganisations(crn, clientId)
 
         return h.view('picker', {
@@ -106,10 +118,12 @@ const picker = [{
     }
   },
   handler: async (request, h) => {
+    validateSession(request)
+
     const { sbi } = request.payload
 
-    const person = request.yar.get('person')
-    const { client_id: clientId } = request.yar.get('auth-request')
+    const person = request.yar.get(PERSON)
+    const { client_id: clientId } = request.yar.get(AUTH_REQUEST)
 
     const organisation = await getSelectedOrganisation(person.crn, { sbi }, clientId)
 
@@ -117,12 +131,22 @@ const picker = [{
   }
 }]
 
+function validateSession (request) {
+  const { client_id: clientId } = request.yar.get(AUTH_REQUEST) || {}
+
+  if (!clientId) {
+    const message = 'Cannot retrieve original request from session cookie.  If host is http and not localhost, ensure SECURE_COOKIE=false'
+    request.logger.error(message)
+    throw Boom.badRequest(message)
+  }
+}
+
 function completeAuthentication (request, h, person, organisation) {
   const { organisationId, sbi, name } = organisation
 
-  const authRequest = request.yar.get('auth-request')
-  const relationships = request.yar.get('relationships') || []
-  const roles = request.yar.get('roles') || []
+  const authRequest = request.yar.get(AUTH_REQUEST)
+  const relationships = request.yar.get(RELATIONSHIPS) || []
+  const roles = request.yar.get(ROLES) || []
 
   const relationship = `${organisationId}:${sbi}:${name}:1:External:0`
 
@@ -138,12 +162,12 @@ function completeAuthentication (request, h, person, organisation) {
 
   const { accessCode } = createTokens(person, organisationId, relationships, roles, authRequest)
 
-  request.yar.clear('auth-request')
+  request.yar.clear(AUTH_REQUEST)
 
-  request.yar.set('organisationId', organisationId)
-  request.yar.set('relationships', relationships)
-  request.yar.set('roles', roles)
-  request.yar.set('authenticated', true)
+  request.yar.set(ORGANISATION_ID, organisationId)
+  request.yar.set(RELATIONSHIPS, relationships)
+  request.yar.set(ROLES, roles)
+  request.yar.set(AUTHENTICATED, true)
 
   return h.redirect(`${authRequest.redirect_uri}?code=${accessCode}&state=${authRequest.state}`)
 }

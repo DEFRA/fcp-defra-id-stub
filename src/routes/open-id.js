@@ -1,9 +1,14 @@
+import http2 from 'node:http2'
 import Joi from 'joi'
 import Boom from '@hapi/boom'
-import { getWellKnown } from '../open-id/get-well-known.js'
+import { getWellKnown } from '../open-id/well-known.js'
 import { getTokens } from '../auth/token.js'
 import { endSession } from '../auth/session.js'
 import { getPublicKeys } from '../auth/keys.js'
+import { AUTH_REQUEST } from '../config/constants/cache-keys.js'
+
+const { constants: httpConstants } = http2
+const { HTTP_STATUS_UNAUTHORIZED } = httpConstants
 
 const wellKnown = {
   method: 'GET',
@@ -36,7 +41,7 @@ const authorization = {
     }
   },
   handler: function (request, h) {
-    request.yar.set('auth-request', request.query)
+    request.yar.set(AUTH_REQUEST, request.query)
     return h.redirect('/dcidmtest.onmicrosoft.com/oauth2/authresp')
   }
 }
@@ -68,7 +73,7 @@ const token = {
     const tokens = getTokens(accessCode, grantType, refreshToken)
 
     if (!tokens) {
-      return h.response('Invalid access code').code(401)
+      return h.response('Invalid access code').code(HTTP_STATUS_UNAUTHORIZED)
     }
 
     return h.response(tokens)

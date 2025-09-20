@@ -17,6 +17,8 @@ export function loadSessions () {
     } catch {
       sessions = []
     }
+  } else {
+    sessions = []
   }
 }
 

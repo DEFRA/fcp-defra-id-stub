@@ -1,6 +1,9 @@
+import http2 from 'node:http2'
 import Joi from 'joi'
 import { config } from '../config/config.js'
 import { downloadS3File, getS3Datasets } from '../people/s3.js'
+
+const { constants: httpConstants } = http2
 
 const view = {
   method: 'GET',
@@ -29,7 +32,7 @@ const download = {
     const { clientId, filename } = request.query
     const fileContent = await downloadS3File(clientId, filename)
     if (!fileContent) {
-      return h.response('File not found').code(404)
+      return h.response('File not found').code(httpConstants.HTTP_STATUS_NOT_FOUND)
     }
     return h.response(fileContent).type('application/json')
   }

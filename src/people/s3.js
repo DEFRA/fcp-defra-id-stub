@@ -106,7 +106,7 @@ export async function getS3Datasets () {
     const prefixes = listResponse.CommonPrefixes || []
 
     if (prefixes.length === 0) {
-      logger.warn('No client folders found in S3 bucket')
+      logger.info('No client folders found in S3 bucket')
       return []
     }
 
