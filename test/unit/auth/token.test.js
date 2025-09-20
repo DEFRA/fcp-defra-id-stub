@@ -4,11 +4,11 @@ import crypto from 'node:crypto'
 
 vi.mock('../../../src/auth/session.js')
 vi.mock('../../../src/auth/keys.js')
-vi.mock('../../../src/open-id/get-well-known.js')
+vi.mock('../../../src/open-id/well-known.js')
 
 const { createSession, findSessionBy, saveSessions } = await import('../../../src/auth/session.js')
 const { getPrivateKey } = await import('../../../src/auth/keys.js')
-const { getWellKnown } = await import('../../../src/open-id/get-well-known.js')
+const { getWellKnown } = await import('../../../src/open-id/well-known.js')
 
 const { createTokens, getTokens } = await import('../../../src/auth/token.js')
 
