@@ -18,6 +18,8 @@ const { getStorageDirectory } = await import('../../../src/auth/storage.js')
 
 const { loadSessions, saveSessions, createSession, findSessionBy, endSession, clearExpiredSessions } = await import('../../../src/auth/session.js')
 
+const sessionPath = '/test/sessions/sessions.json'
+
 const testSessions = [
   { accessToken: 'token1', createdAt: Date.now() },
   { accessToken: 'token2', createdAt: Date.now() }
@@ -38,7 +40,7 @@ describe('loadSessions', () => {
 
     expect(session).toBeDefined()
     expect(mockRead).toHaveBeenCalledTimes(1)
-    expect(mockRead).toHaveBeenCalledWith('/test/sessions/sessions.json', 'utf8')
+    expect(mockRead).toHaveBeenCalledWith(sessionPath, 'utf8')
   })
 
   test('should initialize sessions as empty array if file does not exist', () => {
@@ -74,7 +76,7 @@ describe('saveSessions', () => {
     saveSessions()
 
     expect(mockWrite).toHaveBeenCalledTimes(1)
-    expect(mockWrite).toHaveBeenCalledWith('/test/sessions/sessions.json', JSON.stringify(testSessions, null, 2))
+    expect(mockWrite).toHaveBeenCalledWith(sessionPath, JSON.stringify(testSessions, null, 2))
   })
 })
 
@@ -99,7 +101,7 @@ describe('createSession', () => {
     createSession(newSession)
 
     expect(mockWrite).toHaveBeenCalled()
-    expect(mockWrite).toHaveBeenCalledWith('/test/sessions/sessions.json', JSON.stringify([...testSessions, newSession], null, 2))
+    expect(mockWrite).toHaveBeenCalledWith(sessionPath, JSON.stringify([...testSessions, newSession], null, 2))
   })
 })
 
@@ -141,7 +143,7 @@ describe('endSession', () => {
     endSession('token1')
 
     expect(mockWrite).toHaveBeenCalled()
-    expect(mockWrite).toHaveBeenCalledWith('/test/sessions/sessions.json', JSON.stringify([testSessions[1]], null, 2))
+    expect(mockWrite).toHaveBeenCalledWith(sessionPath, JSON.stringify([testSessions[1]], null, 2))
   })
 
   test('should do nothing if access token not found', () => {
@@ -174,6 +176,6 @@ describe('clearExpiredSessions', () => {
     clearExpiredSessions()
 
     expect(mockWrite).toHaveBeenCalled()
-    expect(mockWrite).toHaveBeenCalledWith('/test/sessions/sessions.json', JSON.stringify([testSessions[1]], null, 2))
+    expect(mockWrite).toHaveBeenCalledWith(sessionPath, JSON.stringify([testSessions[1]], null, 2))
   })
 })

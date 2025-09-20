@@ -55,7 +55,7 @@ export function getTokens (accessCode, grantType, refreshToken) {
   }
 }
 
-export function refreshAccessToken (accessToken) {
+function refreshAccessToken (accessToken) {
   const {
     sessionId,
     crn,
