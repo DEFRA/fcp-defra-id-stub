@@ -1,7 +1,7 @@
 import http2 from 'node:http2'
 import Joi from 'joi'
 import Boom from '@hapi/boom'
-import { getWellKnown } from '../open-id/get-well-known.js'
+import { getWellKnown } from '../open-id/well-known.js'
 import { getTokens } from '../auth/token.js'
 import { endSession } from '../auth/session.js'
 import { getPublicKeys } from '../auth/keys.js'
