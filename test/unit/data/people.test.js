@@ -17,15 +17,15 @@ const people = [
   { crn: 1234567891, firstName: 'Jane', lastName: 'Smith', organisations: [{ organisationId: '1234569', sbi: 123456790 }] }
 ]
 
+beforeEach(() => {
+  vi.resetAllMocks()
+  vi.resetModules()
+
+  getData.mockResolvedValue({ people, s3: false })
+  config.get.mockReturnValue('basic')
+})
+
 describe('getPerson', () => {
-  beforeEach(() => {
-    vi.resetAllMocks()
-    vi.resetModules()
-
-    getData.mockResolvedValue({ people, s3: false })
-    config.get.mockReturnValue('basic')
-  })
-
   test('should request data for specific client Id', async () => {
     const { getPerson } = await import('../../../src/data/people.js')
 
@@ -102,5 +102,76 @@ describe('getPerson', () => {
     const result = await getPerson(crnUnknown, clientId)
 
     expect(result).toBeUndefined()
+  })
+})
+
+describe('getOrganisations', () => {
+  test('should request data for specific client Id', async () => {
+    const { getOrganisations } = await import('../../../src/data/people.js')
+
+    await getOrganisations(people[0].crn, clientId)
+
+    expect(getData).toHaveBeenCalledTimes(1)
+    expect(getData).toHaveBeenCalledWith(clientId)
+  })
+
+  test('should return organisations for first person if S3 disabled and basic auth', async () => {
+    const { getOrganisations } = await import('../../../src/data/people.js')
+
+    const result = await getOrganisations(crnUnknown, clientId)
+
+    expect(result).toEqual(people[0].organisations)
+  })
+
+  test('should return organisations for matching person for given CRN if S3 enabled and basic auth', async () => {
+    const { getOrganisations } = await import('../../../src/data/people.js')
+
+    const result = await getOrganisations(people[0].crn, clientId)
+
+    expect(result).toEqual(people[0].organisations)
+  })
+
+  test('should return organisations for matching person for given CRN if S3 enabled and not basic auth', async () => {
+    getData.mockResolvedValue({ people, s3: true })
+    config.get.mockReturnValue('mock')
+
+    const { getOrganisations } = await import('../../../src/data/people.js')
+
+    const result = await getOrganisations(people[0].crn, clientId)
+
+    expect(result).toEqual(people[0].organisations)
+  })
+
+  test('should return organisations for matching person for given CRN if S3 disabled and not basic auth', async () => {
+    getData.mockResolvedValue({ people, s3: false })
+    config.get.mockReturnValue('mock')
+
+    const { getOrganisations } = await import('../../../src/data/people.js')
+
+    const result = await getOrganisations(people[0].crn, clientId)
+
+    expect(result).toEqual(people[0].organisations)
+  })
+
+  test('should return empty array if no matching person for given CRN and not basic auth and S3 enabled', async () => {
+    getData.mockResolvedValue({ people, s3: true })
+    config.get.mockReturnValue('mock')
+
+    const { getOrganisations } = await import('../../../src/data/people.js')
+
+    const result = await getOrganisations(crnUnknown, clientId)
+
+    expect(result).toEqual([])
+  })
+
+  test('should return empty array if no matching person for given CRN and not basic auth and S3 disabled', async () => {
+    getData.mockResolvedValue({ people, s3: false })
+    config.get.mockReturnValue('mock')
+
+    const { getOrganisations } = await import('../../../src/data/people.js')
+
+    const result = await getOrganisations(crnUnknown, clientId)
+
+    expect(result).toEqual([])
   })
 })
