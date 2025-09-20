@@ -28,7 +28,7 @@ let testPrivateKey
 let testPublicKey
 
 beforeAll(() => {
-  const generated = crypto.generateKeyPairSync('rsa', {
+  const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
     modulusLength: 2048,
     publicKeyEncoding: {
       type: 'spki',
@@ -40,8 +40,8 @@ beforeAll(() => {
     }
   })
 
-  testPrivateKey = generated.privateKey
-  testPublicKey = generated.publicKey
+  testPrivateKey = privateKey
+  testPublicKey = publicKey
 })
 
 beforeEach(() => {
