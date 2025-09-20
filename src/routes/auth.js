@@ -2,7 +2,7 @@ import Joi from 'joi'
 import Boom from '@hapi/boom'
 import { validateCredentials } from '../auth/credentials.js'
 import { createTokens } from '../auth/token.js'
-import { getPerson, getOrganisations, getSelectedOrganisation } from '../people/data.js'
+import { getPerson, getOrganisations, getSelectedOrganisation } from '../data/people.js'
 import { AUTH_REQUEST, AUTHENTICATED, ORGANISATION_ID, PERSON, RELATIONSHIPS, ROLES } from '../config/constants/cache-keys.js'
 
 const signIn = [{

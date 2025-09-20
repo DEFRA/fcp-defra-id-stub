@@ -255,7 +255,7 @@ Each of the CRNs are associated with varying mock organisations.
 
 This allows for more variation of automated tests and scenarios.
 
-Current mock data available can be viewed [here](./src/customers/data.json).
+Current mock data available can be viewed [here](./src/data/mock.json).
 
 > NOTE: as per limitations above, mock data is limited.
 

@@ -7,7 +7,7 @@ const { s3Enabled } = config.get('aws')
 
 let people = []
 
-const data = await import('./data.json', { with: { type: 'json' } })
+const data = await import('./mock.json', { with: { type: 'json' } })
 people = data.default.people
 
 if (source === 'override') {

@@ -1,8 +1,8 @@
 import { vi, describe, beforeEach, test, expect } from 'vitest'
 
-vi.mock('../../../src/people/data.js')
+vi.mock('../../../src/data/people.js')
 
-const { getPerson } = await import('../../../src/people/data.js')
+const { getPerson } = await import('../../../src/data/people.js')
 
 const { validateCredentials } = await import('../../../src/auth/credentials.js')
 

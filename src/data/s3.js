@@ -68,7 +68,7 @@ export async function getLatestS3Data (clientId) {
   try {
     const listResponse = await listObjects({ prefix: `${clientId}/` })
     if (!listResponse.Contents || listResponse.Contents.length === 0) {
-      logger.warn(`No JSON files found in S3 bucket for client: ${clientId}`)
+      logger.info(`No JSON files found in S3 bucket for client: ${clientId}`)
       return null
     }
 
