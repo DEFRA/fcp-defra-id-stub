@@ -21,6 +21,9 @@ const { createKeys, getPrivateKey, getPublicKeys } = await import('../../../src/
 
 const generateKeyPairSyncSpy = vi.spyOn(crypto, 'generateKeyPairSync')
 
+const privateKeyPath = '/test/keys/private.pem'
+const publicKeyPath = '/test/keys/public.pem'
+
 let testPrivateKey
 let testPublicKey
 
@@ -46,10 +49,10 @@ beforeEach(() => {
   mockExists.mockReturnValue(true)
 
   mockRead.mockImplementation((path) => {
-    if (path === '/test/keys/private.pem') {
+    if (path === privateKeyPath) {
       return testPrivateKey
     }
-    if (path === '/test/keys/public.pem') {
+    if (path === publicKeyPath) {
       return testPublicKey
     }
     return null
@@ -62,8 +65,8 @@ describe('createKeys', () => {
     createKeys()
     expect(generateKeyPairSyncSpy).toHaveBeenCalledTimes(1)
     expect(mockWrite).toHaveBeenCalledTimes(2)
-    expect(mockWrite).toHaveBeenCalledWith('/test/keys/private.pem', expect.any(String))
-    expect(mockWrite).toHaveBeenCalledWith('/test/keys/public.pem', expect.any(String))
+    expect(mockWrite).toHaveBeenCalledWith(privateKeyPath, expect.any(String))
+    expect(mockWrite).toHaveBeenCalledWith(publicKeyPath, expect.any(String))
   })
 
   test('should not create key pair if both private and public key exist', () => {
@@ -73,21 +76,21 @@ describe('createKeys', () => {
   })
 
   test('should create key pair if only private key exists', () => {
-    mockExists.mockImplementation((path) => path === '/test/keys/private.pem')
+    mockExists.mockImplementation((path) => path === privateKeyPath)
     createKeys()
     expect(generateKeyPairSyncSpy).toHaveBeenCalledTimes(1)
     expect(mockWrite).toHaveBeenCalledTimes(2)
-    expect(mockWrite).toHaveBeenCalledWith('/test/keys/private.pem', expect.any(String))
-    expect(mockWrite).toHaveBeenCalledWith('/test/keys/public.pem', expect.any(String))
+    expect(mockWrite).toHaveBeenCalledWith(privateKeyPath, expect.any(String))
+    expect(mockWrite).toHaveBeenCalledWith(publicKeyPath, expect.any(String))
   })
 
   test('should create key pair if only public key exists', () => {
-    mockExists.mockImplementation((path) => path === '/test/keys/public.pem')
+    mockExists.mockImplementation((path) => path === publicKeyPath)
     createKeys()
     expect(generateKeyPairSyncSpy).toHaveBeenCalledTimes(1)
     expect(mockWrite).toHaveBeenCalledTimes(2)
-    expect(mockWrite).toHaveBeenCalledWith('/test/keys/private.pem', expect.any(String))
-    expect(mockWrite).toHaveBeenCalledWith('/test/keys/public.pem', expect.any(String))
+    expect(mockWrite).toHaveBeenCalledWith(privateKeyPath, expect.any(String))
+    expect(mockWrite).toHaveBeenCalledWith(publicKeyPath, expect.any(String))
   })
 })
 
