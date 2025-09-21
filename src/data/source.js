@@ -1,9 +1,12 @@
 import { config } from '../config/config.js'
 import { schema } from './schema.js'
 import { getLatestS3Data } from './s3.js'
+import { createLogger } from '../common/helpers/logging/logger.js'
 
 const { source, override, overrideFile } = config.get('auth')
 const { s3Enabled } = config.get('aws')
+
+const logger = createLogger()
 
 let people = []
 
@@ -30,16 +33,16 @@ if (source === 'file') {
   const { error } = schema.validate(overrideData.default, { abortEarly: false })
 
   if (error) {
-    throw new Error(`Invalid override file data: ${error.message}`)
+    logger.error(`Invalid override data file: ${error.message}`)
+  } else {
+    people = overrideData.default.people
   }
-
-  people = overrideData.default.people
 }
 
 export async function getData (clientId) {
   if (s3Enabled) {
     const s3People = await getLatestS3Data(clientId)
-    if (s3People && s3People.length > 0) {
+    if (s3People) {
       return { people: s3People, s3: true }
     }
   }
