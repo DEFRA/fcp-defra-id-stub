@@ -5,7 +5,7 @@ import { createServer } from '../../../../src/server.js'
 const { constants: httpConstants } = http2
 const { HTTP_STATUS_OK } = httpConstants
 
-describe('Health route', () => {
+describe('index route', () => {
   let server
 
   beforeAll(async () => {
@@ -17,13 +17,22 @@ describe('Health route', () => {
     await server.stop({ timeout: 0 })
   })
 
-  test('should provide success response and return status code 200', async () => {
-    const { result, statusCode } = await server.inject({
+  test('should return status code 200', async () => {
+    const { statusCode } = await server.inject({
       method: 'GET',
-      url: '/health'
+      url: '/'
     })
 
-    expect(result).toEqual({ message: 'success' })
     expect(statusCode).toBe(HTTP_STATUS_OK)
+  })
+
+  test('should render the index view', async () => {
+    const { result } = await server.inject({
+      method: 'GET',
+      url: '/'
+    })
+
+    expect(result).toContain('<title>FCP Defra ID stub - GOV.UK')
+    expect(result).toContain('<h1 class="govuk-heading-l">FCP Defra ID stub</h1>')
   })
 })
