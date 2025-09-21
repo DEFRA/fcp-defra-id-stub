@@ -51,8 +51,6 @@ There are some known issues to be aware of that will be addressed in future rele
 
 - UI content does not fully mirror Defra Identity.  However note there are no plans to introduce the legacy GOV.UK branding currently used by Defra Identity.
 
-- General code quality and test coverage.
-
 > If any further limitations or issues are identified, please raise with `John Watson <john.watson1@defra.gov.uk>` (Principal Developer).
 
 ## A note on roles
@@ -255,7 +253,7 @@ Each of the CRNs are associated with varying mock organisations.
 
 This allows for more variation of automated tests and scenarios.
 
-Current mock data available can be viewed [here](./src/customers/data.json).
+Current mock data available can be viewed [here](./src/data/mock.json).
 
 > NOTE: as per limitations above, mock data is limited.
 

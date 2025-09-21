@@ -1,4 +1,4 @@
-import { getHost, getApiHost } from './get-host.js'
+import { getHost, getApiHost } from './host.js'
 
 export function getWellKnown () {
   const redirectHost = getHost()

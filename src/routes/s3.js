@@ -1,6 +1,10 @@
+import http2 from 'node:http2'
 import Joi from 'joi'
 import { config } from '../config/config.js'
-import { downloadS3File, getS3Datasets } from '../people/s3.js'
+import { downloadS3File, getS3Datasets } from '../data/s3.js'
+
+const { constants: httpConstants } = http2
+const { HTTP_STATUS_BAD_REQUEST, HTTP_STATUS_NOT_FOUND } = httpConstants
 
 const view = {
   method: 'GET',
@@ -22,14 +26,14 @@ const download = {
       },
       failAction: async (_request, h, error) => h.view('errors/400', {
         message: error.message
-      }).takeover()
+      }).code(HTTP_STATUS_BAD_REQUEST).takeover()
     }
   },
   handler: async function (request, h) {
     const { clientId, filename } = request.query
     const fileContent = await downloadS3File(clientId, filename)
     if (!fileContent) {
-      return h.response('File not found').code(404)
+      return h.response('File not found').code(HTTP_STATUS_NOT_FOUND)
     }
     return h.response(fileContent).type('application/json')
   }

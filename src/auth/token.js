@@ -1,6 +1,6 @@
 import crypto from 'node:crypto'
 import Jwt from '@hapi/jwt'
-import { getWellKnown } from '../open-id/get-well-known.js'
+import { getWellKnown } from '../open-id/well-known.js'
 import { getPrivateKey } from './keys.js'
 import { createSession, findSessionBy, saveSessions } from './session.js'
 
@@ -55,10 +55,10 @@ export function getTokens (accessCode, grantType, refreshToken) {
   }
 }
 
-export function refreshAccessToken (accessToken) {
+function refreshAccessToken (accessToken) {
   const {
     sessionId,
-    crn,
+    contactId: crn,
     firstName,
     lastName,
     currentRelationshipId: organisationId,
