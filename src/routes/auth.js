@@ -1,9 +1,13 @@
+import http2 from 'node:http2'
 import Joi from 'joi'
 import Boom from '@hapi/boom'
 import { validateCredentials } from '../auth/credentials.js'
 import { createTokens } from '../auth/token.js'
 import { getPerson, getOrganisations, getSelectedOrganisation } from '../data/people.js'
 import { AUTH_REQUEST, AUTHENTICATED, ORGANISATION_ID, PERSON, RELATIONSHIPS, ROLES } from '../config/constants/cache-keys.js'
+
+const { constants: httpConstants } = http2
+const { HTTP_STATUS_BAD_REQUEST } = httpConstants
 
 const signIn = [{
   method: 'GET',
@@ -32,7 +36,7 @@ const signIn = [{
       failAction: async (request, h, _error) => h.view('sign-in', {
         message: 'Your CRN and/or password is incorrect',
         crn: request.payload.crn
-      }).takeover()
+      }).code(HTTP_STATUS_BAD_REQUEST).takeover()
     }
   },
   handler: async (request, h) => {
@@ -113,7 +117,7 @@ const picker = [{
         return h.view('picker', {
           message: 'Select an organisation',
           organisations
-        }).takeover()
+        }).code(HTTP_STATUS_BAD_REQUEST).takeover()
       }
     }
   },

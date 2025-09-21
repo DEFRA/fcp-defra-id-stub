@@ -5,7 +5,7 @@ import { createServer } from '../../../../src/server.js'
 const { constants: httpConstants } = http2
 const { HTTP_STATUS_OK } = httpConstants
 
-describe('Health route', () => {
+describe('health route', () => {
   let server
 
   beforeAll(async () => {

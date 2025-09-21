@@ -9,6 +9,11 @@ export function catchAll (request, h) {
     return h.continue
   }
 
+  if (request.route?.settings?.tags?.includes('api')) {
+    request.logger.error(response?.stack)
+    return h.continue
+  }
+
   const statusCode = response.output.statusCode
 
   let template = 'errors/500'

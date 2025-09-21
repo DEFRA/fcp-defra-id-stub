@@ -8,11 +8,15 @@ import { getPublicKeys } from '../auth/keys.js'
 import { AUTH_REQUEST } from '../config/constants/cache-keys.js'
 
 const { constants: httpConstants } = http2
-const { HTTP_STATUS_UNAUTHORIZED } = httpConstants
+
+const { HTTP_STATUS_BAD_REQUEST } = httpConstants
 
 const wellKnown = {
   method: 'GET',
   path: '/idphub/b2c/b2c_1a_cui_cpdev_signupsigninsfi/.well-known/openid-configuration',
+  options: {
+    tags: ['api']
+  },
   handler: (_request, h) => h.response(getWellKnown())
 }
 
@@ -37,7 +41,7 @@ const authorization = {
       },
       failAction: async (_request, h, error) => h.view('errors/400', {
         message: error.message
-      }).takeover()
+      }).code(HTTP_STATUS_BAD_REQUEST).takeover()
     }
   },
   handler: function (request, h) {
@@ -59,21 +63,28 @@ const tokenSchema = Joi.object({
 const token = {
   method: 'POST',
   path: '/dcidmtest.onmicrosoft.com/b2c_1a_cui_cpdev_signupsigninsfi/oauth2/v2.0/token',
+  options: {
+    tags: ['api']
+  },
   handler: function (request, h) {
     const params = { ...request.query, ...request.payload }
 
-    const { error } = tokenSchema.validate(params)
+    const { error } = tokenSchema.validate(params, { abortEarly: false, allowUnknown: true })
 
     if (error) {
-      throw Boom.badRequest(`${error.message}`)
+      return Boom.badRequest(`${error.message}`)
     }
 
     const { code: accessCode, grant_type: grantType, refresh_token: refreshToken } = params
 
     const tokens = getTokens(accessCode, grantType, refreshToken)
 
-    if (!tokens) {
-      return h.response('Invalid access code').code(HTTP_STATUS_UNAUTHORIZED)
+    if (!tokens && grantType === 'authorization_code') {
+      return Boom.unauthorized('Invalid authorization code')
+    }
+
+    if (!tokens && grantType === 'refresh_token') {
+      return Boom.unauthorized('Invalid refresh token')
     }
 
     return h.response(tokens)
@@ -92,7 +103,7 @@ const signOut = {
       },
       failAction: async (_request, h, error) => h.view('errors/400', {
         message: error.message
-      }).takeover()
+      }).code(HTTP_STATUS_BAD_REQUEST).takeover()
     }
   },
   handler: function (request, h) {
@@ -115,6 +126,9 @@ const signOut = {
 const jwks = {
   method: 'GET',
   path: '/dcidmtest.onmicrosoft.com/b2c_1a_cui_cpdev_signupsigninsfi/discovery/v2.0/keys',
+  options: {
+    tags: ['api']
+  },
   handler: (_request, h) => h.response(getPublicKeys())
 }
 
