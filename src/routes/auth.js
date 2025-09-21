@@ -1,6 +1,5 @@
 import http2 from 'node:http2'
 import Joi from 'joi'
-import Boom from '@hapi/boom'
 import { validateCredentials } from '../auth/credentials.js'
 import { createTokens } from '../auth/token.js'
 import { getPerson, getOrganisations, getSelectedOrganisation } from '../data/people.js'
@@ -12,9 +11,10 @@ const { HTTP_STATUS_BAD_REQUEST } = httpConstants
 const signIn = [{
   method: 'GET',
   path: '/dcidmtest.onmicrosoft.com/oauth2/authresp',
+  options: {
+    pre: [validateSession]
+  },
   handler: (request, h) => {
-    validateSession(request)
-
     const authenticated = request.yar.get(AUTHENTICATED)
     const { prompt } = request.yar.get(AUTH_REQUEST)
 
@@ -37,11 +37,10 @@ const signIn = [{
         message: 'Your CRN and/or password is incorrect',
         crn: request.payload.crn
       }).code(HTTP_STATUS_BAD_REQUEST).takeover()
-    }
+    },
+    pre: [validateSession]
   },
   handler: async (request, h) => {
-    validateSession(request)
-
     const { crn, password } = request.payload
 
     const { client_id: clientId } = request.yar.get(AUTH_REQUEST)
@@ -50,7 +49,7 @@ const signIn = [{
       return h.view('sign-in', {
         message: 'Your CRN and/or password is incorrect',
         crn: request.payload.crn
-      }).takeover()
+      }).code(HTTP_STATUS_BAD_REQUEST).takeover()
     }
 
     const person = await getPerson(crn, clientId)
@@ -64,22 +63,22 @@ const signIn = [{
 const picker = [{
   method: 'GET',
   path: '/organisations',
+  options: {
+    pre: [validateSession]
+  },
   handler: async (request, h) => {
-    validateSession(request)
-
     const person = request.yar.get(PERSON)
     const { forceReselection, relationshipId, client_id: clientId } = request.yar.get(AUTH_REQUEST)
-
-    const organisationId = request.yar.get(ORGANISATION_ID)
 
     if (relationshipId) {
       const organisation = await getSelectedOrganisation(person.crn, { organisationId: relationshipId }, clientId)
 
-      if (organisationId) {
+      if (organisation) {
         return completeAuthentication(request, h, person, organisation)
       }
     }
 
+    const organisationId = request.yar.get(ORGANISATION_ID)
     const currentOrganisation = await getSelectedOrganisation(person.crn, { organisationId }, clientId)
 
     if (currentOrganisation && !forceReselection) {
@@ -107,8 +106,6 @@ const picker = [{
         sbi: Joi.number().integer().required()
       },
       failAction: async (request, h, _error) => {
-        validateSession(request)
-
         const { crn } = request.yar.get(PERSON)
         const { client_id: clientId } = request.yar.get(AUTH_REQUEST)
 
@@ -119,11 +116,10 @@ const picker = [{
           organisations
         }).code(HTTP_STATUS_BAD_REQUEST).takeover()
       }
-    }
+    },
+    pre: [validateSession]
   },
   handler: async (request, h) => {
-    validateSession(request)
-
     const { sbi } = request.payload
 
     const person = request.yar.get(PERSON)
@@ -135,14 +131,17 @@ const picker = [{
   }
 }]
 
-function validateSession (request) {
+function validateSession (request, h) {
   const { client_id: clientId } = request.yar.get(AUTH_REQUEST) || {}
 
   if (!clientId) {
     const message = 'Cannot retrieve original request from session cookie.  If host is http and not localhost, ensure SECURE_COOKIE=false'
-    request.logger.error(message)
-    throw Boom.badRequest(message)
+    return h.view('errors/400', {
+      message
+    }).code(HTTP_STATUS_BAD_REQUEST).takeover()
   }
+
+  return h.continue
 }
 
 function completeAuthentication (request, h, person, organisation) {
