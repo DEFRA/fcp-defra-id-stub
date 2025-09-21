@@ -115,9 +115,7 @@ const signOut = {
 const jwks = {
   method: 'GET',
   path: '/dcidmtest.onmicrosoft.com/b2c_1a_cui_cpdev_signupsigninsfi/discovery/v2.0/keys',
-  handler: function (_request, h) {
-    return h.response(getPublicKeys())
-  }
+  handler: (_request, h) => h.response(getPublicKeys())
 }
 
 export const openId = [
