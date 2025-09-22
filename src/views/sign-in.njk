@@ -28,12 +28,15 @@
         <div class=govuk-form-group>
           <label class="govuk-label" for="crn">Customer reference number (CRN)</label>
           <div id="crn-hint" class="govuk-hint">
-            This is the 10 digit number emailed to you when you created your RPA account
+            This is the 10 digit number emailed to you when you registered with the Rural Payments service.
           </div>
           <input class="govuk-input govuk-input--width-20" id="crn" name="crn" type="text" value="{{crn}}">
         </div>
         <div class=govuk-form-group>
           <label class="govuk-label" for="password">Password</label>
+          <div id="password-hint" class="govuk-hint">
+            This is Rural Payments service password.
+          </div>
           <input class="govuk-input govuk-input--width-20" id="password" name="password" type="password">
         </div>
 
@@ -47,11 +50,11 @@
       </form>
 
       <p class="govuk-body">
-        <a class="govuk-link" href="#">I forgot my password</a>
+        <a class="govuk-link" href="#">I have forgotten my password</a>
       </p>
 
       {{ govukDetails({
-        summaryText: "Help with signing in",
+        summaryText: "Help signing in",
         classes: "govuk-!-margin-top-9",
         html: "Lost your customer reference number (CRN), call 03000 200 301."
       }) }}
