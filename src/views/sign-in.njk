@@ -2,7 +2,6 @@
 
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
-{% from "govuk/components/details/macro.njk" import govukDetails %}
 
 {% block content %}
   <div class="govuk-grid-row">
@@ -52,12 +51,30 @@
       <p class="govuk-body">
         <a class="govuk-link" href="#">I have forgotten my password</a>
       </p>
+      <details class="govuk-details">
+        <summary class="govuk-details__summary">
+          <span class="govuk-details__summary-text">
+            Help signing in
+          </span>
+        </summary>
+        <div class="govuk-details__text">
+          <p class="govuk-body">Contact the Rural Payments Agency by email or phone if:</p>
 
-      {{ govukDetails({
-        summaryText: "Help signing in",
-        classes: "govuk-!-margin-top-9",
-        html: "Lost your customer reference number (CRN), call 03000 200 301."
-      }) }}
+          <ul class="govuk-list govuk-list--bullet">
+            <li>you have forgotten your CRN</li>
+            <li>you have lost your CRN</li>
+            <li>your CRN is not recognised</li>
+          </ul>
+
+          <p class="govuk-body">Email:<br><a class="govuk-link" href="mailto:testing@farming.gov.uk">testing@farming.gov.uk</a></p>
+          <p class="govuk-body">Telephone:<br>0300 000 0000</p>
+          <p class="govuk-body">Service opening times:<br>09:00 AM to 05:00 PM</p>
+
+          <p class="govuk-body"><a class="govuk-link" href="https://www.gov.uk/call-charges" target="_blank">Find out about call charges (opens in new tab)</a></p>
+
+          <p class="govuk-body"><a class="govuk-link" href="https://www.ruralpayments.service.gov.uk">Register with the Rural Payments service</a> if you do not have an account.</p>
+        </div>
+      </details>
     </div>
   </div>
 {% endblock %}
