@@ -34,7 +34,7 @@ const signIn = [{
         password: Joi.string().required()
       },
       failAction: async (request, h, _error) => h.view('sign-in', {
-        message: 'Your CRN and/or password is incorrect',
+        message: 'Enter a valid 10-digit customer reference number (CRN) and password',
         crn: request.payload.crn
       }).code(HTTP_STATUS_BAD_REQUEST).takeover()
     },
@@ -47,7 +47,7 @@ const signIn = [{
 
     if (!await validateCredentials(crn, password, clientId)) {
       return h.view('sign-in', {
-        message: 'Your CRN and/or password is incorrect',
+        message: 'Enter a valid 10-digit customer reference number (CRN) and password',
         crn: request.payload.crn
       }).code(HTTP_STATUS_BAD_REQUEST).takeover()
     }
@@ -112,7 +112,7 @@ const picker = [{
         const organisations = await getOrganisations(crn, clientId)
 
         return h.view('picker', {
-          message: 'Select an organisation',
+          message: 'Choose a business',
           organisations
         }).code(HTTP_STATUS_BAD_REQUEST).takeover()
       }

@@ -51,6 +51,8 @@ There are some known issues to be aware of that will be addressed in future rele
 
 - Update organisation picker page to mirror Defra Identity where CRNs with more than 20 organisations receive a search box rather than a radio button list.
 
+- Update formatting of error messages to match Defra Identity.
+
 - Add forgotten password journey.
 
 > There are no plans to introduce the legacy GOV.UK branding currently used by Defra Identity.

@@ -145,7 +145,7 @@ describe('auth routes', () => {
       })
 
       expect(statusCode).toBe(HTTP_STATUS_BAD_REQUEST)
-      expect(result).toContain('Your CRN and/or password is incorrect')
+      expect(result).toContain('Enter a valid 10-digit customer reference number (CRN) and password')
     })
 
     test('POST should return 400 if crn is not provided', async () => {
@@ -158,7 +158,7 @@ describe('auth routes', () => {
       })
 
       expect(statusCode).toBe(HTTP_STATUS_BAD_REQUEST)
-      expect(result).toContain('Your CRN and/or password is incorrect')
+      expect(result).toContain('Enter a valid 10-digit customer reference number (CRN) and password')
     })
 
     test('POST should return 400 if password is not provided', async () => {
@@ -171,7 +171,7 @@ describe('auth routes', () => {
       })
 
       expect(statusCode).toBe(HTTP_STATUS_BAD_REQUEST)
-      expect(result).toContain('Your CRN and/or password is incorrect')
+      expect(result).toContain('Enter a valid 10-digit customer reference number (CRN) and password')
     })
 
     test('POST should return 400 if crn is not an number', async () => {
@@ -185,7 +185,7 @@ describe('auth routes', () => {
       })
 
       expect(statusCode).toBe(HTTP_STATUS_BAD_REQUEST)
-      expect(result).toContain('Your CRN and/or password is incorrect')
+      expect(result).toContain('Enter a valid 10-digit customer reference number (CRN) and password')
     })
 
     test('POST should return 400 if crn is not an integer', async () => {
@@ -199,7 +199,7 @@ describe('auth routes', () => {
       })
 
       expect(statusCode).toBe(HTTP_STATUS_BAD_REQUEST)
-      expect(result).toContain('Your CRN and/or password is incorrect')
+      expect(result).toContain('Enter a valid 10-digit customer reference number (CRN) and password')
     })
 
     test('POST should return 400 if auth request is missing', async () => {
@@ -244,7 +244,7 @@ describe('auth routes', () => {
       })
 
       expect(statusCode).toBe(HTTP_STATUS_BAD_REQUEST)
-      expect(result).toContain('Your CRN and/or password is incorrect')
+      expect(result).toContain('Enter a valid 10-digit customer reference number (CRN) and password')
       expect(validateCredentials).toHaveBeenCalledWith(1234567890, 'password', authRequest.client_id)
     })
 
@@ -488,7 +488,7 @@ describe('auth routes', () => {
 
       expect(getOrganisations).toHaveBeenCalledWith(person.crn, authRequest.client_id)
       expect(statusCode).toBe(HTTP_STATUS_BAD_REQUEST)
-      expect(result).toContain('Select an organisation')
+      expect(result).toContain('Choose a business')
     })
 
     test('POST should return 400 when sbi not an integer', async () => {
@@ -506,7 +506,7 @@ describe('auth routes', () => {
 
       expect(getOrganisations).toHaveBeenCalledWith(person.crn, authRequest.client_id)
       expect(statusCode).toBe(HTTP_STATUS_BAD_REQUEST)
-      expect(result).toContain('Select an organisation')
+      expect(result).toContain('Choose a business')
     })
 
     test('POST should return 400 if auth request missing', async () => {
