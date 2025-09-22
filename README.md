@@ -49,7 +49,11 @@ There are some known issues to be aware of that will be addressed in future rele
 
 - Mock people and organisation data is limited.  However this can be overridden by the customisation options described below.
 
-- UI content does not fully mirror Defra Identity.  However note there are no plans to introduce the legacy GOV.UK branding currently used by Defra Identity.
+- Update organisation picker page to mirror Defra Identity where CRNs with more than 20 organisations receive a search box rather than a radio button list.
+
+- Add forgotten password journey.
+
+> There are no plans to introduce the legacy GOV.UK branding currently used by Defra Identity.
 
 > If any further limitations or issues are identified, please raise with `John Watson <john.watson1@defra.gov.uk>` (Principal Developer).
 

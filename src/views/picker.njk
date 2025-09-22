@@ -2,14 +2,13 @@
 
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
-{% from "govuk/components/details/macro.njk" import govukDetails %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <form method="POST" action="/organisations">
-        <h1 class="govuk-heading-l">Who do you want to represent?</h1>
+        <h1 class="govuk-heading-l">Choose a business</h1>
         {% if message %}
           <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1" data-module="govuk-error-summary">
             <h2 class="govuk-error-summary__title" id="error-summary-title">
@@ -26,14 +25,13 @@
           </div>
         {% endif %}
 
+        <p class="govuk-body">These are the businesses registered to your rural payments account including their single business identifier (SBI).</p>
+
         {% set radioItems = [] %}
         {% for org in organisations %}
           {% set item = {
             value: org.sbi,
-            text: org.name,
-            hint: {
-              text: "SBI: " + org.sbi
-            }
+            text: org.name + " - SBI " + org.sbi
           } %}
           {% set radioItems = (radioItems.push(item), radioItems) %}
         {% endfor %}
@@ -52,11 +50,22 @@
 
       </form>
 
-      {{ govukDetails({
-        summaryText: "Need more help?",
-        classes: "govuk-!-margin-top-9",
-        html: "Call 03000 200 301."
-      }) }}
+      <details class="govuk-details">
+        <summary class="govuk-details__summary">
+          <span class="govuk-details__summary-text">
+            Help signing in
+          </span>
+        </summary>
+        <div class="govuk-details__text">
+          <p class="govuk-body">Contact the Rural Payments Agency by email or phone.</p>
+
+          <p class="govuk-body">Email:<br><a class="govuk-link" href="mailto:testing@farming.gov.uk">testing@farming.gov.uk</a></p>
+          <p class="govuk-body">Telephone:<br>0300 000 0000</p>
+          <p class="govuk-body">Service opening times:<br>09:00 AM to 05:00 PM</p>
+
+          <p class="govuk-body"><a class="govuk-link" href="https://www.gov.uk/call-charges" target="_blank">Find out about call charges (opens in new tab)</a></p>
+        </div>
+      </details>
     </div>
   </div>
 {% endblock %}
