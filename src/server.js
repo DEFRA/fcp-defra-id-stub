@@ -15,6 +15,7 @@ import { requestTracing } from './common/helpers/request-tracing.js'
 import { requestLogger } from './common/helpers/logging/request-logger.js'
 import { secureContext } from './common/helpers/secure-context/secure-context.js'
 import { initializeAuth } from './auth/initialize.js'
+import { entra } from './plugins/entra.js'
 
 export async function createServer () {
   setupProxy()
@@ -63,6 +64,7 @@ export async function createServer () {
     pulse,
     nunjucksConfig,
     contentSecurityPolicy,
+    entra,
     headers,
     router,
     session
