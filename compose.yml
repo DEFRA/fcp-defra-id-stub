@@ -14,6 +14,12 @@ services:
       AWS_SECRET_ACCESS_KEY: test
       AWS_S3_ENABLED: ${FCP_DEFRA_ID_STUB_AWS_S3_ENABLED:-true}
       AWS_S3_BUCKET: fcp-defra-id-stub-data
+      ENTRA_ENABLED: ${ENTRA_ENABLED:-false}
+      ENTRA_WELL_KNOWN_URL: https://login.microsoftonline.com/${ENTRA_TENANT_ID}/v2.0/.well-known/openid-configuration
+      ENTRA_CLIENT_ID: ${ENTRA_CLIENT_ID}
+      ENTRA_CLIENT_SECRET: ${ENTRA_CLIENT_SECRET}
+      ENTRA_REDIRECT_URL: http://localhost:3007/auth/sign-in-oidc
+      ENTRA_SIGN_OUT_REDIRECT_URL: http://localhost:3007/auth/sign-out-oidc
     volumes:
       - ./src:/home/node/src
       - ./package.json:/home/node/package.json

@@ -3,6 +3,8 @@ services:
     build:
       target: development
     command: npm test
+    environment:
+      ENTRA_ENABLED: false
     volumes:
       - ./test:/home/node/test
       - ./coverage:/home/node/coverage

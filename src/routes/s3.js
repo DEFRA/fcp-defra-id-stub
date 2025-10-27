@@ -15,6 +15,17 @@ const view = {
   }
 }
 
+const create = {
+  method: 'GET',
+  path: '/s3/create',
+  options: {
+    auth: { mode: 'required': strategy: 'entra' }
+  }
+  handler: async function (_request, h) {
+    return h.view('s3-create')
+  }
+}
+
 const download = {
   method: 'GET',
   path: '/s3/download',
@@ -39,4 +50,4 @@ const download = {
   }
 }
 
-export const s3 = config.get('aws.s3Enabled') ? [view, download] : []
+export const s3 = config.get('aws.s3Enabled') ? [view, download, create] : []
