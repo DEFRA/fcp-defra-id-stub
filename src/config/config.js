@@ -263,6 +263,12 @@ export const config = convict({
       default: null,
       env: 'WELL_KNOWN_API_HOST_OVERRIDE'
     }
+  },
+  loginDisabled: {
+    doc: 'Disable the login for all users rejecting all credentials',
+    format: Boolean,
+    default: false,
+    env: 'LOGIN_DISABLED'
   }
 })
 
