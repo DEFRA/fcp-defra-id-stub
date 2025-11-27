@@ -6,7 +6,6 @@
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_fcp-defra-id-stub&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=DEFRA_fcp-defra-id-stub)
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_fcp-defra-id-stub&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=DEFRA_fcp-defra-id-stub)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_fcp-defra-id-stub&metric=coverage)](https://sonarcloud.io/summary/new_code?id=DEFRA_fcp-defra-id-stub)
-[![Shai-Hulud](https://github.com/DEFRA/fcp-defra-id-stub/actions/workflows/shai-hulud-detect.yml/badge.svg)](https://github.com/DEFRA/fcp-defra-id-stub/actions/workflows/shai-hulud-detect.yml)
 
 Defra Identity stub for Farming and Countryside Programme (FCP).
 
