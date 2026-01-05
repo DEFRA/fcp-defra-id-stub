@@ -42,6 +42,7 @@ To enable teams working within FCP develop and test against Defra Identity this 
 ## Additional stub features
 
 - Customisable people and organisation data (See below)
+- Allow CRN and Password to be provided as query parameters to sign-in route for demo/testing purposes (See below)
 
 ## Planned improvements
 
@@ -434,6 +435,14 @@ The [upload-file.sh](./scripts/upload-file.sh) sample script will upload the `ex
 > The script is also dependent on a local installation of the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
 
 `./scripts/upload-file.sh 00000000-0000-0000-0000-000000000000`
+
+## Passing CRN and Password as query parameters
+
+For demo and testing purposes only, the stub can be configured to accept the CRN and Password as query parameters to the sign-in route if `ALLOW_LOGIN_QUERY_PARAMS` environment variable is not set to `false`.
+
+Example:
+
+`<host>/dcidmtest.onmicrosoft.com/oauth2/authresp?crn=<CRN>&password=<password>`
 
 ## Further configuration
 

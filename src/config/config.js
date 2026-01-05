@@ -269,6 +269,12 @@ export const config = convict({
     format: Boolean,
     default: false,
     env: 'LOGIN_DISABLED'
+  },
+  allowLoginQueryParams: {
+    doc: 'Allow login using query parameters for crn and password, not supported in Defra ID and should only be used for demo/testing purposes',
+    format: Boolean,
+    default: true,
+    env: 'ALLOW_LOGIN_QUERY_PARAMS'
   }
 })
 

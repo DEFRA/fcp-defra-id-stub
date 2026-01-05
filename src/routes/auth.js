@@ -3,6 +3,7 @@ import Joi from 'joi'
 import { validateCredentials } from '../auth/credentials.js'
 import { createTokens } from '../auth/token.js'
 import { getPerson, getOrganisations, getSelectedOrganisation } from '../data/people.js'
+import { config } from '../config/config.js'
 import { AUTH_REQUEST, AUTHENTICATED, ORGANISATION_ID, PERSON, RELATIONSHIPS, ROLES } from '../config/constants/cache-keys.js'
 
 const { constants: httpConstants } = http2
@@ -19,7 +20,14 @@ const signIn = [{
     const { prompt } = request.yar.get(AUTH_REQUEST)
 
     if (!authenticated || prompt === 'login') {
-      return h.view('sign-in')
+      const loginContext = {}
+
+      if (config.get('allowLoginQueryParams')) {
+        loginContext.crn = request.query.crn
+        loginContext.password = request.query.password
+      }
+
+      return h.view('sign-in', loginContext)
     }
 
     return h.redirect('/organisations')
