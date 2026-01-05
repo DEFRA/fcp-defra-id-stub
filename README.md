@@ -442,7 +442,7 @@ For demo and testing purposes only, the stub can be configured to accept the CRN
 
 Example:
 
-`<host>/dcidmtest.onmicrosoft.com/oauth2/authresp?crn=<CRN>&password=<password>`
+`<HOST>/dcidmtest.onmicrosoft.com/oauth2/authresp?crn=<CRN>&password=<PASSWORD>`
 
 ## Further configuration
 
