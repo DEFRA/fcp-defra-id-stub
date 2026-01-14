@@ -17,14 +17,14 @@ const signIn = [{
   },
   handler: (request, h) => {
     const authenticated = request.yar.get(AUTHENTICATED)
-    const { prompt } = request.yar.get(AUTH_REQUEST)
+    const { prompt, crn, password } = request.yar.get(AUTH_REQUEST)
 
     if (!authenticated || prompt === 'login') {
       const loginContext = {}
 
       if (config.get('allowLoginQueryParams')) {
-        loginContext.crn = request.query.crn
-        loginContext.password = request.query.password
+        loginContext.crn = crn
+        loginContext.password = password
       }
 
       return h.view('sign-in', loginContext)

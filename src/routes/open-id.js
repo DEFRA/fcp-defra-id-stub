@@ -37,7 +37,9 @@ const authorization = {
         scope: Joi.string().required(),
         relationshipId: Joi.string(),
         prompt: Joi.string(),
-        forceReselection: Joi.boolean()
+        forceReselection: Joi.boolean(),
+        crn: Joi.string(),
+        password: Joi.string()
       },
       failAction: async (_request, h, error) => h.view('errors/400', {
         message: error.message

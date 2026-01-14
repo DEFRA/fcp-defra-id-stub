@@ -438,11 +438,19 @@ The [upload-file.sh](./scripts/upload-file.sh) sample script will upload the `ex
 
 ## Passing CRN and Password as query parameters
 
-For demo and testing purposes only, the stub can be configured to accept the CRN and Password as query parameters to the sign-in route if `ALLOW_LOGIN_QUERY_PARAMS` environment variable is not set to `false`.
+For demo and testing purposes only, the stub can be configured to accept the CRN and Password as query parameters to the authorize endpoint if `ALLOW_LOGIN_QUERY_PARAMS` environment variable is not set to `false`.
 
 Example:
 
-`<HOST>/dcidmtest.onmicrosoft.com/oauth2/authresp?crn=<CRN>&password=<PASSWORD>`
+`<HOST>/dcidmtest.onmicrosoft.com/b2c_1a_cui_cpdev_signupsigninsfi/oauth2/v2.0/authorize?serviceId=<SERVICE_ID>&client_id=<CLIENT_ID>&redirect_uri=<REDIRECT_URI>&scope=<SCOPE>&crn=<CRN>&password=<PASSWORD>`
+
+Where the minimum required parameters are:
+- `serviceId` - Your Service ID GUID
+- `client_id` - Your Client ID GUID
+- `redirect_uri` - Your callback URL (must be URL encoded)
+- `scope` - OAuth scope (e.g., `openid`)
+- `crn` - Customer Reference Number (optional for demo/testing)
+- `password` - Password (optional for demo/testing)
 
 ## Further configuration
 
