@@ -172,7 +172,9 @@ describe('open-id routes', () => {
         nonce: 'some-nonce',
         relationshipId: 'some-relationship-id',
         prompt: 'login',
-        forceReselection: true
+        forceReselection: true,
+        crn: '123456789',
+        password: 'valid-password'
       }
       const response = await server.inject({
         method: 'GET',
