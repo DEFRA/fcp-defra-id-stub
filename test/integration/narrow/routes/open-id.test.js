@@ -338,15 +338,15 @@ describe('open-id routes', () => {
       expect(yarResetSpy).toHaveBeenCalled()
     })
 
-    test('should redirect to post_logout_redirect_uri when id_token_hint is not provided', async () => {
+    test('should show signed out page when id_token_hint is not provided', async () => {
       delete query.id_token_hint
       const response = await server.inject({
         method: 'GET',
         url: `${signOutUrl}?${new URLSearchParams(query).toString()}`
       })
 
-      expect(response.statusCode).toBe(HTTP_STATUS_FOUND)
-      expect(response.headers.location).toBe(`${query.post_logout_redirect_uri}?state=${query.state}`)
+      expect(response.statusCode).toBe(HTTP_STATUS_OK)
+      expect(response.result).toContain('You have signed out')
     })
 
     test('should not call endSession when id_token_hint is not provided', async () => {
@@ -367,6 +367,19 @@ describe('open-id routes', () => {
       })
 
       expect(yarResetSpy).toHaveBeenCalled()
+    })
+
+    test('should show signed out page when neither id_token_hint nor post_logout_redirect_uri are provided', async () => {
+      delete query.id_token_hint
+      delete query.post_logout_redirect_uri
+      const response = await server.inject({
+        method: 'GET',
+        url: `${signOutUrl}?${new URLSearchParams(query).toString()}`
+      })
+
+      expect(response.statusCode).toBe(HTTP_STATUS_OK)
+      expect(response.result).toContain('You have signed out')
+      expect(endSession).not.toHaveBeenCalled()
     })
   })
 

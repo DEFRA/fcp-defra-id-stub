@@ -99,7 +99,7 @@ const signOut = {
   options: {
     validate: {
       query: {
-        post_logout_redirect_uri: Joi.string().uri().required(),
+        post_logout_redirect_uri: Joi.string().uri(),
         id_token_hint: Joi.string(),
         state: Joi.string()
       },
@@ -120,6 +120,10 @@ const signOut = {
     }
 
     request.yar.reset()
+
+    if (!accessToken) {
+      return h.view('signed-out')
+    }
 
     const stateResponse = state ? `?state=${state}` : ''
 
