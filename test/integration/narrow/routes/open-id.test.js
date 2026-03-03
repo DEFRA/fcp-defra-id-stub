@@ -337,6 +337,37 @@ describe('open-id routes', () => {
 
       expect(yarResetSpy).toHaveBeenCalled()
     })
+
+    test('should redirect to post_logout_redirect_uri when id_token_hint is not provided', async () => {
+      delete query.id_token_hint
+      const response = await server.inject({
+        method: 'GET',
+        url: `${signOutUrl}?${new URLSearchParams(query).toString()}`
+      })
+
+      expect(response.statusCode).toBe(HTTP_STATUS_FOUND)
+      expect(response.headers.location).toBe(`${query.post_logout_redirect_uri}?state=${query.state}`)
+    })
+
+    test('should not call endSession when id_token_hint is not provided', async () => {
+      delete query.id_token_hint
+      await server.inject({
+        method: 'GET',
+        url: `${signOutUrl}?${new URLSearchParams(query).toString()}`
+      })
+
+      expect(endSession).not.toHaveBeenCalled()
+    })
+
+    test('should still reset session when id_token_hint is not provided', async () => {
+      delete query.id_token_hint
+      await server.inject({
+        method: 'GET',
+        url: `${signOutUrl}?${new URLSearchParams(query).toString()}`
+      })
+
+      expect(yarResetSpy).toHaveBeenCalled()
+    })
   })
 
   describe('jwks route', () => {
