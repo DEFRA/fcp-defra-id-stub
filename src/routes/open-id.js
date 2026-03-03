@@ -100,7 +100,7 @@ const signOut = {
     validate: {
       query: {
         post_logout_redirect_uri: Joi.string().uri().required(),
-        id_token_hint: Joi.string().required(),
+        id_token_hint: Joi.string(),
         state: Joi.string()
       },
       failAction: async (_request, h, error) => h.view('errors/400', {
@@ -115,7 +115,9 @@ const signOut = {
       state
     } = request.query
 
-    endSession(accessToken)
+    if (accessToken) {
+      endSession(accessToken)
+    }
 
     request.yar.reset()
 
