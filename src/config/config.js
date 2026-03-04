@@ -264,6 +264,18 @@ export const config = convict({
       env: 'WELL_KNOWN_API_HOST_OVERRIDE'
     }
   },
+  loginDisabled: {
+    doc: 'Disable the login for all users rejecting all credentials',
+    format: Boolean,
+    default: false,
+    env: 'LOGIN_DISABLED'
+  },
+  allowLoginQueryParams: {
+    doc: 'Allow login using query parameters for crn and password, not supported in Defra ID and should only be used for demo/testing purposes',
+    format: Boolean,
+    default: true,
+    env: 'ALLOW_LOGIN_QUERY_PARAMS'
+  },
   entra: {
     enabled: {
       doc: 'Enable Entra protected routes and authentication',

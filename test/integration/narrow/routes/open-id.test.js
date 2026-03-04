@@ -172,7 +172,9 @@ describe('open-id routes', () => {
         nonce: 'some-nonce',
         relationshipId: 'some-relationship-id',
         prompt: 'login',
-        forceReselection: true
+        forceReselection: true,
+        crn: '123456789',
+        password: 'valid-password'
       }
       const response = await server.inject({
         method: 'GET',
@@ -334,6 +336,50 @@ describe('open-id routes', () => {
       })
 
       expect(yarResetSpy).toHaveBeenCalled()
+    })
+
+    test('should show signed out page when id_token_hint is not provided', async () => {
+      delete query.id_token_hint
+      const response = await server.inject({
+        method: 'GET',
+        url: `${signOutUrl}?${new URLSearchParams(query).toString()}`
+      })
+
+      expect(response.statusCode).toBe(HTTP_STATUS_OK)
+      expect(response.result).toContain('You have signed out')
+    })
+
+    test('should not call endSession when id_token_hint is not provided', async () => {
+      delete query.id_token_hint
+      await server.inject({
+        method: 'GET',
+        url: `${signOutUrl}?${new URLSearchParams(query).toString()}`
+      })
+
+      expect(endSession).not.toHaveBeenCalled()
+    })
+
+    test('should still reset session when id_token_hint is not provided', async () => {
+      delete query.id_token_hint
+      await server.inject({
+        method: 'GET',
+        url: `${signOutUrl}?${new URLSearchParams(query).toString()}`
+      })
+
+      expect(yarResetSpy).toHaveBeenCalled()
+    })
+
+    test('should show signed out page when neither id_token_hint nor post_logout_redirect_uri are provided', async () => {
+      delete query.id_token_hint
+      delete query.post_logout_redirect_uri
+      const response = await server.inject({
+        method: 'GET',
+        url: `${signOutUrl}?${new URLSearchParams(query).toString()}`
+      })
+
+      expect(response.statusCode).toBe(HTTP_STATUS_OK)
+      expect(response.result).toContain('You have signed out')
+      expect(endSession).not.toHaveBeenCalled()
     })
   })
 

@@ -1,8 +1,12 @@
 import { vi, describe, beforeEach, test, expect } from 'vitest'
 
-vi.mock('../../../src/data/people.js')
+vi.mock('../../../src/data/people.js', () => ({
+  getPerson: vi.fn()
+}))
+vi.mock('../../../src/config/config.js')
 
 const { getPerson } = await import('../../../src/data/people.js')
+const { config } = await import('../../../src/config/config.js')
 
 const { validateCredentials } = await import('../../../src/auth/credentials.js')
 
@@ -14,6 +18,7 @@ describe('validateCredentials', () => {
   beforeEach(() => {
     vi.clearAllMocks()
 
+    config.get.mockReturnValue(false)
     getPerson.mockResolvedValue({ crn, firstName: 'John', lastName: 'Doe' })
   })
 
@@ -33,5 +38,13 @@ describe('validateCredentials', () => {
 
     const result = await validateCredentials('invalid-crn', password, clientId)
     expect(result).toBe(false)
+  })
+
+  test('should return false if login is disabled', async () => {
+    config.get.mockReturnValue(true)
+
+    const result = await validateCredentials(crn, password, clientId)
+    expect(result).toBe(false)
+    expect(getPerson).not.toHaveBeenCalled()
   })
 })

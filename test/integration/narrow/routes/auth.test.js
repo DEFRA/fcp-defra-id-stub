@@ -125,6 +125,39 @@ describe('auth routes', () => {
       expect(result).toContain('<h1 class="govuk-heading-l">Sign in to Farming</h1>')
     })
 
+    test('GET should allow crn and password to be set from session if toggle is enabled', async () => {
+      authRequest.crn = '1234567890'
+      authRequest.password = 'mysecretpassword'
+
+      const { result, statusCode } = await server.inject({
+        method: 'GET',
+        url: signInUrl
+      })
+
+      expect(statusCode).toBe(HTTP_STATUS_OK)
+      expect(result).toContain('value="1234567890"')
+      expect(result).toContain('value="mysecretpassword"')
+    })
+
+    test('GET should not allow crn and password to be set from session if toggle is disabled', async () => {
+      const { config } = await import('../../../../src/config/config.js')
+      config.set('allowLoginQueryParams', false)
+
+      authRequest.crn = '1234567890'
+      authRequest.password = 'mysecretpassword'
+
+      const { result, statusCode } = await server.inject({
+        method: 'GET',
+        url: signInUrl
+      })
+
+      expect(statusCode).toBe(HTTP_STATUS_OK)
+      expect(result).not.toContain('value="1234567890"')
+      expect(result).not.toContain('value="mysecretpassword"')
+
+      config.set('allowLoginQueryParams', true)
+    })
+
     test('GET should return 400 if auth request is missing', async () => {
       authRequest = null
 
