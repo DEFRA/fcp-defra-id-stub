@@ -1,4 +1,5 @@
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest'
+import '../helpers/setup-server-mocks.js'
 
 const { createServer } = await import('../../../../src/server.js')
 

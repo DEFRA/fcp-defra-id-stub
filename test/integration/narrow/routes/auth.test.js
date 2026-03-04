@@ -1,6 +1,7 @@
 import { vi, describe, beforeAll, beforeEach, afterAll, test, expect } from 'vitest'
 import http2 from 'node:http2'
 import { AUTH_REQUEST, AUTHENTICATED, ORGANISATION_ID, PERSON, RELATIONSHIPS, ROLES } from '../../../../src/config/constants/cache-keys.js'
+import '../helpers/setup-server-mocks.js'
 
 vi.mock('../../../../src/auth/credentials.js')
 vi.mock('../../../../src/auth/token.js')

@@ -2,6 +2,9 @@ import path from 'node:path'
 import Hapi from '@hapi/hapi'
 import Joi from 'joi'
 import Scooter from '@hapi/scooter'
+import Bell from '@hapi/bell'
+import Cookie from '@hapi/cookie'
+import { Engine as CatboxRedis } from '@hapi/catbox-redis'
 import { contentSecurityPolicy } from './plugins/content-security-policy.js'
 import { headers } from './plugins/headers.js'
 import { router } from './plugins/router.js'
@@ -16,10 +19,21 @@ import { requestLogger } from './common/helpers/logging/request-logger.js'
 import { secureContext } from './common/helpers/secure-context/secure-context.js'
 import { initializeAuth } from './auth/initialize.js'
 import { entra } from './plugins/entra.js'
+import { buildRedisClient } from './common/helpers/redis-client.js'
 
 export async function createServer () {
   setupProxy()
   initializeAuth()
+
+  const cacheConfig = []
+
+  // Only configure Redis cache if Entra is enabled
+  if (config.get('entra.enabled')) {
+    cacheConfig.push({
+      name: 'redis',
+      engine: new CatboxRedis({ client: buildRedisClient(config.get('redis')) })
+    })
+  }
 
   const server = Hapi.server({
     host: config.get('host'),
@@ -51,12 +65,22 @@ export async function createServer () {
     },
     state: {
       strictHeader: false
-    }
+    },
+    ...(cacheConfig.length > 0 && { cache: cacheConfig })
   })
+
+  // Only configure cache if Entra is enabled
+  if (config.get('entra.enabled')) {
+    server.app.cache = server.cache({
+      cache: 'redis',
+      segment: 'session',
+      expiresIn: config.get('redis.ttl')
+    })
+  }
 
   server.validator(Joi)
 
-  await server.register([
+  const plugins = [
     Scooter,
     requestLogger,
     requestTracing,
@@ -64,11 +88,17 @@ export async function createServer () {
     pulse,
     nunjucksConfig,
     contentSecurityPolicy,
-    entra,
     headers,
     router,
     session
-  ])
+  ]
+
+  // Only register Bell, Cookie and entra plugin if Entra is enabled
+  if (config.get('entra.enabled')) {
+    plugins.splice(1, 0, Bell, Cookie, entra)
+  }
+
+  await server.register(plugins)
 
   server.ext('onPreResponse', catchAll)
 

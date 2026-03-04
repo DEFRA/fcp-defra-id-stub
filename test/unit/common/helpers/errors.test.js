@@ -1,7 +1,9 @@
 import { vi, describe, beforeAll, afterAll, test, expect } from 'vitest'
 import http2 from 'node:http2'
+import '../../../integration/narrow/helpers/setup-server-mocks.js'
 import { catchAll } from '../../../../src/common/helpers/errors.js'
-import { createServer } from '../../../../src/server.js'
+
+const { createServer } = await import('../../../../src/server.js')
 
 const { constants: httpConstants } = http2
 

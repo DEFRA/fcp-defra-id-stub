@@ -1,6 +1,9 @@
 {% extends "layouts.njk" %}
 
-{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/file-upload/macro.njk" import govukFileUpload %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/textarea/macro.njk" import govukTextarea %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
 
 {% block content %}
@@ -8,7 +11,97 @@
     <div class="govuk-grid-column-two-thirds">
       <div class="govuk-body">
         <h1 class="govuk-heading-l">Upload new S3 client data</h1>
+
+        <p class="govuk-body">Upload a JSON file containing people and organisation data for a specific Client ID.</p>
+        
+        <p class="govuk-body">The uploaded dataset will override the default people and organisation data used in the stub for requests with the specified Client ID.</p>
+
+        {{ govukInsetText({
+          text: "Files must be in valid JSON format and match the required schema. See GitHub for schema documentation."
+        }) }}
+
+        <form method="POST" action="/s3/upload" onsubmit="handleFormSubmit(event)">
+          {{ govukInput({
+            id: "clientId",
+            name: "clientId",
+            label: {
+              text: "Client ID",
+              classes: "govuk-label--m"
+            },
+            hint: {
+              text: "The Client ID (e.g., 00000000-0000-0000-0000-000000000000)"
+            },
+            classes: "govuk-!-width-two-thirds"
+          }) }}
+
+          {{ govukInput({
+            id: "filename",
+            name: "filename",
+            label: {
+              text: "Filename",
+              classes: "govuk-label--m"
+            },
+            hint: {
+              text: "The filename to save in S3 (e.g., my-data.json)"
+            },
+            classes: "govuk-!-width-two-thirds"
+          }) }}
+
+          {{ govukTextarea({
+            id: "content",
+            name: "content",
+            label: {
+              text: "JSON Content",
+              classes: "govuk-label--m"
+            },
+            hint: {
+              text: "Paste your JSON content here"
+            },
+            rows: 20
+          }) }}
+
+          {{ govukButton({
+            text: "Upload file",
+            type: "submit"
+          }) }}
+        </form>
+
+        <p class="govuk-body govuk-!-margin-top-9">
+          <a href="/s3" class="govuk-link">Back to S3 datasets</a>
+        </p>
       </div>
     </div>
   </div>
+
+  <script>
+    function handleFormSubmit(event) {
+      event.preventDefault();
+      const form = event.target;
+      const formData = new FormData(form);
+      
+      fetch(form.action, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          clientId: formData.get('clientId'),
+          filename: formData.get('filename'),
+          content: formData.get('content')
+        })
+      })
+      .then(response => {
+        if (response.ok) {
+          window.location.href = '/s3';
+        } else {
+          return response.text().then(text => {
+            alert('Upload failed: ' + text);
+          });
+        }
+      })
+      .catch(error => {
+        alert('Upload failed: ' + error.message);
+      });
+    }
+  </script>
 {% endblock %}

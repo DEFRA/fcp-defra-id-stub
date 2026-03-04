@@ -1,5 +1,6 @@
 import { describe, beforeEach, afterEach, test, expect } from 'vitest'
 import http2 from 'node:http2'
+import '../../../integration/narrow/helpers/setup-server-mocks.js'
 import { startServer } from '../../../../src/common/helpers/start-server.js'
 
 const { constants: httpConstants } = http2

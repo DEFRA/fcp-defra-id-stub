@@ -4,7 +4,13 @@ services:
       target: development
     command: npm test
     environment:
-      ENTRA_ENABLED: false
+      ENTRA_ENABLED: true
+      ENTRA_WELL_KNOWN_URL: https://login.microsoftonline.com/test-tenant-id/v2.0/.well-known/openid-configuration
+      ENTRA_TENANT_ID: test-tenant-id
+      ENTRA_CLIENT_ID: test-client-id
+      ENTRA_CLIENT_SECRET: test-client-secret
+      ENTRA_REDIRECT_URL: http://localhost:3007/auth/sign-in-oidc
+      ENTRA_SIGN_OUT_REDIRECT_URL: http://localhost:3007
     volumes:
       - ./test:/home/node/test
       - ./coverage:/home/node/coverage

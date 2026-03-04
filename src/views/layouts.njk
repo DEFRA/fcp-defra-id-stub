@@ -20,19 +20,33 @@
     useTudorCrown: true
   }) }}
   {% if s3Enabled and navigation %}
+    {% set navItems = [
+      {
+        href: "/",
+        text: "Overview",
+        active: navigation == 'overview'
+      },
+      {
+        href: "/s3",
+        text: "S3",
+        active: navigation == 's3'
+      }
+    ] %}
+    {% if entraEnabled %}
+      {% if auth and auth.isAuthenticated %}
+        {% set navItems = (navItems.push({
+          href: "/auth/sign-out",
+          text: "Sign out"
+        }), navItems) %}
+      {% else %}
+        {% set navItems = (navItems.push({
+          href: "/auth/sign-in",
+          text: "Sign in"
+        }), navItems) %}
+      {% endif %}
+    {% endif %}
     {{ govukServiceNavigation({
-      navigation: [
-        {
-          href: "/",
-          text: "Overview",
-          active: navigation == 'overview'
-        },
-        {
-          href: "/s3",
-          text: "S3",
-          active: navigation == 's3'
-        }
-      ]
+      navigation: navItems
     }) }}
   {% endif %}
 {% endblock %}

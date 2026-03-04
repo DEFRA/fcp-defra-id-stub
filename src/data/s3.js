@@ -1,4 +1,4 @@
-import { S3Client, ListObjectsV2Command, GetObjectCommand } from '@aws-sdk/client-s3'
+import { S3Client, ListObjectsV2Command, GetObjectCommand, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import { config } from '../config/config.js'
 import { createLogger } from '../common/helpers/logging/logger.js'
 import { schema } from './schema.js'
@@ -170,5 +170,47 @@ async function validateDatasetFile (key) {
       valid: false,
       errorMessage: `Failed to parse JSON: ${error.message}`
     }
+  }
+}
+
+export async function uploadS3File (clientId, filename, content) {
+  if (!getClient()) {
+    throw new Error('S3 client not initialized')
+  }
+
+  try {
+    const key = `${clientId}/${filename}`
+    const putCommand = new PutObjectCommand({
+      Bucket: s3Bucket,
+      Key: key,
+      Body: content,
+      ContentType: 'application/json'
+    })
+    await s3Client.send(putCommand)
+    logger.info(`Successfully uploaded S3 file ${filename} for client ${clientId}`)
+    return { success: true, key }
+  } catch (error) {
+    logger.error(`Error uploading S3 file ${filename} for client ${clientId}: ${error.message}`)
+    throw error
+  }
+}
+
+export async function deleteS3File (clientId, filename) {
+  if (!getClient()) {
+    throw new Error('S3 client not initialized')
+  }
+
+  try {
+    const key = `${clientId}/${filename}`
+    const deleteCommand = new DeleteObjectCommand({
+      Bucket: s3Bucket,
+      Key: key
+    })
+    await s3Client.send(deleteCommand)
+    logger.info(`Successfully deleted S3 file ${filename} for client ${clientId}`)
+    return { success: true }
+  } catch (error) {
+    logger.error(`Error deleting S3 file ${filename} for client ${clientId}: ${error.message}`)
+    throw error
   }
 }

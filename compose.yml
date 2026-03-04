@@ -20,6 +20,8 @@ services:
       ENTRA_CLIENT_SECRET: ${ENTRA_CLIENT_SECRET}
       ENTRA_REDIRECT_URL: http://localhost:3007/auth/sign-in-oidc
       ENTRA_SIGN_OUT_REDIRECT_URL: http://localhost:3007/auth/sign-out-oidc
+      REDIS_HOST: redis
+      COOKIE_PASSWORD: this-is-a-secret-that-must-be-at-least-32-characters
     volumes:
       - ./src:/home/node/src
       - ./package.json:/home/node/package.json
@@ -41,3 +43,6 @@ services:
       interval: 5s
       start_period: 5s
       retries: 3
+
+  redis:
+    image: redis

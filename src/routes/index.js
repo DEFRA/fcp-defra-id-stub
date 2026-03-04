@@ -1,5 +1,5 @@
 export const index = {
   method: 'GET',
   path: '/',
-  handler: (_request, h) => h.view('index', { navigation: 'overview' })
+  handler: (request, h) => h.view('index', { navigation: 'overview', auth: request.auth })
 }
