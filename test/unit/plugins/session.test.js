@@ -1,6 +1,7 @@
 import { describe, test, expect } from 'vitest'
 import Yar from '@hapi/yar'
 import { session } from '../../../src/plugins/session.js'
+import { config } from '../../../src/config/config.js'
 
 describe('session', () => {
   test('should return an object', () => {
@@ -17,7 +18,7 @@ describe('session', () => {
 
   test('should set cookie options', () => {
     expect(session.options.cookieOptions).toBeInstanceOf(Object)
-    expect(session.options.cookieOptions.password).toBe('this-must-be-at-least-32-characters-long')
+    expect(session.options.cookieOptions.password).toBe(config.get('cookie.password'))
     expect(session.options.cookieOptions.isSecure).toBe(false)
     expect(session.options.cookieOptions.isSameSite).toBe('Lax')
   })
