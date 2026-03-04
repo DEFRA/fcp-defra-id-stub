@@ -58,4 +58,4 @@ function getProfile (credentials, _params, _get) {
   }
 }
 
-export { getBellOptions, getCookieOptions }
+export { getBellOptions }

@@ -19,8 +19,8 @@ const create = {
   method: 'GET',
   path: '/s3/create',
   options: {
-    auth: { mode: 'required': strategy: 'entra' }
-  }
+    auth: { mode: 'required', strategy: 'entra' }
+  },
   handler: async function (_request, h) {
     return h.view('s3-create')
   }
