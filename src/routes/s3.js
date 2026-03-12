@@ -6,6 +6,8 @@ import { downloadS3File, getS3Datasets, uploadS3File, deleteS3File } from '../da
 const { constants: httpConstants } = http2
 const { HTTP_STATUS_BAD_REQUEST, HTTP_STATUS_NOT_FOUND, HTTP_STATUS_CREATED, HTTP_STATUS_NO_CONTENT } = httpConstants
 
+const auth = config.get('entra.enabled') ? { strategy: 'session', scope: ['S3.Amend'] } : false
+
 const view = {
   method: 'GET',
   path: '/s3',
@@ -19,7 +21,7 @@ const create = {
   method: 'GET',
   path: '/s3/create',
   options: {
-    auth: config.get('entra.enabled') ? { strategy: 'session', scope: ['S3.Amend'] } : false
+    auth
   },
   handler: async function (request, h) {
     return h.view('s3-create', { auth: request.auth })
@@ -30,7 +32,7 @@ const upload = {
   method: 'POST',
   path: '/s3/upload',
   options: {
-    auth: config.get('entra.enabled') ? { strategy: 'session', scope: ['S3.Amend'] } : false,
+    auth,
     validate: {
       payload: Joi.object({
         clientId: Joi.string().required(),
@@ -59,7 +61,7 @@ const deleteFile = {
   method: 'POST',
   path: '/s3/delete',
   options: {
-    auth: config.get('entra.enabled') ? { strategy: 'session', scope: ['S3.Amend'] } : false,
+    auth,
     validate: {
       payload: Joi.object({
         clientId: Joi.string().required(),

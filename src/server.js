@@ -25,16 +25,6 @@ export async function createServer () {
   setupProxy()
   initializeAuth()
 
-  const cacheConfig = []
-
-  // Only configure Redis cache if Entra is enabled
-  if (config.get('entra.enabled')) {
-    cacheConfig.push({
-      name: 'redis',
-      engine: new CatboxRedis({ client: buildRedisClient(config.get('redis')) })
-    })
-  }
-
   const server = Hapi.server({
     host: config.get('host'),
     port: config.get('port'),
@@ -66,17 +56,17 @@ export async function createServer () {
     state: {
       strictHeader: false
     },
-    ...(cacheConfig.length > 0 && { cache: cacheConfig })
+    cache: {
+      name: 'redis',
+      engine: new CatboxRedis({ client: buildRedisClient(config.get('redis')) })
+    }
   })
 
-  // Only configure cache if Entra is enabled
-  if (config.get('entra.enabled')) {
-    server.app.cache = server.cache({
-      cache: 'redis',
-      segment: 'session',
-      expiresIn: config.get('redis.ttl')
-    })
-  }
+  server.app.cache = server.cache({
+    cache: 'redis',
+    segment: 'session',
+    expiresIn: config.get('redis.ttl')
+  })
 
   server.validator(Joi)
 
@@ -93,7 +83,7 @@ export async function createServer () {
     session
   ]
 
-  // Only register Bell, Cookie and entra plugin if Entra is enabled
+  // Only register Bell, Cookie and Entra plugin if Entra is enabled
   if (config.get('entra.enabled')) {
     plugins.splice(1, 0, Bell, Cookie, entra)
   }
