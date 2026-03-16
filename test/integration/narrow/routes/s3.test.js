@@ -516,19 +516,19 @@ describe('s3 routes (protected routes with Entra)', () => {
   })
 
   describe('S3 delete confirm route', () => {
-    test('GET /s3/delete/confirm should redirect to sign-in if unauthenticated', async () => {
+    test('GET /s3/delete should redirect to sign-in if unauthenticated', async () => {
       const result = await server.inject({
         method: 'GET',
-        url: '/s3/delete/confirm?clientId=test-client&filename=test.json'
+        url: '/s3/delete?clientId=test-client&filename=test.json'
       })
       expect(result.statusCode).toBe(HTTP_STATUS_FOUND)
       expect(result.headers.location).toContain('/auth/sign-in')
     })
 
-    test('GET /s3/delete/confirm should return 200 for authenticated admin users', async () => {
+    test('GET /s3/delete should return 200 for authenticated admin users', async () => {
       const result = await server.inject({
         method: 'GET',
-        url: '/s3/delete/confirm?clientId=test-client&filename=test.json',
+        url: '/s3/delete?clientId=test-client&filename=test.json',
         auth: { strategy: 'session', credentials: adminCredentials }
       })
       expect(result.statusCode).toBe(HTTP_STATUS_OK)
@@ -537,19 +537,19 @@ describe('s3 routes (protected routes with Entra)', () => {
       expect(result.payload).toContain('test.json')
     })
 
-    test('GET /s3/delete/confirm should return 400 if clientId missing', async () => {
+    test('GET /s3/delete should return 400 if clientId missing', async () => {
       const result = await server.inject({
         method: 'GET',
-        url: '/s3/delete/confirm?filename=test.json',
+        url: '/s3/delete?filename=test.json',
         auth: { strategy: 'session', credentials: adminCredentials }
       })
       expect(result.statusCode).toBe(HTTP_STATUS_BAD_REQUEST)
     })
 
-    test('GET /s3/delete/confirm should return 403 for non-admin users', async () => {
+    test('GET /s3/delete should return 403 for non-admin users', async () => {
       const result = await server.inject({
         method: 'GET',
-        url: '/s3/delete/confirm?clientId=test-client&filename=test.json',
+        url: '/s3/delete?clientId=test-client&filename=test.json',
         auth: { strategy: 'session', credentials: userCredentials }
       })
       expect(result.statusCode).toBe(HTTP_STATUS_FORBIDDEN)

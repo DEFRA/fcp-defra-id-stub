@@ -56,7 +56,7 @@
 
             {% if auth and auth.isAuthenticated %}
               {% set cardActionsItems = (cardActionsItems.push({
-                href: "/s3/delete/confirm?clientId=" + dataset.clientId + "&filename=" + dataset.filename,
+                href: "/s3/delete?clientId=" + dataset.clientId + "&filename=" + dataset.filename,
                 text: "Delete"
               }), cardActionsItems) %}
             {% endif %}

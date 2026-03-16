@@ -5,7 +5,7 @@ import { config } from '../config/config.js'
 import { downloadS3File, getS3Datasets, uploadS3File, deleteS3File } from '../data/s3.js'
 
 const { constants: httpConstants } = http2
-const { HTTP_STATUS_BAD_REQUEST, HTTP_STATUS_NOT_FOUND } = httpConstants
+const { HTTP_STATUS_BAD_REQUEST, HTTP_STATUS_NOT_FOUND, HTTP_STATUS_INTERNAL_SERVER_ERROR } = httpConstants
 
 const viewAuth = config.get('entra.enabled') ? { strategy: 'session', mode: 'try' } : false
 const auth = config.get('entra.enabled') ? { strategy: 'session', scope: ['S3.Amend'] } : false
@@ -63,7 +63,8 @@ const upload = {
         for (const detail of error.details) {
           if (detail.path[0] === 'clientId') {
             errors.clientId = 'Enter a Client ID'
-          } else if (detail.path[0] === 'file') {
+          }
+          if (detail.path[0] === 'file') {
             errors.file = detail.type === 'any.invalid' ? 'File must be a .json file' : 'Select a JSON file to upload'
           }
         }
@@ -89,14 +90,14 @@ const upload = {
         auth: request.auth,
         errors: { server: `Failed to upload file: ${error.message}` },
         values: { clientId }
-      }).code(500)
+      }).code(HTTP_STATUS_INTERNAL_SERVER_ERROR)
     }
   }
 }
 
 const deleteConfirm = {
   method: 'GET',
-  path: '/s3/delete/confirm',
+  path: '/s3/delete',
   options: {
     auth,
     validate: {
@@ -111,7 +112,7 @@ const deleteConfirm = {
   },
   handler: async function (request, h) {
     const { clientId, filename } = request.query
-    return h.view('s3-delete-confirm', { navigation: 's3', auth: request.auth, clientId, filename })
+    return h.view('s3-delete', { navigation: 's3', auth: request.auth, clientId, filename })
   }
 }
 
