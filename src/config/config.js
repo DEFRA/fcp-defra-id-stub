@@ -329,6 +329,7 @@ export const config = convict({
     host: {
       doc: 'The Redis cache host.',
       format: String,
+      nullable: true,
       default: null,
       env: 'REDIS_HOST'
     },

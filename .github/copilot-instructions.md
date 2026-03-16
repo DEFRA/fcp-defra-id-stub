@@ -11,24 +11,29 @@ Defra Identity authentication stub for Farming & Countryside Programme (FCP). Su
 - **Testing**: Vitest 3.2 with V8 coverage
 - **Config**: Convict with environment-driven validation
 - **Views**: Nunjucks with GovUK Frontend 5.10
-- **Storage**: AWS S3 (LocalStack locally) + Redis (Entra mode only)
+- **Storage**: AWS S3 (LocalStack locally, optional) + Redis (always required for YAR sessions)
 - **Auth**: Custom JWT generation + @hapi/bell (Entra) + @hapi/cookie
 
 ### Plugin Architecture
 Hapi plugins registered in [src/server.js](src/server.js):
-- `router` - Routes registration (conditional Entra routes)
-- `session` - YAR session management
-- `entra` - Entra OAuth strategy (only when `ENTRA_ENABLED=true`)
+- `Scooter` - Browser user-agent detection
+- `requestLogger` - Pino request logging (from `common/helpers/logging/`)
+- `requestTracing` - CDP request ID tracing (from `common/helpers/`)
+- `secureContext` - TLS secure context (from `common/helpers/secure-context/`, production only)
+- `pulse` - Health check endpoint (from `common/helpers/pulse.js`)
+- `nunjucksConfig` - Nunjucks template engine setup
 - `contentSecurityPolicy` - Blankie CSP with nonce support
 - `headers` - Security headers
-- `requestTracing`/`requestLogger` - Pino logging (ECS format in prod)
+- `router` - Routes registration (conditional Entra routes)
+- `session` - YAR session management
+- `Bell`/`Cookie`/`entra` - Entra OAuth strategy (only when `ENTRA_ENABLED=true`, spliced into position 1)
 
 ### Configuration
 All config in [src/config/config.js](src/config/config.js) using Convict:
 - Environment vars override defaults
 - `isProduction`/`isDevelopment`/`isTest` computed from `NODE_ENV`
 - Entra conditionally enabled via `entra.enabled` flag
-- Redis cache only configured when Entra enabled
+- Redis cache is **always** configured (used for YAR session storage regardless of Entra mode)
 
 ### Conditional Entra Mode
 Key pattern: many features only activate when `config.get('entra.enabled')`:
@@ -125,11 +130,14 @@ Session keys defined in [src/config/constants/cache-keys.js](src/config/constant
 Mock data in [src/data/people.js](src/data/people.js) with S3 override support:
 - `getPerson(crn)` - fetch person by CRN
 - `getOrganisations(crn)` - list orgs for CRN
-- Auth modes: `mock` (hardcoded), `basic` (uses S3/LocalStack), `s3` (real AWS)
+- `AUTH_MODE` config values: `basic` (default, returns first person for any CRN) or `mock`
+- Data source modes (set via `auth.source` config): `basic` (in-memory mock), `override` (single user from `AUTH_OVERRIDE`), `file` (loads `AUTH_OVERRIDE_FILE` from `/data/*.json`)
+- S3 is an **overlay**: if `AWS_S3_ENABLED=true` and S3 data exists for the client, it takes precedence over local data
 
 ### JWT Tokens
 Token generation in [src/auth/token.js](src/auth/token.js):
-- Signs with RS256 using keys from `keys/privatekey.pem`
+- Signs with RS256; keys are loaded from or generated into the `keys/` directory at startup via `initializeAuth()` → `createKeys()`
+- Sessions (access codes, refresh tokens) persisted to `keys/sessions.json` via `src/auth/session.js`
 - Token structure matches Defra's `signupsigninsfi` policy
 - Includes `uniqueReference`, `customerReference`, `loa`, `roles`, `organisationId`
 
@@ -141,14 +149,21 @@ Global error handler in [src/common/helpers/errors.js](src/common/helpers/errors
 ## Key Files
 - [src/server.js](src/server.js) - Server creation, plugin registration
 - [src/config/config.js](src/config/config.js) - All configuration
+- [src/auth/initialize.js](src/auth/initialize.js) - Auth startup (key generation + session loading)
+- [src/auth/token.js](src/auth/token.js) - JWT generation
+- [src/auth/session.js](src/auth/session.js) - File-based session store (`keys/sessions.json`)
 - [src/routes/auth.js](src/routes/auth.js) - CRN/Password authentication
 - [src/routes/entra-auth.js](src/routes/entra-auth.js) - Entra OAuth routes
-- [src/auth/token.js](src/auth/token.js) - JWT generation
+- [src/routes/open-id.js](src/routes/open-id.js) - OpenID Connect discovery + token endpoints
+- [src/routes/health.js](src/routes/health.js) - Health check route
+- [src/utils/get-safe-redirect.js](src/utils/get-safe-redirect.js) - Safe redirect URL validation (must start with `/`)
 - [vitest.config.js](vitest.config.js) - Test configuration
 
 ## Important Gotchas
 1. **ES Modules**: Always use `import`/`export`, not `require`
+2. **Redis always required**: `buildRedisClient()` is called unconditionally in `createServer()` — ensure Redis is running in all environments
 3. **Test Isolation**: Integration tests use `server.initialize()`, not `start()`
 4. **Module Mocking**: Mock before importing: `vi.mock()` then `await import()`
 5. **Config Access**: Use `config.get('key.path')`, never direct `process.env`
 6. **Route Auth**: Check `entra.enabled` before setting `auth: 'entra'` strategy
+7. **Safe Redirects**: Use `getSafeRedirect()` from `src/utils/get-safe-redirect.js` for any user-supplied redirect URLs to prevent open redirect vulnerabilities

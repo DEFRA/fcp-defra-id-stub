@@ -33,7 +33,7 @@
 
         <p class="govuk-body">See <a href="https://github.com/DEFRA/fcp-defra-id-stub">GitHub</a> for full usage information.</p>
 
-        {% if s3Enabled %}
+        {% if s3Enabled and entraEnabled %}
         <h2 class="govuk-heading-m">Data management</h2>
 
         <p class="govuk-body">To support multiple teams and services sharing this stub, client-specific datasets can be uploaded to S3 to override the default people and organisation data per Client ID.</p>
