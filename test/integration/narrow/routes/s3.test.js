@@ -6,7 +6,7 @@ import '../helpers/setup-server-mocks.js'
 process.env.AWS_S3_ENABLED = 'true'
 
 const { constants: httpConstants } = http2
-const { HTTP_STATUS_OK, HTTP_STATUS_BAD_REQUEST, HTTP_STATUS_NOT_FOUND, HTTP_STATUS_INTERNAL_SERVER_ERROR, HTTP_STATUS_CREATED, HTTP_STATUS_NO_CONTENT, HTTP_STATUS_FORBIDDEN, HTTP_STATUS_FOUND } = httpConstants
+const { HTTP_STATUS_OK, HTTP_STATUS_BAD_REQUEST, HTTP_STATUS_NOT_FOUND, HTTP_STATUS_INTERNAL_SERVER_ERROR, HTTP_STATUS_FORBIDDEN, HTTP_STATUS_FOUND } = httpConstants
 
 vi.mock('../../../../src/data/s3.js', () => ({
   getS3Datasets: vi.fn(),
@@ -44,6 +44,30 @@ const mockDatasets = [
 const mockFileContent = 'test file content'
 
 const { getS3Datasets, downloadS3File, uploadS3File, deleteS3File } = await import('../../../../src/data/s3.js')
+
+function buildMultipartPayload ({ clientId, filename, fileContent }) {
+  const boundary = 'testboundary'
+  const body = [
+    `--${boundary}`,
+    'Content-Disposition: form-data; name="clientId"',
+    '',
+    clientId,
+    `--${boundary}`,
+    `Content-Disposition: form-data; name="file"; filename="${filename}"`,
+    'Content-Type: application/json',
+    '',
+    fileContent,
+    `--${boundary}--`
+  ].join('\r\n')
+  const payload = Buffer.from(body)
+  return {
+    payload,
+    headers: {
+      'content-type': `multipart/form-data; boundary=${boundary}`,
+      'content-length': payload.length.toString()
+    }
+  }
+}
 
 describe('s3 routes', () => {
   let server
@@ -99,6 +123,11 @@ describe('s3 routes', () => {
 
       const result = await server.inject({ method: 'GET', url: '/s3' })
       expect(result.statusCode).toBe(HTTP_STATUS_INTERNAL_SERVER_ERROR)
+    })
+
+    test('GET should not show upload button when Entra is not enabled', async () => {
+      const result = await server.inject({ method: 'GET', url: '/s3' })
+      expect(result.payload).not.toContain('Upload new dataset')
     })
   })
 
@@ -252,12 +281,6 @@ describe('s3 routes (protected routes with Entra)', () => {
     deleteS3File.mockResolvedValue(undefined)
   })
 
-  afterAll(async () => {
-    if (server) {
-      await server.stop()
-    }
-  })
-
   describe('S3 view route', () => {
     test('GET /s3 should not require authentication', async () => {
       const result = await server.inject({ method: 'GET', url: '/s3' })
@@ -274,6 +297,42 @@ describe('s3 routes (protected routes with Entra)', () => {
         }
       })
       expect(result.statusCode).toBe(HTTP_STATUS_OK)
+    })
+
+    test('GET /s3 should show Sign in link for unauthenticated users', async () => {
+      const result = await server.inject({ method: 'GET', url: '/s3' })
+      expect(result.payload).toContain('Sign in')
+      expect(result.payload).not.toContain('Sign out')
+    })
+
+    test('GET /s3 should show Sign out link for authenticated users', async () => {
+      const result = await server.inject({
+        method: 'GET',
+        url: '/s3',
+        auth: {
+          strategy: 'session',
+          credentials: adminCredentials
+        }
+      })
+      expect(result.payload).toContain('Sign out')
+      expect(result.payload).not.toContain('Sign in')
+    })
+
+    test('GET /s3 should show Upload new dataset button for authenticated users', async () => {
+      const result = await server.inject({
+        method: 'GET',
+        url: '/s3',
+        auth: {
+          strategy: 'session',
+          credentials: adminCredentials
+        }
+      })
+      expect(result.payload).toContain('Upload new dataset')
+    })
+
+    test('GET /s3 should not show Upload new dataset button for unauthenticated users', async () => {
+      const result = await server.inject({ method: 'GET', url: '/s3' })
+      expect(result.payload).not.toContain('Upload new dataset')
     })
   })
 
@@ -296,6 +355,20 @@ describe('s3 routes (protected routes with Entra)', () => {
       expect(result.statusCode).toBe(HTTP_STATUS_OK)
     })
 
+    test('GET /s3/create should render file upload form', async () => {
+      const result = await server.inject({
+        method: 'GET',
+        url: '/s3/create',
+        auth: {
+          strategy: 'session',
+          credentials: adminCredentials
+        }
+      })
+      expect(result.payload).toContain('enctype="multipart/form-data"')
+      expect(result.payload).toContain('type="file"')
+      expect(result.payload).not.toContain('<textarea')
+    })
+
     test('GET /s3/create should return 403 for authenticated non-admin users', async () => {
       const result = await server.inject({
         method: 'GET',
@@ -310,43 +383,48 @@ describe('s3 routes (protected routes with Entra)', () => {
   })
 
   describe('S3 upload route with authentication', () => {
-    const validPayload = {
-      clientId: 'test-client',
-      filename: 'test.json',
-      content: '{"test": "data"}'
-    }
+    const validFileContent = '{"test": "data"}'
 
     test('POST /s3/upload should redirect to sign-in if unauthenticated', async () => {
       const result = await server.inject({
         method: 'POST',
-        url: '/s3/upload',
-        payload: validPayload
+        url: '/s3/upload'
       })
       expect(result.statusCode).toBe(HTTP_STATUS_FOUND)
       expect(result.headers.location).toContain('/auth/sign-in')
     })
 
-    test('POST /s3/upload should succeed for authenticated admin users', async () => {
+    test('POST /s3/upload should redirect to /s3 for authenticated admin users', async () => {
+      const { payload, headers } = buildMultipartPayload({
+        clientId: 'test-client',
+        filename: 'test.json',
+        fileContent: validFileContent
+      })
       const result = await server.inject({
         method: 'POST',
         url: '/s3/upload',
-        payload: validPayload,
+        payload,
+        headers,
         auth: {
           strategy: 'session',
           credentials: adminCredentials
         }
       })
-      expect(result.statusCode).toBe(HTTP_STATUS_CREATED)
-      const response = JSON.parse(result.payload)
-      expect(response.success).toBe(true)
-      expect(response.message).toBe('File uploaded successfully')
+      expect(result.statusCode).toBe(HTTP_STATUS_FOUND)
+      expect(result.headers.location).toBe('/s3')
     })
 
     test('POST /s3/upload should return 403 for authenticated non-admin users', async () => {
+      const { payload, headers } = buildMultipartPayload({
+        clientId: 'test-client',
+        filename: 'test.json',
+        fileContent: validFileContent
+      })
       const result = await server.inject({
         method: 'POST',
         url: '/s3/upload',
-        payload: validPayload,
+        payload,
+        headers,
         auth: {
           strategy: 'session',
           credentials: userCredentials
@@ -356,16 +434,125 @@ describe('s3 routes (protected routes with Entra)', () => {
     })
 
     test('POST /s3/upload should call uploadS3File with correct parameters for admin', async () => {
+      const { payload, headers } = buildMultipartPayload({
+        clientId: 'test-client',
+        filename: 'test.json',
+        fileContent: validFileContent
+      })
       await server.inject({
         method: 'POST',
         url: '/s3/upload',
-        payload: validPayload,
+        payload,
+        headers,
         auth: {
           strategy: 'session',
           credentials: adminCredentials
         }
       })
-      expect(uploadS3File).toHaveBeenCalledWith('test-client', 'test.json', '{"test": "data"}')
+      expect(uploadS3File).toHaveBeenCalledWith('test-client', 'test.json', validFileContent)
+    })
+
+    test('POST /s3/upload should handle uploadS3File error gracefully', async () => {
+      uploadS3File.mockRejectedValue(new Error('S3 upload failed'))
+      const { payload, headers } = buildMultipartPayload({
+        clientId: 'test-client',
+        filename: 'test.json',
+        fileContent: validFileContent
+      })
+      const result = await server.inject({
+        method: 'POST',
+        url: '/s3/upload',
+        payload,
+        headers,
+        auth: {
+          strategy: 'session',
+          credentials: adminCredentials
+        }
+      })
+      expect(result.statusCode).toBe(HTTP_STATUS_INTERNAL_SERVER_ERROR)
+    })
+
+    test('POST /s3/upload should return 400 with s3-create view when clientId is missing', async () => {
+      const { payload, headers } = buildMultipartPayload({
+        clientId: '',
+        filename: 'test.json',
+        fileContent: validFileContent
+      })
+      const result = await server.inject({
+        method: 'POST',
+        url: '/s3/upload',
+        payload,
+        headers,
+        auth: {
+          strategy: 'session',
+          credentials: adminCredentials
+        }
+      })
+      expect(result.statusCode).toBe(HTTP_STATUS_BAD_REQUEST)
+      expect(result.payload).toContain('There is a problem')
+      expect(result.payload).toContain('Enter a Client ID')
+    })
+
+    test('POST /s3/upload should return 400 with s3-create view when file is not .json', async () => {
+      const { payload, headers } = buildMultipartPayload({
+        clientId: 'test-client',
+        filename: 'test.xlsx',
+        fileContent: validFileContent
+      })
+      const result = await server.inject({
+        method: 'POST',
+        url: '/s3/upload',
+        payload,
+        headers,
+        auth: {
+          strategy: 'session',
+          credentials: adminCredentials
+        }
+      })
+      expect(result.statusCode).toBe(HTTP_STATUS_BAD_REQUEST)
+      expect(result.payload).toContain('There is a problem')
+      expect(result.payload).toContain('File must be a .json file')
+    })
+  })
+
+  describe('S3 delete confirm route', () => {
+    test('GET /s3/delete/confirm should redirect to sign-in if unauthenticated', async () => {
+      const result = await server.inject({
+        method: 'GET',
+        url: '/s3/delete/confirm?clientId=test-client&filename=test.json'
+      })
+      expect(result.statusCode).toBe(HTTP_STATUS_FOUND)
+      expect(result.headers.location).toContain('/auth/sign-in')
+    })
+
+    test('GET /s3/delete/confirm should return 200 for authenticated admin users', async () => {
+      const result = await server.inject({
+        method: 'GET',
+        url: '/s3/delete/confirm?clientId=test-client&filename=test.json',
+        auth: { strategy: 'session', credentials: adminCredentials }
+      })
+      expect(result.statusCode).toBe(HTTP_STATUS_OK)
+      expect(result.payload).toContain('Confirm delete')
+      expect(result.payload).toContain('test-client')
+      expect(result.payload).toContain('test.json')
+    })
+
+    test('GET /s3/delete/confirm should return 400 if clientId missing', async () => {
+      const result = await server.inject({
+        method: 'GET',
+        url: '/s3/delete/confirm?filename=test.json',
+        auth: { strategy: 'session', credentials: adminCredentials }
+      })
+      expect(result.statusCode).toBe(HTTP_STATUS_BAD_REQUEST)
+    })
+
+    test('GET /s3/delete/confirm should return 403 for non-admin users', async () => {
+      const result = await server.inject({
+        method: 'GET',
+        url: '/s3/delete/confirm?clientId=test-client&filename=test.json',
+        auth: { strategy: 'session', credentials: userCredentials }
+      })
+      expect(result.statusCode).toBe(HTTP_STATUS_FORBIDDEN)
     })
   })
 
@@ -385,7 +572,7 @@ describe('s3 routes (protected routes with Entra)', () => {
       expect(result.headers.location).toContain('/auth/sign-in')
     })
 
-    test('POST /s3/delete should succeed for authenticated admin users', async () => {
+    test('POST /s3/delete should redirect to /s3 for authenticated admin users', async () => {
       const result = await server.inject({
         method: 'POST',
         url: '/s3/delete',
@@ -395,7 +582,8 @@ describe('s3 routes (protected routes with Entra)', () => {
           credentials: adminCredentials
         }
       })
-      expect(result.statusCode).toBe(HTTP_STATUS_NO_CONTENT)
+      expect(result.statusCode).toBe(HTTP_STATUS_FOUND)
+      expect(result.headers.location).toBe('/s3')
     })
 
     test('POST /s3/delete should return 403 for authenticated non-admin users', async () => {

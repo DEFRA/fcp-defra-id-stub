@@ -2,9 +2,9 @@
 
 {% from "govuk/components/file-upload/macro.njk" import govukFileUpload %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
-{% from "govuk/components/textarea/macro.njk" import govukTextarea %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
 {% block content %}
   <div class="govuk-grid-row">
@@ -12,15 +12,34 @@
       <div class="govuk-body">
         <h1 class="govuk-heading-l">Upload new S3 client data</h1>
 
+        {% if errors %}
+          {% set errorItems = [] %}
+          {% if errors.clientId %}
+            {% set errorItems = (errorItems.push({ text: errors.clientId, href: '#clientId' }), errorItems) %}
+          {% endif %}
+          {% if errors.file %}
+            {% set errorItems = (errorItems.push({ text: errors.file, href: '#file' }), errorItems) %}
+          {% endif %}
+          {% if errors.server %}
+            {% set errorItems = (errorItems.push({ text: errors.server }), errorItems) %}
+          {% endif %}
+          {% if errorItems | length %}
+            {{ govukErrorSummary({
+              titleText: "There is a problem",
+              errorList: errorItems
+            }) }}
+          {% endif %}
+        {% endif %}
+
         <p class="govuk-body">Upload a JSON file containing people and organisation data for a specific Client ID.</p>
-        
+
         <p class="govuk-body">The uploaded dataset will override the default people and organisation data used in the stub for requests with the specified Client ID.</p>
 
         {{ govukInsetText({
           text: "Files must be in valid JSON format and match the required schema. See GitHub for schema documentation."
         }) }}
 
-        <form method="POST" action="/s3/upload" onsubmit="handleFormSubmit(event)">
+        <form method="POST" action="/s3/upload" enctype="multipart/form-data">
           {{ govukInput({
             id: "clientId",
             name: "clientId",
@@ -31,33 +50,22 @@
             hint: {
               text: "The Client ID (e.g., 00000000-0000-0000-0000-000000000000)"
             },
-            classes: "govuk-!-width-two-thirds"
+            classes: "govuk-!-width-two-thirds",
+            value: values.clientId if values else "",
+            errorMessage: { text: errors.clientId } if (errors and errors.clientId) else null
           }) }}
 
-          {{ govukInput({
-            id: "filename",
-            name: "filename",
+          {{ govukFileUpload({
+            id: "file",
+            name: "file",
             label: {
-              text: "Filename",
+              text: "Upload a JSON file",
               classes: "govuk-label--m"
             },
             hint: {
-              text: "The filename to save in S3 (e.g., my-data.json)"
+              text: "Only .json files are accepted"
             },
-            classes: "govuk-!-width-two-thirds"
-          }) }}
-
-          {{ govukTextarea({
-            id: "content",
-            name: "content",
-            label: {
-              text: "JSON Content",
-              classes: "govuk-label--m"
-            },
-            hint: {
-              text: "Paste your JSON content here"
-            },
-            rows: 20
+            errorMessage: { text: errors.file } if (errors and errors.file) else null
           }) }}
 
           {{ govukButton({
@@ -72,36 +80,4 @@
       </div>
     </div>
   </div>
-
-  <script>
-    function handleFormSubmit(event) {
-      event.preventDefault();
-      const form = event.target;
-      const formData = new FormData(form);
-      
-      fetch(form.action, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          clientId: formData.get('clientId'),
-          filename: formData.get('filename'),
-          content: formData.get('content')
-        })
-      })
-      .then(response => {
-        if (response.ok) {
-          window.location.href = '/s3';
-        } else {
-          return response.text().then(text => {
-            alert('Upload failed: ' + text);
-          });
-        }
-      })
-      .catch(error => {
-        alert('Upload failed: ' + error.message);
-      });
-    }
-  </script>
 {% endblock %}

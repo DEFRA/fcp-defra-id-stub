@@ -10,9 +10,11 @@ const manifestPath = path.join(
   '.public/assets-manifest.json'
 )
 
+const entraEnabled = config.get('entra.enabled')
+
 let webpackManifest
 
-export function context (request) {
+export async function context (request) {
   const ctx = request.response.source?.context || {}
   if (!webpackManifest) {
     try {
@@ -22,16 +24,26 @@ export function context (request) {
     }
   }
 
-  return {
+  const defaultContext = {
     ...ctx,
     assetPath: `${assetPath}/assets/rebrand`,
     serviceName: config.get('serviceName'),
     serviceUrl: '/',
     authSource: config.get('auth.source'),
     s3Enabled: config.get('aws.s3Enabled'),
+    entraEnabled,
     getAssetPath (asset) {
       const webpackAssetPath = webpackManifest?.[asset]
       return `${assetPath}/${webpackAssetPath ?? asset}`
     }
+  }
+
+  if (!entraEnabled || !request.auth?.isAuthenticated) {
+    return defaultContext
+  }
+
+  return {
+    ...defaultContext,
+    auth: request.auth.credentials
   }
 }

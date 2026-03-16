@@ -1,0 +1,32 @@
+{% extends "layouts.njk" %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-l">Confirm delete</h1>
+
+      {{ govukWarningText({
+        text: "This will permanently delete " + filename + " for Client ID " + clientId + ".",
+        iconFallbackText: "Warning"
+      }) }}
+
+      <form method="POST" action="/s3/delete">
+        <input type="hidden" name="clientId" value="{{ clientId }}">
+        <input type="hidden" name="filename" value="{{ filename }}">
+
+        {{ govukButton({
+          text: "Confirm delete",
+          classes: "govuk-button--warning",
+          type: "submit"
+        }) }}
+      </form>
+
+      <p class="govuk-body">
+        <a href="/s3" class="govuk-link">Cancel</a>
+      </p>
+    </div>
+  </div>
+{% endblock %}

@@ -148,7 +148,6 @@ Global error handler in [src/common/helpers/errors.js](src/common/helpers/errors
 
 ## Important Gotchas
 1. **ES Modules**: Always use `import`/`export`, not `require`
-2. **Redis Only for Entra**: Don't add Redis deps outside Entra-enabled checks
 3. **Test Isolation**: Integration tests use `server.initialize()`, not `start()`
 4. **Module Mocking**: Mock before importing: `vi.mock()` then `await import()`
 5. **Config Access**: Use `config.get('key.path')`, never direct `process.env`

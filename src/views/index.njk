@@ -32,6 +32,14 @@
         </ul>
 
         <p class="govuk-body">See <a href="https://github.com/DEFRA/fcp-defra-id-stub">GitHub</a> for full usage information.</p>
+
+        {% if s3Enabled %}
+        <h2 class="govuk-heading-m">Data management</h2>
+
+        <p class="govuk-body">To support multiple teams and services sharing this stub, client-specific datasets can be uploaded to S3 to override the default people and organisation data per Client ID.</p>
+
+        <p class="govuk-body">To manage datasets, you must sign in with an Entra account that has the <strong>S3.Amend</strong> role in the Defra ID stub App Registration. Once signed in, you can upload or delete datasets from the <a href="/s3" class="govuk-link">S3 datasets page</a>.</p>
+        {% endif %}
       </div>
   </div>
 {% endblock %}
