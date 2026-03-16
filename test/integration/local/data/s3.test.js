@@ -1,6 +1,6 @@
 import { beforeAll, beforeEach, afterAll, describe, test, expect } from 'vitest'
 import { S3Client, CreateBucketCommand, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command, DeleteBucketCommand } from '@aws-sdk/client-s3'
-import { getLatestS3Data, getS3Datasets, downloadS3File } from '../../../../src/data/s3.js'
+import { getLatestS3Data, getS3Datasets, downloadS3File, uploadS3File, deleteS3File } from '../../../../src/data/s3.js'
 import { config } from '../../../../src/config/config.js'
 
 const { s3Bucket, region, endpoint, accessKeyId, secretAccessKey } = config.get('aws')
@@ -269,6 +269,78 @@ describe('s3 data functions (local integration)', () => {
 
       const result = await downloadS3File(clientId, filename)
       expect(result).toBe(JSON.stringify(content))
+    })
+  })
+
+  describe('uploadS3File', () => {
+    test('should upload a file and return success with key', async () => {
+      const clientId = 'test-upload-client'
+      const filename = 'upload-test.json'
+      const content = JSON.stringify(validPeopleData)
+
+      const result = await uploadS3File(clientId, filename, content)
+      expect(result).toEqual({ success: true, key: `${clientId}/${filename}` })
+    })
+
+    test('should make uploaded file available for download', async () => {
+      const clientId = 'test-upload-download'
+      const filename = 'roundtrip.json'
+      const content = JSON.stringify(validPeopleData)
+
+      await uploadS3File(clientId, filename, content)
+
+      const downloaded = await downloadS3File(clientId, filename)
+      expect(downloaded).toBe(content)
+    })
+
+    test('should make uploaded file appear in datasets list', async () => {
+      const clientId = 'test-upload-datasets'
+      const filename = 'dataset.json'
+      const content = JSON.stringify(validPeopleData)
+
+      await uploadS3File(clientId, filename, content)
+
+      const datasets = await getS3Datasets()
+      const match = datasets.find(ds => ds.clientId === clientId)
+      expect(match).toBeDefined()
+      expect(match.filename).toBe(filename)
+      expect(match.valid).toBe(true)
+    })
+  })
+
+  describe('deleteS3File', () => {
+    test('should delete a file and return success', async () => {
+      const clientId = 'test-delete-client'
+      const filename = 'to-delete.json'
+
+      await uploadTestFile(`${clientId}/${filename}`, validPeopleData)
+
+      const result = await deleteS3File(clientId, filename)
+      expect(result).toEqual({ success: true })
+    })
+
+    test('should make the file unavailable for download after deletion', async () => {
+      const clientId = 'test-delete-unavailable'
+      const filename = 'deleted.json'
+
+      await uploadTestFile(`${clientId}/${filename}`, validPeopleData)
+      await deleteS3File(clientId, filename)
+
+      const result = await downloadS3File(clientId, filename)
+      expect(result).toBeNull()
+    })
+
+    test('should remove the file from the datasets list after deletion', async () => {
+      const clientId = 'test-delete-datasets'
+      const filename = 'removable.json'
+      const content = JSON.stringify(validPeopleData)
+
+      await uploadS3File(clientId, filename, content)
+      await deleteS3File(clientId, filename)
+
+      const datasets = await getS3Datasets()
+      const match = datasets.find(ds => ds.clientId === clientId)
+      expect(match).toBeUndefined()
     })
   })
 })
