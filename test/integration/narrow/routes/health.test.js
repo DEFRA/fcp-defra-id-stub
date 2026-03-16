@@ -1,6 +1,8 @@
 import { describe, beforeAll, afterAll, test, expect } from 'vitest'
 import http2 from 'node:http2'
-import { createServer } from '../../../../src/server.js'
+import '../helpers/setup-server-mocks.js'
+
+const { createServer } = await import('../../../../src/server.js')
 
 const { constants: httpConstants } = http2
 const { HTTP_STATUS_OK } = httpConstants

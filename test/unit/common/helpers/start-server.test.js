@@ -1,5 +1,6 @@
 import { vi, describe, beforeAll, afterAll, test, expect } from 'vitest'
 import hapi from '@hapi/hapi'
+import '../../../integration/narrow/helpers/setup-server-mocks.js'
 
 const mockLoggerInfo = vi.fn()
 const mockLoggerError = vi.fn()

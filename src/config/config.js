@@ -275,21 +275,100 @@ export const config = convict({
     format: Boolean,
     default: true,
     env: 'ALLOW_LOGIN_QUERY_PARAMS'
+  },
+  entra: {
+    enabled: {
+      doc: 'Enable Entra protected routes and authentication',
+      format: Boolean,
+      default: false,
+      env: 'ENTRA_ENABLED'
+    },
+    wellKnownUrl: {
+      doc: 'The Entra well known URL.',
+      format: String,
+      nullable: true,
+      default: null,
+      env: 'ENTRA_WELL_KNOWN_URL'
+    },
+    clientId: {
+      doc: 'The Entra client ID.',
+      format: String,
+      nullable: true,
+      default: null,
+      env: 'ENTRA_CLIENT_ID'
+    },
+    clientSecret: {
+      doc: 'The Entra client secret.',
+      format: String,
+      nullable: true,
+      default: null,
+      env: 'ENTRA_CLIENT_SECRET'
+    },
+    redirectUrl: {
+      doc: 'The Entra redirect URl.',
+      format: String,
+      nullable: true,
+      default: null,
+      env: 'ENTRA_REDIRECT_URL'
+    },
+    signOutRedirectUrl: {
+      doc: 'The Entra sign out redirect URl.',
+      format: String,
+      nullable: true,
+      default: null,
+      env: 'ENTRA_SIGN_OUT_REDIRECT_URL'
+    },
+    refreshTokens: {
+      doc: 'True if Entra refresh tokens are enabled.',
+      format: Boolean,
+      default: true,
+      env: 'ENTRA_REFRESH_TOKENS'
+    }
+  },
+  redis: {
+    host: {
+      doc: 'The Redis cache host.',
+      format: String,
+      nullable: true,
+      default: null,
+      env: 'REDIS_HOST'
+    },
+    username: {
+      doc: 'The Redis cache username.',
+      format: String,
+      default: '',
+      env: 'REDIS_USERNAME'
+    },
+    password: {
+      doc: 'The Redis cache password.',
+      format: '*',
+      default: process.env.NODE_ENV === 'production' ? null : undefined,
+      sensitive: true,
+      env: 'REDIS_PASSWORD'
+    },
+    keyPrefix: {
+      doc: 'Redis cache key prefix name used to isolate the cached results across multiple clients',
+      format: String,
+      default: 'fcp-defra-id-stub:',
+      env: 'REDIS_KEY_PREFIX'
+    },
+    useSingleInstanceCache: {
+      doc: 'Connect to a single instance of redis instead of a cluster.',
+      format: Boolean,
+      default: !isProduction,
+      env: 'USE_SINGLE_INSTANCE_CACHE'
+    },
+    useTLS: {
+      doc: 'Connect to redis using TLS',
+      format: Boolean,
+      default: isProduction,
+      env: 'REDIS_TLS'
+    },
+    ttl: {
+      doc: 'The cache TTL.',
+      format: Number,
+      default: 1000 * 60 * 60 * 24,
+      env: 'REDIS_TTL'
+    }
   }
 })
-
-function getAuthSource () {
-  if (config.get('auth.overrideFile') !== '') {
-    return 'file'
-  } else if (config.get('auth.override') !== '') {
-    return 'override'
-  } else if (config.get('auth.mode') === 'mock') {
-    return 'mock'
-  } else {
-    return 'basic'
-  }
-}
-
-config.set('auth.source', getAuthSource())
-
-config.validate({ allowed: 'strict' })

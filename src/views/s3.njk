@@ -2,6 +2,7 @@
 
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
 {% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
 
 {% block content %}
   <div class="govuk-grid-row">
@@ -14,6 +15,20 @@
         <p class="govuk-body">If provided, these datasets will override the people and organisation data used in the stub for the specified Client ID.</p>
 
         <p class="govuk-body">See <a href="https://github.com/DEFRA/fcp-defra-id-stub">GitHub</a> for full usage information.</p>
+
+        {% if auth and auth.isAuthenticated %}
+        <p class="govuk-body">
+          <a href="/s3/create" class="govuk-button" data-module="govuk-button">
+            Upload new dataset
+          </a>
+        </p>
+        {% endif %}
+
+      </div>
+    </div>
+
+    <div class="govuk-grid-column-full">
+      <div class="govuk-body">
 
         <h2 class="govuk-heading-m">Active datasets by Client ID</h2>
 
@@ -32,6 +47,20 @@
               {% endif %}
             {% endset %}
 
+            {% set cardActionsItems = [
+              {
+                href: "/s3/download?clientId=" + dataset.clientId + "&filename=" + dataset.filename,
+                text: "Download"
+              }
+            ] %}
+
+            {% if auth and auth.isAuthenticated %}
+              {% set cardActionsItems = (cardActionsItems.push({
+                href: "/s3/delete?clientId=" + dataset.clientId + "&filename=" + dataset.filename,
+                text: "Delete"
+              }), cardActionsItems) %}
+            {% endif %}
+
             {{ govukSummaryList({
               card: {
                 title: {
@@ -44,15 +73,10 @@
                     text: "Filename"
                   },
                   value: {
-                    html: dataset.filename
+                    text: dataset.filename
                   },
                   actions: {
-                    items: [
-                      {
-                        href: "/s3/download?clientId=" + dataset.clientId + "&filename=" + dataset.filename,
-                        text: "Download"
-                      }
-                    ]
+                    items: cardActionsItems
                   }
                 },
                 {
@@ -84,5 +108,6 @@
           {% endfor %}
         {% endif %}
       </div>
+    </div>
   </div>
 {% endblock %}

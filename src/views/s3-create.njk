@@ -1,0 +1,83 @@
+{% extends "layouts.njk" %}
+
+{% from "govuk/components/file-upload/macro.njk" import govukFileUpload %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <div class="govuk-body">
+        <h1 class="govuk-heading-l">Upload new S3 client data</h1>
+
+        {% if errors %}
+          {% set errorItems = [] %}
+          {% if errors.clientId %}
+            {% set errorItems = (errorItems.push({ text: errors.clientId, href: '#clientId' }), errorItems) %}
+          {% endif %}
+          {% if errors.file %}
+            {% set errorItems = (errorItems.push({ text: errors.file, href: '#file' }), errorItems) %}
+          {% endif %}
+          {% if errors.server %}
+            {% set errorItems = (errorItems.push({ text: errors.server }), errorItems) %}
+          {% endif %}
+          {% if errorItems | length %}
+            {{ govukErrorSummary({
+              titleText: "There is a problem",
+              errorList: errorItems
+            }) }}
+          {% endif %}
+        {% endif %}
+
+        <p class="govuk-body">Upload a JSON file containing people and organisation data for a specific Client ID.</p>
+
+        <p class="govuk-body">The uploaded dataset will override the default people and organisation data used in the stub for requests with the specified Client ID.</p>
+
+        {{ govukInsetText({
+          text: "Files must be in valid JSON format and match the required schema. See GitHub for schema documentation."
+        }) }}
+
+        <form method="POST" action="/s3/upload" enctype="multipart/form-data">
+          {{ govukInput({
+            id: "clientId",
+            name: "clientId",
+            label: {
+              text: "Client ID",
+              classes: "govuk-label--m"
+            },
+            hint: {
+              text: "The Client ID (e.g., 00000000-0000-0000-0000-000000000000)"
+            },
+            classes: "govuk-!-width-two-thirds",
+            value: values.clientId if values else "",
+            errorMessage: { text: errors.clientId } if (errors and errors.clientId) else null
+          }) }}
+
+          {{ govukFileUpload({
+            id: "file",
+            name: "file",
+            label: {
+              text: "Upload a JSON file",
+              classes: "govuk-label--m"
+            },
+            hint: {
+              text: "Only .json files are accepted"
+            },
+            errorMessage: { text: errors.file } if (errors and errors.file) else null
+          }) }}
+
+          {{ govukButton({
+            text: "Upload file",
+            type: "submit"
+          }) }}
+        </form>
+
+        <p class="govuk-body govuk-!-margin-top-9">
+          <a href="/s3" class="govuk-link">Back to S3 datasets</a>
+        </p>
+      </div>
+    </div>
+  </div>
+{% endblock %}

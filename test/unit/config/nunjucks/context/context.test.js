@@ -42,13 +42,13 @@ describe('Context and cache', () => {
         )
       })
 
-      beforeEach(() => {
+      beforeEach(async () => {
         mockReadFileSync.mockReturnValue(`{
         "application.js": "javascript/application.js",
         "stylesheets/application.scss": "stylesheets/application.css"
       }`)
 
-        contextResult = contextImport.context(mockRequest)
+        contextResult = await contextImport.context(mockRequest)
       })
 
       test('Should provide expected context', () => {
@@ -58,7 +58,8 @@ describe('Context and cache', () => {
           serviceName: 'FCP Defra ID stub',
           serviceUrl: '/',
           authSource: 'basic',
-          s3Enabled: true
+          s3Enabled: true,
+          entraEnabled: true
         })
       })
 
@@ -79,7 +80,7 @@ describe('Context and cache', () => {
       })
 
       describe('With existing context', () => {
-        test('Should preserve existing context properties', () => {
+        test('Should preserve existing context properties', async () => {
           const mockRequestWithContext = {
             path: '/',
             response: {
@@ -92,7 +93,7 @@ describe('Context and cache', () => {
             }
           }
 
-          const result = contextImport.context(mockRequestWithContext)
+          const result = await contextImport.context(mockRequestWithContext)
 
           expect(result).toEqual({
             pageTitle: 'Custom Page Title',
@@ -101,6 +102,7 @@ describe('Context and cache', () => {
             getAssetPath: expect.any(Function),
             authSource: 'basic',
             s3Enabled: true,
+            entraEnabled: true,
             serviceName: 'FCP Defra ID stub',
             serviceUrl: '/'
           })
@@ -150,13 +152,13 @@ describe('Context and cache', () => {
         )
       })
 
-      beforeEach(() => {
+      beforeEach(async () => {
         mockReadFileSync.mockReturnValue(`{
         "application.js": "javascript/application.js",
         "stylesheets/application.scss": "stylesheets/application.css"
       }`)
 
-        contextResult = contextImport.context(mockRequest)
+        contextResult = await contextImport.context(mockRequest)
       })
 
       test('Should read file', () => {
@@ -173,6 +175,7 @@ describe('Context and cache', () => {
           getAssetPath: expect.any(Function),
           authSource: 'basic',
           s3Enabled: true,
+          entraEnabled: true,
           serviceName: 'FCP Defra ID stub',
           serviceUrl: '/'
         })

@@ -17,6 +17,10 @@ services:
     networks:
       - fcp-defra-id-stub
 
+  redis:
+    networks:
+      - fcp-defra-id-stub
+
 networks:
   fcp-defra-id-stub:
     driver: bridge
