@@ -7,13 +7,15 @@ services:
     volumes:
       - ./example.data.json:/data/example.data.json
 
-  localstack:
+  floci:
     ports:
       - '4566:4566'
-      - '4510-4559:4510-4559'
     volumes:
-      - ./scripts/localstack.sh:/etc/localstack/init/ready.d/localstack.sh
-      - localstack-data:/var/lib/localstack
+      - floci-data:/app/data
+    networks:
+      - fcp-defra-id-stub
+
+  floci-init:
     networks:
       - fcp-defra-id-stub
 
@@ -27,4 +29,4 @@ networks:
     name: fcp-defra-id-stub
 
 volumes:
-  localstack-data:
+  floci-data:
