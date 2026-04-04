@@ -9,7 +9,7 @@ services:
       AUTH_OVERRIDE: ${AUTH_OVERRIDE}
       AUTH_OVERRIDE_FILE: ${AUTH_OVERRIDE_FILE}
       AWS_REGION: eu-west-2
-      AWS_ENDPOINT_URL: http://localstack:4566
+      AWS_ENDPOINT_URL: http://floci:4566
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
       AWS_S3_ENABLED: ${FCP_DEFRA_ID_STUB_AWS_S3_ENABLED:-true}
@@ -26,23 +26,35 @@ services:
       - ./src:/home/node/src
       - ./package.json:/home/node/package.json
     depends_on:
-      localstack:
-        condition: service_healthy
+      floci-init:
+        condition: service_completed_successfully
 
-  localstack:
-    image: localstack/localstack
+  floci:
+    image: hectorvent/floci:latest
+    user: root # Required for S3
     environment:
-      LS_LOG: warn
-      SERVICES: s3
-      AWS_DEFAULT_REGION: eu-west-2
+      FLOCI_HOSTNAME: floci
+      FLOCI_DEFAULT_REGION: eu-west-2
+      FLOCI_STORAGE_MODE: persistent
+      FLOCI_STORAGE_PERSISTENT_PATH: /app/data
+      FLOCI_STORAGE_SERVICES_S3_MODE: persistent
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
-      PERSISTENCE: 1
-    healthcheck:
-      test: ['CMD', 'curl', 'localhost:4566']
-      interval: 5s
-      start_period: 5s
-      retries: 3
+
+  floci-init:
+    image: amazon/aws-cli
+    entrypoint: /bin/sh
+    command: /setup/init.sh
+    depends_on:
+      floci:
+        condition: service_started
+    environment:
+      AWS_ENDPOINT_URL: http://floci:4566
+      AWS_REGION: eu-west-2
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+    volumes:
+      - ./floci/init.sh:/setup/init.sh
 
   redis:
     image: redis

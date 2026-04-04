@@ -11,7 +11,7 @@ Defra Identity authentication stub for Farming & Countryside Programme (FCP). Su
 - **Testing**: Vitest 3.2 with V8 coverage
 - **Config**: Convict with environment-driven validation
 - **Views**: Nunjucks with GovUK Frontend 5.10
-- **Storage**: AWS S3 (LocalStack locally, optional) + Redis (always required for YAR sessions)
+- **Storage**: AWS S3 (Floci locally, optional) + Redis (always required for YAR sessions)
 - **Auth**: Custom JWT generation + @hapi/bell (Entra) + @hapi/cookie
 
 ### Plugin Architecture
@@ -52,7 +52,7 @@ Always check Entra flag before adding Entra-specific code.
 # Build and run with Docker (preferred)
 npm run docker:dev  # runs on port 3007 (configurable via FCP_DEFRA_ID_STUB_PORT)
 
-# Local dev (watch mode, requires Redis/LocalStack)
+# Local dev (watch mode, requires Redis/Floci)
 npm run dev  # runs frontend:watch & server:watch concurrently
 ```
 
@@ -88,7 +88,7 @@ vi.mock('../module.js', () => ({ exportName: mockFn }))
 
 Tests organized:
 - `test/integration/narrow/` - isolated route/plugin tests
-- `test/integration/local/` - full-stack LocalStack tests
+- `test/integration/local/` - full-stack Floci tests
 - `test/unit/` - pure unit tests
 
 ### Linting
