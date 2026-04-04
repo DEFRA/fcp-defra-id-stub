@@ -50,7 +50,7 @@
     "@hapi/yar": "11.0.3",
     "aws-embedded-metrics": "4.2.0",
     "blankie": "5.0.0",
-    "convict": "6.2.4",
+    "convict": "6.2.5",
     "convict-format-with-validator": "6.2.0",
     "cssnano": "7.0.7",
     "cssnano-preset-default": "7.0.7",
