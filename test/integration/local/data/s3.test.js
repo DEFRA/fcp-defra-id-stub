@@ -88,9 +88,6 @@ describe('s3 data functions (local integration)', () => {
   }
 
   describe('getLatestS3Data', () => {
-    test('should return null when S3 is not enabled', async () => {
-    })
-
     test('should return null when no files exist for client', async () => {
       const result = await getLatestS3Data('nonexistent-client')
       expect(result).toBeNull()
