@@ -60,7 +60,7 @@
     "hapi-pino": "12.1.0",
     "hapi-pulse": "3.0.1",
     "ioredis": "5.9.2",
-    "joi": "18.0.1",
+    "joi": "18.2.1",
     "node-fetch": "3.3.2",
     "nunjucks": "3.2.4",
     "pino": "9.7.0",
