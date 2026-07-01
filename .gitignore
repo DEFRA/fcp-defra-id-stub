@@ -11,3 +11,6 @@ tsconfig.tsbuildinfo
 .env
 keys/
 .sonarlint/
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
