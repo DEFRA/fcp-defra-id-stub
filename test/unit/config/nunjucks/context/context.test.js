@@ -133,6 +133,68 @@ describe('Context and cache', () => {
         )
       })
     })
+
+    describe('When manifest entry has no CSS', () => {
+      let contextImport
+      let contextResult
+
+      beforeAll(async () => {
+        contextImport = await import(
+          '../../../../../src/config/nunjucks/context.js'
+        )
+      })
+
+      beforeEach(async () => {
+        mockReadFileSync.mockReturnValue(`{
+          "src/client/javascript/application.js": {
+            "file": "javascript/application.js",
+            "isEntry": true
+          }
+        }`)
+
+        contextResult = await contextImport.context(mockRequest)
+      })
+
+      test('Should map JS asset path', () => {
+        expect(contextResult.getAssetPath('application.js')).toBe(
+          '/public/javascript/application.js'
+        )
+      })
+
+      test('Should return default path for unmapped CSS asset', () => {
+        expect(contextResult.getAssetPath('stylesheets/application.css')).toBe(
+          '/public/stylesheets/application.css'
+        )
+      })
+    })
+
+    describe('When manifest contains non-entry chunks', () => {
+      let contextImport
+      let contextResult
+
+      beforeAll(async () => {
+        contextImport = await import(
+          '../../../../../src/config/nunjucks/context.js'
+        )
+      })
+
+      beforeEach(async () => {
+        mockReadFileSync.mockReturnValue(`{
+          "src/vendor.js": {
+            "file": "javascript/vendor.js",
+            "isEntry": false
+          }
+        }`)
+
+        contextResult = await contextImport.context(mockRequest)
+      })
+
+      test('Should return default path for non-entry chunk asset', () => {
+        expect(contextResult.getAssetPath('application.js')).toBe(
+          '/public/application.js'
+        )
+      })
+    })
   })
 
   describe('Context cache', () => {
