@@ -1,6 +1,5 @@
 .DS_Store
 .npm/
-.vscode
 .idea
 .public
 node_modules
@@ -11,3 +10,4 @@ coverage
 tsconfig.tsbuildinfo
 .env
 keys/
+.sonarlint/

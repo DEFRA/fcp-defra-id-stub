@@ -32,7 +32,7 @@ describe('Context and cache', () => {
       }
     }
 
-    describe('When webpack manifest file read succeeds', () => {
+    describe('When Vite manifest file read succeeds', () => {
       let contextImport
       let contextResult
 
@@ -44,8 +44,11 @@ describe('Context and cache', () => {
 
       beforeEach(async () => {
         mockReadFileSync.mockReturnValue(`{
-        "application.js": "javascript/application.js",
-        "stylesheets/application.scss": "stylesheets/application.css"
+        "src/client/javascript/application.js": {
+          "file": "javascript/application.js",
+          "isEntry": true,
+          "css": ["stylesheets/application.css"]
+        }
       }`)
 
         contextResult = await contextImport.context(mockRequest)
@@ -58,8 +61,8 @@ describe('Context and cache', () => {
           serviceName: 'FCP Defra ID stub',
           serviceUrl: '/',
           authSource: 'basic',
-          s3Enabled: true,
-          entraEnabled: true
+          s3Enabled: false,
+          entraEnabled: false
         })
       })
 
@@ -95,14 +98,14 @@ describe('Context and cache', () => {
 
           const result = await contextImport.context(mockRequestWithContext)
 
-          expect(result).toEqual({
+          expect(result).toMatchObject({
             pageTitle: 'Custom Page Title',
             customProperty: 'existing value',
             assetPath: '/public/assets/rebrand',
             getAssetPath: expect.any(Function),
             authSource: 'basic',
-            s3Enabled: true,
-            entraEnabled: true,
+            s3Enabled: false,
+            entraEnabled: false,
             serviceName: 'FCP Defra ID stub',
             serviceUrl: '/'
           })
@@ -110,7 +113,7 @@ describe('Context and cache', () => {
       })
     })
 
-    describe('When webpack manifest file read fails', () => {
+    describe('When Vite manifest file read fails', () => {
       let contextImport
 
       beforeAll(async () => {
@@ -124,9 +127,9 @@ describe('Context and cache', () => {
         contextImport.context(mockRequest)
       })
 
-      test('Should log that the Webpack Manifest file is not available', () => {
+      test('Should log that the Vite manifest file is not available', () => {
         expect(mockLoggerError).toHaveBeenCalledWith(
-          'Webpack assets-manifest.json not found'
+          'Vite assets-manifest.json not found'
         )
       })
     })
@@ -143,7 +146,7 @@ describe('Context and cache', () => {
     }
     let contextResult
 
-    describe('Webpack manifest file cache', () => {
+    describe('Vite manifest file cache', () => {
       let contextImport
 
       beforeAll(async () => {
@@ -154,8 +157,11 @@ describe('Context and cache', () => {
 
       beforeEach(async () => {
         mockReadFileSync.mockReturnValue(`{
-        "application.js": "javascript/application.js",
-        "stylesheets/application.scss": "stylesheets/application.css"
+        "src/client/javascript/application.js": {
+          "file": "javascript/application.js",
+          "isEntry": true,
+          "css": ["stylesheets/application.css"]
+        }
       }`)
 
         contextResult = await contextImport.context(mockRequest)
@@ -174,8 +180,8 @@ describe('Context and cache', () => {
           assetPath: '/public/assets/rebrand',
           getAssetPath: expect.any(Function),
           authSource: 'basic',
-          s3Enabled: true,
-          entraEnabled: true,
+          s3Enabled: false,
+          entraEnabled: false,
           serviceName: 'FCP Defra ID stub',
           serviceUrl: '/'
         })

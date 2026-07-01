@@ -1,0 +1,13 @@
+{
+  "sonarlint.connectedMode.project": {
+    "connectionId": "defra",
+    "projectKey": "DEFRA_fcp-mpdp-frontend"
+  },
+  "cSpell.words": [
+    "authresp",
+    "cpdev",
+    "dcidmtest",
+    "idphub",
+    "signupsigninsfi"
+  ]
+}

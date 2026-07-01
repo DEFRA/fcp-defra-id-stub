@@ -79,29 +79,47 @@ This application is intended to be run in a Docker container to ensure consisten
 
 Docker can be installed from [Docker's official website](https://docs.docker.com/get-docker/).
 
-### Run from source
-
-After cloning the repository, run the below commands to start the container.
-
-By default, the application will run on port 3007.  However, this can be overridden by setting the `FCP_DEFRA_ID_STUB_PORT` environment variable.
+### Running locally (host-native)
 
 ```bash
-# Build the image
-docker compose build
-
-# Run the application
-npm run docker:dev
+nvm use
+npm install
+cp .env.example .env   # edit .env as needed
+npm run local          # starts Redis + Floci, then runs the app with hot-reload
 ```
 
-A `.env` will automatically be read by the Docker compose files allowing to customise the data available.
+The app runs on port 3007 by default (override via `FCP_DEFRA_ID_STUB_PORT` in `.env`).
+
+To run dependencies only (for use alongside another dev tool):
+
+```bash
+npm run services:up
+npm run dev
+```
+
+### Running tests
+
+```bash
+npm test              # unit + integration (Docker required for Testcontainers)
+npm run test:unit     # unit tests only (no Docker needed)
+npm run test:integration  # integration tests only
+npm run test:local    # S3/Floci integration tests (requires services:up)
+npm run test:watch    # watch mode
+```
+
+### Run with Docker (full stack)
+
+```bash
+docker compose --profile app up
+```
+
+Customise data via `.env`:
 
 ```
 AUTH_MODE=mock
 AUTH_OVERRIDE=9999999999:John:Watson:9999999:888888888:John Watson & Co.
 AUTH_OVERRIDE_FILE=example.data.json
 ```
-
-> NOTE: if providing a different custom, file the [`compose.override.yml`](./compose.override.yml) file volume may need updating.
 
 ### Docker
 
