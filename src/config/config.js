@@ -372,3 +372,7 @@ export const config = convict({
     }
   }
 })
+
+if (config.get('entra.enabled') && !config.get('entra.wellKnownUrl')) {
+  throw new Error('ENTRA_WELL_KNOWN_URL must be set when ENTRA_ENABLED=true')
+}
