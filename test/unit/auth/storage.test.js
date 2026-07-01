@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { vi, describe, beforeEach, test, expect } from 'vitest'
 
 const mockExists = vi.fn()
@@ -12,6 +13,8 @@ vi.mock('node:fs', () => ({
 
 const { getStorageDirectory } = await import('../../../src/auth/storage.js')
 
+const expectedDir = path.resolve(import.meta.dirname, '../../../keys')
+
 describe('getStorageDirectory', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -20,14 +23,14 @@ describe('getStorageDirectory', () => {
 
   test('should return storage directory path', () => {
     const dir = getStorageDirectory()
-    expect(dir).toBe('/home/node/keys')
+    expect(dir).toBe(expectedDir)
   })
 
   test('should create storage directory if it does not exist', () => {
     mockExists.mockReturnValue(false)
     getStorageDirectory()
     expect(mockMkdir).toHaveBeenCalledTimes(1)
-    expect(mockMkdir).toHaveBeenCalledWith('/home/node/keys', { recursive: true })
+    expect(mockMkdir).toHaveBeenCalledWith(expectedDir, { recursive: true })
   })
 
   test('should not create storage directory if it exists', () => {
