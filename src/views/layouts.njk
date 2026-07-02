@@ -10,15 +10,15 @@
   <link href="{{ getAssetPath('stylesheets/application.css') }}" rel="stylesheet">
 {% endblock %}
 
-{% block header %}
+{% block govukHeader %}
   {{ govukHeader({
     homepageUrl: "https://www.gov.uk/",
     classes: "app-header",
-    containerClasses: "govuk-width-container",
-    serviceName: serviceName,
-    serviceUrl: serviceUrl,
-    useTudorCrown: true
+    containerClasses: "govuk-width-container"
   }) }}
+{% endblock %}
+
+{% block headerEnd %}
   {% if s3Enabled and navigation %}
     {% set navItems = [
       {
@@ -55,7 +55,7 @@
   {% if pageTitle and pageTitle != serviceName %}{{ pageTitle }} - {% endif %}{{ serviceName }} - GOV.UK
 {% endblock %}
 
-{% block beforeContent %}
+{% block containerStart %}
   {% if authSource == 'basic' %}
     {% set authSourceTag = {
       text: "Basic",
@@ -94,7 +94,7 @@
 
 {% block content %}{% endblock %}
 
-{% block footer %}
+{% block govukFooter %}
   {{ govukFooter({
     meta: {
       items: [

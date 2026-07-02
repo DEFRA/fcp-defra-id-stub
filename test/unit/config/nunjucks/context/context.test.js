@@ -56,7 +56,7 @@ describe('Context and cache', () => {
 
       test('Should provide expected context', () => {
         expect(contextResult).toEqual({
-          assetPath: '/public/assets/rebrand',
+          assetPath: '/public/assets',
           getAssetPath: expect.any(Function),
           serviceName: 'FCP Defra ID stub',
           serviceUrl: '/',
@@ -101,7 +101,7 @@ describe('Context and cache', () => {
           expect(result).toMatchObject({
             pageTitle: 'Custom Page Title',
             customProperty: 'existing value',
-            assetPath: '/public/assets/rebrand',
+            assetPath: '/public/assets',
             getAssetPath: expect.any(Function),
             authSource: 'basic',
             s3Enabled: false,
@@ -239,7 +239,7 @@ describe('Context and cache', () => {
 
       test('Should provide expected context', () => {
         expect(contextResult).toEqual({
-          assetPath: '/public/assets/rebrand',
+          assetPath: '/public/assets',
           getAssetPath: expect.any(Function),
           authSource: 'basic',
           s3Enabled: false,

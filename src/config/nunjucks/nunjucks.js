@@ -4,7 +4,6 @@ import hapiVision from '@hapi/vision'
 import { fileURLToPath } from 'node:url'
 import { config } from '../config.js'
 import { context } from './context.js'
-import * as globals from './globals.js'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 const nunjucksEnvironment = nunjucks.configure(
@@ -43,7 +42,3 @@ export const nunjucksConfig = {
     context
   }
 }
-
-Object.entries(globals).forEach(([name, global]) => {
-  nunjucksEnvironment.addGlobal(name, global)
-})
