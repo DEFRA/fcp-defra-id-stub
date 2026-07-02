@@ -39,8 +39,11 @@ COPY --from=production_build --chown=root:root /home/node/.public/ ./.public/
 
 RUN npm ci --omit=dev
 
-# Remove write permissions
-RUN chmod -R a-w /home/node
+# Pre-create keys directory so the node user can write keys and sessions at runtime
+RUN mkdir -p /home/node/keys && chown node:node /home/node/keys
+
+# Remove write permissions (except keys directory)
+RUN chmod -R a-w /home/node && chmod u+rwx /home/node/keys
 
 USER node
 
