@@ -1,37 +1,41 @@
 services:
   fcp-defra-id-stub:
+    profiles: ["app"]
     build:
       context: .
       target: development
+    ports:
+      - '${FCP_DEFRA_ID_STUB_PORT:-3007}:${FCP_DEFRA_ID_STUB_PORT:-3007}'
+    env_file:
+      - path: .env
+        required: false
     environment:
       PORT: ${FCP_DEFRA_ID_STUB_PORT:-3007}
-      AUTH_MODE: ${AUTH_MODE:-basic}
-      AUTH_OVERRIDE: ${AUTH_OVERRIDE}
-      AUTH_OVERRIDE_FILE: ${AUTH_OVERRIDE_FILE}
       AWS_REGION: eu-west-2
       AWS_ENDPOINT_URL: http://floci:4566
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
       AWS_S3_ENABLED: ${FCP_DEFRA_ID_STUB_AWS_S3_ENABLED:-true}
       AWS_S3_BUCKET: fcp-defra-id-stub-data
-      ENTRA_ENABLED: ${ENTRA_ENABLED:-false}
       ENTRA_WELL_KNOWN_URL: https://login.microsoftonline.com/${ENTRA_TENANT_ID}/v2.0/.well-known/openid-configuration
-      ENTRA_CLIENT_ID: ${ENTRA_CLIENT_ID}
-      ENTRA_CLIENT_SECRET: ${ENTRA_CLIENT_SECRET}
-      ENTRA_REDIRECT_URL: http://localhost:3007/auth/sign-in-oidc
-      ENTRA_SIGN_OUT_REDIRECT_URL: http://localhost:3007/auth/sign-out-oidc
       REDIS_HOST: redis
-      COOKIE_PASSWORD: this-is-a-secret-that-must-be-at-least-32-characters
     volumes:
       - ./src:/home/node/src
       - ./package.json:/home/node/package.json
+      - ./example.data.json:/data/example.data.json
+    networks:
+      - fcp-defra-id-stub
     depends_on:
       floci-init:
         condition: service_completed_successfully
+      redis:
+        condition: service_healthy
 
   floci:
-    image: hectorvent/floci:latest
+    image: floci/floci:latest
     user: root # Required for S3
+    ports:
+      - '4566:4566'
     environment:
       FLOCI_HOSTNAME: floci
       FLOCI_DEFAULT_REGION: eu-west-2
@@ -40,6 +44,10 @@ services:
       FLOCI_STORAGE_SERVICES_S3_MODE: persistent
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
+    volumes:
+      - floci-data:/app/data
+    networks:
+      - fcp-defra-id-stub
 
   floci-init:
     image: amazon/aws-cli
@@ -55,6 +63,23 @@ services:
       AWS_SECRET_ACCESS_KEY: test
     volumes:
       - ./floci/init.sh:/setup/init.sh
+    networks:
+      - fcp-defra-id-stub
 
   redis:
     image: redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - fcp-defra-id-stub
+
+networks:
+  fcp-defra-id-stub:
+    driver: bridge
+    name: fcp-defra-id-stub
+
+volumes:
+  floci-data:

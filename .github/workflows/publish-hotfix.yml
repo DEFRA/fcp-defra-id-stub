@@ -22,12 +22,20 @@ jobs:
         with:
           fetch-depth: 0 # Depth 0 is required for branch-based versioning
 
-      - name: Create Coverage Directory
-        run: mkdir -p -m 777 coverage
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
 
-      - name: Run Tests
-        run: |
-          npm run docker:test
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linting
+        run: npm run lint
+
+      - name: Run tests
+        run: npm test
 
       - name: Publish Hot Fix
         uses: DEFRA/cdp-build-action/build-hotfix@550c4792fac07cfd59eaea469bc0a17ce202cced # main

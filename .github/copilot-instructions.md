@@ -7,12 +7,13 @@ Defra Identity authentication stub for Farming & Countryside Programme (FCP). Su
 
 ### Tech Stack
 - **Server**: Hapi.js 21.4 with ES modules (`type: "module"`)
-- **Node**: >=24.12.0
-- **Testing**: Vitest 3.2 with V8 coverage
+- **Node**: >=24 (`.nvmrc` pins `24`)
+- **Testing**: Vitest 4.x with V8 coverage
 - **Config**: Convict with environment-driven validation
 - **Views**: Nunjucks with GovUK Frontend 5.10
-- **Storage**: AWS S3 (Floci locally, optional) + Redis (always required for YAR sessions)
+- **Storage**: AWS S3 (Floci locally, optional) + Redis (required when `ENTRA_ENABLED=true` for YAR sessions)
 - **Auth**: Custom JWT generation + @hapi/bell (Entra) + @hapi/cookie
+- **Bundler**: Vite (replaces Webpack) — config in `vite.config.js`; builds to `.public/`
 
 ### Plugin Architecture
 Hapi plugins registered in [src/server.js](src/server.js):
@@ -49,12 +50,20 @@ Always check Entra flag before adding Entra-specific code.
 
 ### Running Locally
 ```bash
-# Build and run with Docker (preferred)
-npm run docker:dev  # runs on port 3007 (configurable via FCP_DEFRA_ID_STUB_PORT)
+# Host-native dev (preferred for inner loop)
+nvm use && npm install
+cp .env.example .env   # edit as needed
+npm run local          # starts Redis + Floci via Docker, runs app with hot-reload
 
-# Local dev (watch mode, requires Redis/Floci)
-npm run dev  # runs frontend:watch & server:watch concurrently
+# Or start deps separately
+npm run services:up
+npm run dev
+
+# Full Docker stack (for together/orchestration mode)
+docker compose --profile app up
 ```
+
+Redis runs in a container for local dev via `npm run services:up`. Do NOT use in-memory cache locally — sessions are lost on every `--watch` restart otherwise.
 
 Set environment in `.env`:
 ```bash
@@ -67,9 +76,11 @@ AWS_S3_ENABLED=true
 
 ### Testing
 ```bash
-npm run docker:test  # run once with coverage
-npm run docker:test:watch  # watch mode for TDD
-npm test  # local (requires Docker services)
+npm test                   # unit + integration (Docker required)
+npm run test:unit          # unit only (no Docker needed)
+npm run test:integration   # narrow integration only
+npm run test:local         # S3/Floci tests (requires services:up)
+npm run test:watch         # watch mode for TDD
 ```
 
 **Integration tests** use `server.inject()` pattern (see [test/integration/narrow/routes/entra-auth.test.js](test/integration/narrow/routes/entra-auth.test.js)):
@@ -161,9 +172,12 @@ Global error handler in [src/common/helpers/errors.js](src/common/helpers/errors
 
 ## Important Gotchas
 1. **ES Modules**: Always use `import`/`export`, not `require`
-2. **Redis always required**: `buildRedisClient()` is called unconditionally in `createServer()` — ensure Redis is running in all environments
-3. **Test Isolation**: Integration tests use `server.initialize()`, not `start()`
-4. **Module Mocking**: Mock before importing: `vi.mock()` then `await import()`
-5. **Config Access**: Use `config.get('key.path')`, never direct `process.env`
-6. **Route Auth**: Check `entra.enabled` before setting `auth: 'entra'` strategy
-7. **Safe Redirects**: Use `getSafeRedirect()` from `src/utils/get-safe-redirect.js` for any user-supplied redirect URLs to prevent open redirect vulnerabilities
+2. **Redis conditional**: `buildRedisClient()` is only called when `ENTRA_ENABLED=true` — Redis is only required in Entra mode
+3. **Integration tests mock Redis**: All narrow integration tests mock `@hapi/catbox-redis` with `@hapi/catbox-memory` via `test/integration/narrow/helpers/setup-server-mocks.js` — no real Redis needed for tests
+4. **Test Isolation**: Integration tests use `server.initialize()`, not `start()`
+5. **Module Mocking**: Mock before importing: `vi.mock()` then `await import()`
+6. **Config Access**: Use `config.get('key.path')`, never direct `process.env`
+7. **Route Auth**: Check `entra.enabled` before setting `auth: 'entra'` strategy
+8. **Safe Redirects**: Use `getSafeRedirect()` from `src/utils/get-safe-redirect.js` for any user-supplied redirect URLs to prevent open redirect vulnerabilities
+9. **ignore-scripts=true in .npmrc**: Lifecycle hooks (`postinstall`, `pretest`) do not run — always inline build steps in npm scripts
+10. **Vite manifest format**: `src/config/nunjucks/context.js` reads `.public/assets-manifest.json` in Vite format (entry chunk with `isEntry: true`, `css` array) — not the flat webpack format

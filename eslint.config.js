@@ -10,4 +10,10 @@ for (const item of eslint) {
   }
 }
 
+eslint.push({
+  rules: {
+    curly: ['error', 'all']
+  }
+})
+
 export default eslint
