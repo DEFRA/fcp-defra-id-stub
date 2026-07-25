@@ -70,9 +70,9 @@
   "devDependencies": {
     "@vitest/coverage-v8": "4.1.4",
     "cross-env": "10.1.0",
-    "eslint": "9.29.0",
+    "eslint": "9.39.5",
     "jsdom": "26.1.0",
-    "neostandard": "0.12.1",
+    "neostandard": "0.13.0",
     "npm-run-all2": "8.0.4",
     "sass": "1.89.2",
     "stylelint": "16.21.0",
