@@ -59,7 +59,7 @@
     "hapi-pino": "12.1.0",
     "hapi-pulse": "4.0.0",
     "ioredis": "5.9.2",
-    "joi": "18.2.1",
+    "joi": "18.2.9",
     "node-fetch": "3.3.2",
     "nunjucks": "3.2.4",
     "pino": "9.7.0",
@@ -68,7 +68,7 @@
     "undici": "7.29.0"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "4.1.4",
+    "@vitest/coverage-v8": "5.0.0",
     "cross-env": "10.1.0",
     "eslint": "9.39.5",
     "jsdom": "26.1.0",
@@ -79,7 +79,7 @@
     "stylelint-config-gds": "2.0.0",
     "testcontainers": "12.0.3",
     "vite": "8.1.0",
-    "vitest": "4.1.4",
+    "vitest": "5.0.0",
     "vitest-fetch-mock": "0.4.5"
   }
 }
