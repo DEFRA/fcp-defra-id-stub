@@ -385,8 +385,6 @@ function getAuthSource () {
   }
 }
 
-// auth.source has no env binding: it is derived, not configured directly, so it
-// can only be set here once the rest of the schema above is available to read.
 config.set('auth.source', getAuthSource())
 
 config.validate({ allowed: 'strict' })
