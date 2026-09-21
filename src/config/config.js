@@ -372,3 +372,21 @@ export const config = convict({
     }
   }
 })
+
+function getAuthSource () {
+  if (config.get('auth.overrideFile') !== '') {
+    return 'file'
+  } else if (config.get('auth.override') !== '') {
+    return 'override'
+  } else if (config.get('auth.mode') === 'mock') {
+    return 'mock'
+  } else {
+    return 'basic'
+  }
+}
+
+// auth.source has no env binding: it is derived, not configured directly, so it
+// can only be set here once the rest of the schema above is available to read.
+config.set('auth.source', getAuthSource())
+
+config.validate({ allowed: 'strict' })
