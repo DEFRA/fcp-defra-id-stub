@@ -199,6 +199,7 @@ export const config = convict({
     s3Bucket: {
       doc: 'S3 bucket name, required if S3 is enabled',
       format: String,
+      nullable: true,
       default: process.env.AWS_S3_ENABLED === 'true' ? null : '',
       env: 'AWS_S3_BUCKET'
     }
