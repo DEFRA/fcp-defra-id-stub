@@ -199,6 +199,7 @@ export const config = convict({
     s3Bucket: {
       doc: 'S3 bucket name, required if S3 is enabled',
       format: String,
+      nullable: true,
       default: process.env.AWS_S3_ENABLED === 'true' ? null : '',
       env: 'AWS_S3_BUCKET'
     }
@@ -372,3 +373,19 @@ export const config = convict({
     }
   }
 })
+
+function getAuthSource () {
+  if (config.get('auth.overrideFile') !== '') {
+    return 'file'
+  } else if (config.get('auth.override') !== '') {
+    return 'override'
+  } else if (config.get('auth.mode') === 'mock') {
+    return 'mock'
+  } else {
+    return 'basic'
+  }
+}
+
+config.set('auth.source', getAuthSource())
+
+config.validate({ allowed: 'strict' })
