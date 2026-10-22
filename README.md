@@ -32,7 +32,7 @@ To enable teams working within FCP develop and test against Defra Identity this 
 - Token exchange from authorisation
 - Refresh token exchange
 - Single Sign-On (SSO) support (Session lasts one hour, extended on each re-authentication/organisation change)
-- Sign out including ending SSO session
+- Sign out (GET or form-urlencoded POST, per OIDC RP-Initiated Logout) including ending SSO session
 - Prevent sign in if no organisations associated with account
 - Automatically bypass organisation selection if CRN is associated with only one organisation.
 - Supports all Defra Identity authentication behaviours including:

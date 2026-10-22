@@ -93,42 +93,63 @@ const token = {
   }
 }
 
+const SIGN_OUT_PATH = '/idphub/b2c/b2c_1a_cui_cpdev_signupsigninsfi/signout'
+
+const signOutSchema = {
+  post_logout_redirect_uri: Joi.string().uri(),
+  id_token_hint: Joi.string(),
+  state: Joi.string()
+}
+
+const signOutFailAction = async (_request, h, error) => h.view('errors/400', {
+  message: error.message
+}).code(HTTP_STATUS_BAD_REQUEST).takeover()
+
+// OIDC RP-Initiated Logout: the end session endpoint accepts the same parameters via GET (query) or POST (form body)
+function signOutHandler (request, h) {
+  const {
+    post_logout_redirect_uri: redirectUri,
+    id_token_hint: accessToken,
+    state
+  } = { ...request.query, ...request.payload }
+
+  if (accessToken) {
+    endSession(accessToken)
+  }
+
+  request.yar.reset()
+
+  if (!accessToken) {
+    return h.view('signed-out')
+  }
+
+  const stateResponse = state ? `?state=${state}` : ''
+
+  return h.redirect(`${redirectUri}${stateResponse}`)
+}
+
 const signOut = {
   method: 'GET',
-  path: '/idphub/b2c/b2c_1a_cui_cpdev_signupsigninsfi/signout',
+  path: SIGN_OUT_PATH,
   options: {
     validate: {
-      query: {
-        post_logout_redirect_uri: Joi.string().uri(),
-        id_token_hint: Joi.string(),
-        state: Joi.string()
-      },
-      failAction: async (_request, h, error) => h.view('errors/400', {
-        message: error.message
-      }).code(HTTP_STATUS_BAD_REQUEST).takeover()
+      query: signOutSchema,
+      failAction: signOutFailAction
     }
   },
-  handler: function (request, h) {
-    const {
-      post_logout_redirect_uri: redirectUri,
-      id_token_hint: accessToken,
-      state
-    } = request.query
+  handler: signOutHandler
+}
 
-    if (accessToken) {
-      endSession(accessToken)
+const signOutPost = {
+  method: 'POST',
+  path: SIGN_OUT_PATH,
+  options: {
+    validate: {
+      payload: Joi.object(signOutSchema).allow(null),
+      failAction: signOutFailAction
     }
-
-    request.yar.reset()
-
-    if (!accessToken) {
-      return h.view('signed-out')
-    }
-
-    const stateResponse = state ? `?state=${state}` : ''
-
-    return h.redirect(`${redirectUri}${stateResponse}`)
-  }
+  },
+  handler: signOutHandler
 }
 
 const jwks = {
@@ -145,5 +166,6 @@ export const openId = [
   authorization,
   token,
   signOut,
+  signOutPost,
   jwks
 ]
