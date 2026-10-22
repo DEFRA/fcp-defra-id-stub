@@ -286,7 +286,7 @@ describe('open-id routes', () => {
     })
   })
 
-  describe('sign out route', () => {
+  describe.each(['GET', 'POST'])('sign out route (%s)', (method) => {
     const signOutUrl = '/idphub/b2c/b2c_1a_cui_cpdev_signupsigninsfi/signout'
 
     let query
@@ -299,11 +299,23 @@ describe('open-id routes', () => {
       }
     })
 
-    test('should redirect to post_logout_redirect_uri if valid query parameters are provided', async () => {
-      const response = await server.inject({
-        method: 'GET',
-        url: `${signOutUrl}?${new URLSearchParams(query).toString()}`
+    const signOut = (params) => {
+      const body = new URLSearchParams(params).toString()
+
+      if (method === 'GET') {
+        return server.inject({ method, url: `${signOutUrl}?${body}` })
+      }
+
+      return server.inject({
+        method,
+        url: signOutUrl,
+        headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        payload: body
       })
+    }
+
+    test('should redirect to post_logout_redirect_uri if valid parameters are provided', async () => {
+      const response = await signOut(query)
 
       expect(response.statusCode).toBe(HTTP_STATUS_FOUND)
       expect(response.headers.location).toBe(`${query.post_logout_redirect_uri}?state=${query.state}`)
@@ -311,40 +323,51 @@ describe('open-id routes', () => {
 
     test('should redirect to post_logout_redirect_uri without state if optional state is not provided', async () => {
       delete query.state
-      const response = await server.inject({
-        method: 'GET',
-        url: `${signOutUrl}?${new URLSearchParams(query).toString()}`
-      })
+      const response = await signOut(query)
 
       expect(response.statusCode).toBe(HTTP_STATUS_FOUND)
       expect(response.headers.location).toBe(query.post_logout_redirect_uri)
     })
 
-    test('should end session if valid query parameters are provided', async () => {
-      const response = await server.inject({
-        method: 'GET',
-        url: `${signOutUrl}?${new URLSearchParams(query).toString()}`
-      })
+    test('should end session if valid parameters are provided', async () => {
+      const response = await signOut(query)
 
       expect(response.statusCode).toBe(HTTP_STATUS_FOUND)
       expect(endSession).toHaveBeenCalledWith(query.id_token_hint)
     })
 
-    test('should reset session if valid query parameters are provided', async () => {
-      await server.inject({
-        method: 'GET',
-        url: `${signOutUrl}?${new URLSearchParams(query).toString()}`
-      })
+    test('should end session with a large id_token_hint', async () => {
+      query.id_token_hint = 'a'.repeat(6000)
+      const response = await signOut(query)
+
+      expect(response.statusCode).toBe(HTTP_STATUS_FOUND)
+      expect(endSession).toHaveBeenCalledWith(query.id_token_hint)
+    })
+
+    test('should reset session if valid parameters are provided', async () => {
+      await signOut(query)
 
       expect(yarResetSpy).toHaveBeenCalled()
     })
 
+    test('should ignore unknown parameters', async () => {
+      const response = await signOut({ ...query, client_id: 'client', ui_locales: 'en' })
+
+      expect(response.statusCode).toBe(HTTP_STATUS_FOUND)
+      expect(response.headers.location).toBe(`${query.post_logout_redirect_uri}?state=${query.state}`)
+    })
+
+    test('should return bad request if post_logout_redirect_uri is not a valid uri', async () => {
+      query.post_logout_redirect_uri = 'not a uri'
+      const response = await signOut(query)
+
+      expect(response.statusCode).toBe(HTTP_STATUS_BAD_REQUEST)
+      expect(endSession).not.toHaveBeenCalled()
+    })
+
     test('should show signed out page when id_token_hint is not provided', async () => {
       delete query.id_token_hint
-      const response = await server.inject({
-        method: 'GET',
-        url: `${signOutUrl}?${new URLSearchParams(query).toString()}`
-      })
+      const response = await signOut(query)
 
       expect(response.statusCode).toBe(HTTP_STATUS_OK)
       expect(response.result).toContain('You have signed out')
@@ -352,20 +375,14 @@ describe('open-id routes', () => {
 
     test('should not call endSession when id_token_hint is not provided', async () => {
       delete query.id_token_hint
-      await server.inject({
-        method: 'GET',
-        url: `${signOutUrl}?${new URLSearchParams(query).toString()}`
-      })
+      await signOut(query)
 
       expect(endSession).not.toHaveBeenCalled()
     })
 
     test('should still reset session when id_token_hint is not provided', async () => {
       delete query.id_token_hint
-      await server.inject({
-        method: 'GET',
-        url: `${signOutUrl}?${new URLSearchParams(query).toString()}`
-      })
+      await signOut(query)
 
       expect(yarResetSpy).toHaveBeenCalled()
     })
@@ -373,15 +390,29 @@ describe('open-id routes', () => {
     test('should show signed out page when neither id_token_hint nor post_logout_redirect_uri are provided', async () => {
       delete query.id_token_hint
       delete query.post_logout_redirect_uri
-      const response = await server.inject({
-        method: 'GET',
-        url: `${signOutUrl}?${new URLSearchParams(query).toString()}`
-      })
+      const response = await signOut(query)
 
       expect(response.statusCode).toBe(HTTP_STATUS_OK)
       expect(response.result).toContain('You have signed out')
       expect(endSession).not.toHaveBeenCalled()
     })
+
+    test('should show signed out page when no parameters are provided', async () => {
+      const response = await signOut({})
+
+      expect(response.statusCode).toBe(HTTP_STATUS_OK)
+      expect(response.result).toContain('You have signed out')
+    })
+  })
+
+  test('POST sign out with no body should show signed out page', async () => {
+    const response = await server.inject({
+      method: 'POST',
+      url: '/idphub/b2c/b2c_1a_cui_cpdev_signupsigninsfi/signout'
+    })
+
+    expect(response.statusCode).toBe(HTTP_STATUS_OK)
+    expect(response.result).toContain('You have signed out')
   })
 
   describe('jwks route', () => {
