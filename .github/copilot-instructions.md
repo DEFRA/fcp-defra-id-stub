@@ -7,7 +7,7 @@ Defra Identity authentication stub for Farming & Countryside Programme (FCP). Su
 
 ### Tech Stack
 - **Server**: Hapi.js 21.4 with ES modules (`type: "module"`)
-- **Node**: >=24 (`.nvmrc` pins `24`)
+- **Node**: >=26 (`.nvmrc` pins `26`)
 - **Testing**: Vitest 4.x with V8 coverage
 - **Config**: Convict with environment-driven validation
 - **Views**: Nunjucks with GovUK Frontend 5.10
